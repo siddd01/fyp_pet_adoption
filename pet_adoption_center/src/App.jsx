@@ -1,15 +1,19 @@
-import { useState } from 'react'
-import './App.css'
-import Login from './Pages/Login/Login'
-
-function App() {
-  const [count, setCount] = useState(0)
-
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import ForgotPassword from "./Pages/Login/ForgotPassword";
+import Login from "./Pages/Login/Login";
+import ResetPassword from "./Pages/Login/ResetPassword";
+import Signup from "./Pages/Login/Signup";
+const App = () => {
   return (
-    <>
-<Login/>
-    </>
-  )
-}
+    <BrowserRouter>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+  <Route path="/forgot-password" element={<ForgotPassword />} />
+  <Route path="/reset-password" element={<ResetPassword />} />
+      </Routes>
+    </BrowserRouter>
+  );
+};
 
-export default App
+export default App;
