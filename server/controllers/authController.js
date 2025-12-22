@@ -148,41 +148,56 @@ export const resendOTP = async (req, res) => {
   }
 };
 
-
-
-
-export const login = (req, res) => {
+export const login = async (req, res) => {
   const { email, password } = req.body;
+
+  console.log("➡️ Login request received:", email);
 
   const sql = "SELECT * FROM users WHERE email = ?";
 
-  db.query(sql, [email], async (err, result) => {
-    if (err || result.length === 0) {
+  try {
+    const [result] = await db.query(sql, [email]);
+    console.log("📌 DB query result:", result);
+
+    if (result.length === 0) {
+      console.log("❌ No user found");
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
     const user = result[0];
+    console.log("📌 User record:", user);
+
     const isMatch = await bcrypt.compare(password, user.password);
+    console.log("📌 bcrypt.compare result:", isMatch);
 
     if (!isMatch) {
+      console.log("❌ Password mismatch");
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
     const token = jwt.sign(
-      { user_id: user.user_id, role: user.role },
+      { id: user.id, role_id: user.role_id },
       process.env.JWT_SECRET,
       { expiresIn: "1d" }
     );
 
-    res.json({
+    console.log("✅ Login successful!");
+
+    return res.json({
       token,
       user: {
-        id: user.user_id,
-        name: user.full_name,
-        role: user.role,
+        id: user.id,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        name: `${user.first_name} ${user.last_name}`,
+        email: user.email,
+        role_id: user.role_id,
       },
     });
-  });
+  } catch (error) {
+    console.log("❌ Login Error:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
 };
 
 

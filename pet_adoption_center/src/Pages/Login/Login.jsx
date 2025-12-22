@@ -8,29 +8,31 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setLoading(true);
 
-    try {
-      const res = await api.post("/auth/login", { email, password });
+  try {
+    console.log("Sending login request...");
+    
+    const res = await api.post("/auth/login", { email, password });
+console.log("Login response:", res);
 
-      localStorage.setItem("token", res.data.token);
-      localStorage.setItem("user", JSON.stringify(res.data.user));
+    console.log("Login success:", res.data);
 
-      if (res.data.user.role === "ADMIN") {
-        navigate("/admin");
-      } else if (res.data.user.role === "STAFF") {
-        navigate("/staff");
-      } else {
-        navigate("/");
-      }
-    } catch (error) {
-      alert("Invalid email or password");
-    } finally {
-      setLoading(false);
-    }
-  };
+    localStorage.setItem("token", res.data.token);
+    localStorage.setItem("user", JSON.stringify(res.data.user));
+
+    navigate("/dashboard");
+
+  } catch (error) {
+    console.log("Login error:", error);
+    alert("Invalid email or password");
+  } finally {
+    console.log("Finally block running");
+    setLoading(false);
+  }
+};
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100">
