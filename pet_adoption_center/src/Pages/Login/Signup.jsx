@@ -7,37 +7,50 @@ const Signup = () => {
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [roleId, setRoleId] = useState(3); // default -> 3 = customer
+  const [roleId, setRoleId] = useState(3); // default → customer
   const [dob, setDob] = useState("");
   const [gender, setGender] = useState("");
 
   const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState(null); // success or error
 
   const navigate = useNavigate();
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setLoading(true);
+  setMessage(null);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
+  try {
+    await api.post("/auth/signup", {
+      first_name: firstName,
+      last_name: lastName,
+      email,
+      password,
+      role_id: roleId,
+      date_of_birth: dob,
+      gender,
+    });
 
-    try {
-      await api.post("/auth/signup", {
-        first_name: firstName,
-        last_name: lastName,
-        email,
-        password,
-        role_id: roleId,
-        date_of_birth: dob,
-        gender,
-      });
+    setMessage({
+      type: "success",
+      text: "Account created successfully! OTP sent to your email.",
+    });
 
-      alert("Account created successfully!");
-      navigate("/login");
-    } catch (error) {
-      alert("Signup failed");
-    } finally {
-      setLoading(false);
-    }
-  };
+    setTimeout(() => {
+      navigate("/otp-verification", { state: { email } });
+    }, 1500);
+
+  } catch (error) {
+    setMessage({
+      type: "error",
+      text:
+        error.response?.data?.message || "Signup failed. Try again.",
+    });
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <div className="min-h-screen flex items-center justify-center from-blue-50 to-blue-100">
@@ -51,6 +64,19 @@ const Signup = () => {
         <p className="text-center text-gray-500 mb-6">
           Join our pet adoption community
         </p>
+
+        {/* Alerts */}
+        {message && (
+          <div
+            className={`p-3 mb-4 rounded text-sm ${
+              message.type === "success"
+                ? "bg-green-100 text-green-700 border border-green-300"
+                : "bg-red-100 text-red-700 border border-red-300"
+            }`}
+          >
+            {message.text}
+          </div>
+        )}
 
         {/* First Name */}
         <div className="mb-4">
@@ -144,7 +170,7 @@ const Signup = () => {
           </select>
         </div>
 
-        {/* Role (optional but added) */}
+        {/* Role */}
         <div className="mb-6">
           <label className="block text-sm font-medium text-gray-600 mb-1">
             Role

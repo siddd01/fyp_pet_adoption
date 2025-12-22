@@ -2,19 +2,24 @@ import express from "express";
 import {
     forgotPassword,
     login,
+    resendOTP,
     resetPassword,
-    signup
+    signup,
+    verifyOTP
 } from "../controllers/authController.js";
 
 const router = express.Router();
 
-// Auth Routes
+// Auth routes
 router.post("/signup", signup);
 router.post("/login", login);
 
-// Password Reset Routes
+// OTP routes
+router.post("/verify-otp", verifyOTP);
+router.post("/resend-otp", resendOTP);
+
+// Password reset routes
 router.post("/forgot-password", forgotPassword);
 router.post("/reset-password", resetPassword);
 
-// Export router (MUST be last)
 export default router;
