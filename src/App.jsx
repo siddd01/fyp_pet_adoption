@@ -1,15 +1,26 @@
-import { useState } from 'react'
-import './App.css'
-import Login from './Pages/Login/Login'
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import Home from "./Pages/Home/Home";
+import ForgotPassword from "./Pages/Login/ForgotPassword";
+import Login from "./Pages/Login/Login";
+import OTPVerification from "./Pages/Login/OTPVerification"; // import the OTP page
+import OTPVerificationReset from "./Pages/Login/OTPVerificationReset ";
+import ResetPassword from "./Pages/Login/ResetPassword";
+import Signup from "./Pages/Login/Signup";
 
-function App() {
-  const [count, setCount] = useState(0)
-
+const App = () => {
   return (
-    <>
-<Login/>
-    </>
-  )
-}
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Home/>} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/otp-verification" element={<OTPVerification />} /> {/* new route */}
+        <Route path="/otp-verification-reset" element={<OTPVerificationReset />} /> {/* new route */}
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+      </Routes>
+    </BrowserRouter>
+  );
+};
 
-export default App
+export default App;
