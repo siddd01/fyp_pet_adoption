@@ -1,22 +1,25 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "../../api/axios";
 
 const ForgotPassword = () => {
+
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
-
+  const navigate = useNavigate();
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log("in function")
     setLoading(true);
 
-    try {
-      await api.post("/auth/forgot-password", { email });
-      alert("Password reset link sent to your email");
-    } catch (error) {
-      alert("Something went wrong");
-    } finally {
-      setLoading(false);
-    }
+try {
+  const res = await api.post("/auth/forgot-password", { email });
+  alert(res.data.message); // show server response
+ navigate("/otp-verification-reset", { state: { email } });
+} catch (error) {
+  alert(error.response?.data?.message || "Something went wrong");
+}
+
   };
 
   return (
