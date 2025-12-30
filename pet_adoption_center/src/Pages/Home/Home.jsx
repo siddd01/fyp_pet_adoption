@@ -1,16 +1,22 @@
-import Footer from '../../Components/Footer'
-import Navbar from '../../Components/Navbar'
-import Dashboard from './Dashboard'
+import { Outlet } from "react-router-dom";
+import Footer from "../../Components/Footer";
+import Navbar from "../../Components/Navbar";
 
-const Home = () => {
+const HomeLayout = () => {
   return (
-    <div>   
-      <Navbar/>
-      <Dashboard/>
-      
-      <Footer/>
-    </div>
-  )
-}
+    <div className="min-h-screen flex flex-col">
+      {/* Navbar */}
+      <Navbar />
 
-export default Home
+      {/* Main content */}
+      <main className="flex-1 flex justify-center items-center overflow-hidden">
+        <Outlet />
+      </main>
+
+      {/* Footer */}
+      <Footer />
+    </div>
+  );
+};
+
+export default HomeLayout;
