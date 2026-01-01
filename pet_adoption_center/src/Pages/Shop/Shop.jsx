@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 const products = [
   {
     id: 1,
@@ -23,92 +25,112 @@ const products = [
   },
 ];
 
-const limitWords = (text, limit = 12) =>
-  text.split(" ").slice(0, limit).join(" ") + "...";
-
 const Shop = () => {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [category, setCategory] = useState("All");
+
+  const filteredProducts = products.filter((product) => {
+    const matchesSearch = product.name
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase());
+
+    const matchesCategory =
+      category === "All" || product.category === category;
+
+    return matchesSearch && matchesCategory;
+  });
+
   return (
-    <div className="min-h-screen bg-gray-100 px-6 py-10">
+    <div className="w-full min-h-screen bg-gray-100 px-2 py-4">
       {/* Header */}
-      <div className="text-center mb-10">
-        <h2 className="text-3xl font-bold text-gray-800">
-          Pet Store
-        </h2>
-        <p className="text-gray-600 mt-2">
+      <div className="text-center mb-4">
+        <p className="text-gray-600">
           Every purchase supports animal welfare at Sano Ghar
         </p>
       </div>
 
-      {/* Products Grid */}
-      <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-        {products.map((product) => (
-          <div
-            key={product.id}
-            className="bg-white rounded-2xl shadow-md overflow-hidden
-                       hover:shadow-xl transition-all duration-300 group"
-          >
-            {/* Image */}
-            <div className="relative h-48 overflow-hidden">
-              <img
-                src={product.image}
-                alt={product.name}
-                className="h-full w-full object-cover
-                           group-hover:scale-110 transition duration-500"
-              />
+      {/* Search & Filter */}
+      <div className="max-w-5xl mx-auto flex flex-col sm:flex-row gap-4 mb-8 justify-center">
+        {/* Search */}
+        <input
+          type="text"
+          placeholder="Search products..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full sm:w-80 px-4 py-2 rounded-xl border
+                     focus:outline-none focus:ring-2 focus:ring-emerald-500"
+        />
 
-              {/* Category Badge */}
-              <span className="absolute top-3 left-3 bg-blue-600
-                               text-white text-xs px-3 py-1 rounded-full">
-                {product.category}
-              </span>
-            </div>
+        {/* Filter */}
+        <select
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          className="w-full sm:w-48 px-4 py-2 rounded-xl border
+                     focus:outline-none focus:ring-2 focus:ring-emerald-500"
+        >
+          <option value="All">All Categories</option>
+          <option value="Food">Food</option>
+          <option value="Accessories">Accessories</option>
+        </select>
+      </div>
 
-            {/* Content */}
-            <div className="p-5 space-y-2">
-              <h3 className="text-lg font-semibold text-gray-800">
-                {product.name}
-              </h3>
+      {/* Cards Container */}
+      <div className="flex flex-wrap justify-center gap-8">
+        {filteredProducts.length > 0 ? (
+          filteredProducts.map((product) => (
+            <div
+              key={product.id}
+              className="w-[350px] h-[300px] bg-white rounded-2xl shadow-md
+                         hover:shadow-xl transition-all duration-300 flex flex-col"
+            >
+              {/* Image */}
+              <div className="h-[140px] w-full overflow-hidden rounded-t-2xl">
+                <img
+                  src={product.image}
+                  alt={product.name}
+                  className="h-full w-full object-cover
+                             hover:scale-105 transition duration-500"
+                />
+              </div>
 
-              <p className="text-sm text-gray-600 line-clamp-2">
-                {limitWords(product.description)}
-              </p>
+              {/* Content */}
+              <div className="flex-1 px-4 py-3 text-sm space-y-1">
+                <h3 className="text-base font-semibold text-gray-800">
+                  {product.name}
+                </h3>
 
-              <div className="flex justify-between items-center mt-2">
-                <p className="text-lg font-bold text-emerald-600">
-                  ${product.price}
+                <p className="text-gray-600 line-clamp-2">
+                  {product.description}
                 </p>
 
-                <span
-                  className={`text-xs px-3 py-1 rounded-full
-                    ${
-                      product.stock > 0
-                        ? "bg-green-100 text-green-700"
-                        : "bg-red-100 text-red-700"
-                    }`}
+                <p className="text-lg font-bold text-emerald-600 mt-1">
+                  ${product.price}
+                </p>
+              </div>
+
+              {/* Actions */}
+              <div className="px-4 pb-4 flex gap-3">
+                <button
+                  className="flex-1 bg-gray-200 text-gray-700 py-2 rounded-xl
+                             hover:bg-gray-300 transition text-sm font-medium"
                 >
-                  {product.stock > 0 ? "In Stock" : "Out of Stock"}
-                </span>
+                  Add to Cart
+                </button>
+
+                <button
+                  className="flex-1 bg-emerald-600 text-white py-2 rounded-xl
+                             hover:bg-emerald-700 active:scale-95 transition text-sm font-medium"
+                >
+                  Buy Now
+                </button>
               </div>
             </div>
-
-            {/* Actions */}
-            <div className="p-5 pt-0 flex gap-3">
-              <button
-                className="flex-1 bg-gray-200 text-gray-700 py-2 rounded-xl
-                           hover:bg-gray-300 transition text-sm font-medium"
-              >
-                Add to Cart
-              </button>
-
-              <button
-                className="flex-1 bg-emerald-600 text-white py-2 rounded-xl
-                           hover:bg-emerald-700 active:scale-95 transition text-sm font-medium"
-              >
-                Buy Now
-              </button>
-            </div>
-          </div>
-        ))}
+          ))
+        ) : (
+          <p className="text-gray-500 text-center">
+            No products found
+          </p>
+        )}
       </div>
     </div>
   );
