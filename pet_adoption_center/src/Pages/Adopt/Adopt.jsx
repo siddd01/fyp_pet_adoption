@@ -25,58 +25,74 @@ const pets = [
 
 const Adopt = () => {
   return (
-    <div className="flex justify-center items-center min-h-[calc(90vh-56px)] bg-gray-100">
-      {/* Main Scroll Container */}
-      <div
-        className="w-[95vw] h-[90vh] bg-white rounded-2xl shadow-lg p-6 overflow-y-auto"
-      >
-        {/* Cards */}
-        <div className="flex gap-6">
-          {pets.map((pet) => (
-            <div
-              key={pet.id}
-              className="w-[300px] h-[300px] bg-white rounded-2xl shadow-md 
-                         flex flex-col hover:shadow-xl hover:-translate-y-1 
-                         transition-all duration-300"
-            >
-              {/* Image */}
-              <div className="p-2">
-                <div className="relative h-[120px] w-full rounded-xl overflow-hidden">
-                  <img
-                    src={pet.image}
-                    alt={pet.name}
-                    className="h-full w-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/25 to-transparent" />
-                  <h3 className="absolute bottom-2 left-2 text-white text-sm font-semibold">
-                    {pet.name}
-                  </h3>
-                </div>
-              </div>
+    <div className="min-h-screen bg-gray-100 px-6 py-10">
+      {/* Page Header */}
+      <div className="text-center mb-10">
+        <h2 className="text-3xl font-bold text-gray-800">
+          Adopt a Pet
+        </h2>
+        <p className="text-gray-600 mt-2">
+          Give a loving home to a rescued friend from Sano Ghar
+        </p>
+      </div>
 
-              {/* Details */}
-              <div className="flex-1 px-3 text-xs space-y-1">
-                <p>Age: <b>{pet.age}</b></p>
-                <p>Breed: <b>{pet.breed}</b></p>
-                <p>Gender: <b>{pet.gender}</b></p>
-                <p className="text-gray-600 line-clamp-2">
-                  {pet.description}
-                </p>
-              </div>
+      {/* Pet Cards */}
+      <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+        {pets.map((pet) => (
+          <div
+            key={pet.id}
+            className="bg-white rounded-2xl shadow-md overflow-hidden
+                       hover:shadow-xl transition-all duration-300 group"
+          >
+            {/* Image */}
+            <div className="relative h-48 overflow-hidden">
+              <img
+                src={pet.image}
+                alt={pet.name}
+                className="h-full w-full object-cover
+                           group-hover:scale-110 transition duration-500"
+              />
 
-              {/* Button */}
-              <div className="p-3 pt-0">
-                <button
-                  className="w-full bg-green-600 text-white py-1.5 rounded-lg 
-                             hover:bg-green-700 active:scale-95 transition 
-                             text-xs font-medium"
-                >
-                  View More
-                </button>
-              </div>
+              {/* Species Badge */}
+              <span className="absolute top-3 left-3 bg-emerald-600
+                               text-white text-xs px-3 py-1 rounded-full">
+                {pet.species}
+              </span>
             </div>
-          ))}
-        </div>
+
+            {/* Content */}
+            <div className="p-5 space-y-2">
+              <h3 className="text-lg font-semibold text-gray-800">
+                {pet.name}
+              </h3>
+
+              <p className="text-sm text-gray-600">
+                <b>Age:</b> {pet.age}
+              </p>
+              <p className="text-sm text-gray-600">
+                <b>Breed:</b> {pet.breed}
+              </p>
+              <p className="text-sm text-gray-600">
+                <b>Gender:</b> {pet.gender}
+              </p>
+
+              <p className="text-sm text-gray-500 line-clamp-2">
+                {pet.description}
+              </p>
+            </div>
+
+            {/* Button */}
+            <div className="p-5 pt-0">
+              <button
+                className="w-full bg-emerald-600 text-white py-2 rounded-xl
+                           hover:bg-emerald-700 active:scale-95 transition
+                           text-sm font-medium"
+              >
+                View Details
+              </button>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );

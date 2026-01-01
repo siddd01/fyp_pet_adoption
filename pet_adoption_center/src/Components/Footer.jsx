@@ -29,9 +29,9 @@ const Footer = () => {
             Affiliated With
           </h3>
           <div className="flex gap-4 items-center">
-            <img src="/wwf.png" alt="WWF" className="h-8" />
-            <img src="/hsi.png" alt="HSI" className="h-8" />
-            <img src="/ifaw.png" alt="IFAW" className="h-8" />
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRwgmuCZ4GkFsYzzOQKrN7GPCEsqdKJXXaHNA&s" alt="WWF" className="h-8" />
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSQR5tArNmCxirNX0d9eJSZpwfJq7emt7U7Hg&s" alt="HSI" className="h-8" />
+            <img src="https://upload.wikimedia.org/wikipedia/commons/0/0b/Ifaw_logo.png" alt="IFAW" className="h-8" />
           </div>
         </div>
 
