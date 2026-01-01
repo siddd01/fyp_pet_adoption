@@ -41,34 +41,32 @@ const Adopt = () => {
   });
 
   return (
-    <div className="min-h-screen min-w-full bg-gray-100 px-6 py-10">
+    <div className="min-h-screen min-w-full bg-gray-50 px-4 py-10">
       {/* Header */}
-      <div className="text-center mb-6">
+      <div className="text-center mb-8">
         <h2 className="text-3xl font-bold text-gray-800">
           Adopt a Pet
         </h2>
-        <p className="text-gray-600 mt-2">
+        <p className="text-gray-600 mt-2 text-sm">
           Give a loving home to a rescued friend from Sano Ghar
         </p>
       </div>
 
-      {/* Search & Filter (same style as Shop) */}
-      <div className="max-w-5xl mx-auto flex flex-col sm:flex-row gap-4 mb-10 justify-center">
-        {/* Search */}
+      {/* Search & Filter */}
+      <div className="max-w-4xl mx-auto flex flex-col sm:flex-row gap-3 mb-8 justify-center">
         <input
           type="text"
           placeholder="Search pets..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full sm:w-80 px-4 py-2 rounded-xl border
+          className="w-full sm:w-72 px-4 py-2 rounded-lg border text-sm
                      focus:outline-none focus:ring-2 focus:ring-emerald-500"
         />
 
-        {/* Filter */}
         <select
           value={species}
           onChange={(e) => setSpecies(e.target.value)}
-          className="w-full sm:w-48 px-4 py-2 rounded-xl border
+          className="w-full sm:w-44 px-4 py-2 rounded-lg border text-sm
                      focus:outline-none focus:ring-2 focus:ring-emerald-500"
         >
           <option value="All">All Pets</option>
@@ -78,57 +76,54 @@ const Adopt = () => {
       </div>
 
       {/* Pet Cards */}
-      <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {filteredPets.length > 0 ? (
           filteredPets.map((pet) => (
             <div
               key={pet.id}
-              className="bg-white rounded-2xl shadow-md overflow-hidden
-                         hover:shadow-xl transition-all duration-300 group"
+              className="bg-white rounded-xl shadow-sm overflow-hidden
+                         hover:shadow-md transition duration-300"
             >
               {/* Image */}
-              <div className="relative h-48 overflow-hidden">
+              <div className="relative h-36 overflow-hidden">
                 <img
                   src={pet.image}
                   alt={pet.name}
                   className="h-full w-full object-cover
-                             group-hover:scale-110 transition duration-500"
+                             hover:scale-105 transition duration-500"
                 />
 
-                {/* Species Badge */}
-                <span className="absolute top-3 left-3 bg-emerald-600
-                                 text-white text-xs px-3 py-1 rounded-full">
+                <span className="absolute top-2 left-2 bg-emerald-600
+                                 text-white text-xs px-2 py-0.5 rounded-full">
                   {pet.species}
                 </span>
               </div>
 
               {/* Content */}
-              <div className="p-5 space-y-2">
-                <h3 className="text-lg font-semibold text-gray-800">
+              <div className="p-4 space-y-1">
+                <h3 className="text-base font-semibold text-gray-800">
                   {pet.name}
                 </h3>
 
-                <p className="text-sm text-gray-600">
-                  <b>Age:</b> {pet.age}
-                </p>
-                <p className="text-sm text-gray-600">
-                  <b>Breed:</b> {pet.breed}
-                </p>
-                <p className="text-sm text-gray-600">
-                  <b>Gender:</b> {pet.gender}
+                <p className="text-xs text-gray-600">
+                  {pet.age} • {pet.gender}
                 </p>
 
-                <p className="text-sm text-gray-500 line-clamp-2">
+                <p className="text-xs text-gray-600">
+                  {pet.breed}
+                </p>
+
+                <p className="text-xs text-gray-500 line-clamp-2 mt-1">
                   {pet.description}
                 </p>
               </div>
 
               {/* Button */}
-              <div className="p-5 pt-0">
+              <div className="px-4 pb-4">
                 <button
-                  className="w-full bg-emerald-600 text-white py-2 rounded-xl
+                  className="w-full bg-emerald-600 text-white py-1.5 rounded-lg
                              hover:bg-emerald-700 active:scale-95 transition
-                             text-sm font-medium"
+                             text-xs font-medium"
                 >
                   View Details
                 </button>
@@ -136,7 +131,7 @@ const Adopt = () => {
             </div>
           ))
         ) : (
-          <p className="text-center text-gray-500 col-span-full">
+          <p className="text-center text-gray-500 col-span-full text-sm">
             No pets found
           </p>
         )}

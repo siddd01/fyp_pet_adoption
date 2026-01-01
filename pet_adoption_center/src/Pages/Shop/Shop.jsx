@@ -41,31 +41,32 @@ const Shop = () => {
   });
 
   return (
-    <div className="w-full min-h-screen bg-gray-100 px-2 py-4">
+    <div className="min-h-screen min-w-full bg-gray-50 px-4 py-10">
       {/* Header */}
-      <div className="text-center mb-4">
-        <p className="text-gray-600">
+      <div className="text-center mb-8">
+        <h2 className="text-3xl font-bold text-gray-800">
+          Pet Store
+        </h2>
+        <p className="text-gray-600 mt-2 text-sm">
           Every purchase supports animal welfare at Sano Ghar
         </p>
       </div>
 
       {/* Search & Filter */}
-      <div className="max-w-5xl mx-auto flex flex-col sm:flex-row gap-4 mb-8 justify-center">
-        {/* Search */}
+      <div className="max-w-4xl mx-auto flex flex-col sm:flex-row gap-3 mb-8 justify-center">
         <input
           type="text"
           placeholder="Search products..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full sm:w-80 px-4 py-2 rounded-xl border
+          className="w-full sm:w-72 px-4 py-2 rounded-lg border text-sm
                      focus:outline-none focus:ring-2 focus:ring-emerald-500"
         />
 
-        {/* Filter */}
         <select
           value={category}
           onChange={(e) => setCategory(e.target.value)}
-          className="w-full sm:w-48 px-4 py-2 rounded-xl border
+          className="w-full sm:w-44 px-4 py-2 rounded-lg border text-sm
                      focus:outline-none focus:ring-2 focus:ring-emerald-500"
         >
           <option value="All">All Categories</option>
@@ -74,52 +75,59 @@ const Shop = () => {
         </select>
       </div>
 
-      {/* Cards Container */}
-      <div className="flex flex-wrap justify-center gap-8">
+      {/* Product Cards */}
+      <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {filteredProducts.length > 0 ? (
           filteredProducts.map((product) => (
             <div
               key={product.id}
-              className="w-[350px] h-[300px] bg-white rounded-2xl shadow-md
-                         hover:shadow-xl transition-all duration-300 flex flex-col"
+              className="bg-white rounded-xl shadow-sm overflow-hidden
+                         hover:shadow-md transition duration-300"
             >
               {/* Image */}
-              <div className="h-[140px] w-full overflow-hidden rounded-t-2xl">
+              <div className="relative h-36 overflow-hidden">
                 <img
                   src={product.image}
                   alt={product.name}
                   className="h-full w-full object-cover
                              hover:scale-105 transition duration-500"
                 />
+
+                {/* Category Badge */}
+                <span className="absolute top-2 left-2 bg-emerald-600
+                                 text-white text-xs px-2 py-0.5 rounded-full">
+                  {product.category}
+                </span>
               </div>
 
               {/* Content */}
-              <div className="flex-1 px-4 py-3 text-sm space-y-1">
+              <div className="p-4 space-y-1">
                 <h3 className="text-base font-semibold text-gray-800">
                   {product.name}
                 </h3>
 
-                <p className="text-gray-600 line-clamp-2">
+                <p className="text-xs text-gray-500 line-clamp-2">
                   {product.description}
                 </p>
 
-                <p className="text-lg font-bold text-emerald-600 mt-1">
+                <p className="text-sm font-bold text-emerald-600 mt-1">
                   ${product.price}
                 </p>
               </div>
 
               {/* Actions */}
-              <div className="px-4 pb-4 flex gap-3">
+              <div className="px-4 pb-4 flex gap-2">
                 <button
-                  className="flex-1 bg-gray-200 text-gray-700 py-2 rounded-xl
-                             hover:bg-gray-300 transition text-sm font-medium"
+                  className="flex-1 bg-gray-200 text-gray-700 py-1.5 rounded-lg
+                             hover:bg-gray-300 transition text-xs font-medium"
                 >
                   Add to Cart
                 </button>
 
                 <button
-                  className="flex-1 bg-emerald-600 text-white py-2 rounded-xl
-                             hover:bg-emerald-700 active:scale-95 transition text-sm font-medium"
+                  className="flex-1 bg-emerald-600 text-white py-1.5 rounded-lg
+                             hover:bg-emerald-700 active:scale-95 transition
+                             text-xs font-medium"
                 >
                   Buy Now
                 </button>
@@ -127,7 +135,7 @@ const Shop = () => {
             </div>
           ))
         ) : (
-          <p className="text-gray-500 text-center">
+          <p className="text-center text-gray-500 col-span-full text-sm">
             No products found
           </p>
         )}
