@@ -1,6 +1,8 @@
 import cors from "cors";
 import express from "express";
 import authRoutes from "./routes/authRoutes.js";
+import petRoutes from "./routes/petRoutes.js";
+import productRoutes from "./routes/productRoutes.js";
 
 const app = express();
 
@@ -10,6 +12,8 @@ app.use(express.json()); // Parse JSON body
 
 // API Routes
 app.use("/auth", authRoutes);
+app.use("/api/pets", petRoutes);
+app.use("/api/products", productRoutes);
 
 // Health Check
 app.get("/", (req, res) => {
