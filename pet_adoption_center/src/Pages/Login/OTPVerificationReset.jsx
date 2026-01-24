@@ -29,6 +29,7 @@ import api from "../../api/axios";
         try {
         const res = await api.post("/auth/reset-password", { email, otp, newPassword });
 
+
         setMessage({ type: "success", text: res.data.message });
 
         // Redirect to login page after successful reset
@@ -54,7 +55,7 @@ import api from "../../api/axios";
         setMessage(null);
 
         try {
-        const res = await api.post("/auth/forgot-password", { email });
+        const res = await api.post("/api/auth/forgot-password", { email });
         setMessage({ type: "success", text: res.data.message });
         } catch (error) {
         setMessage({

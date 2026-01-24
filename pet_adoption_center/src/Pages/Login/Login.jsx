@@ -1,38 +1,45 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../api/axios";
+import { AuthContext } from "../../Context/AuthContext";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { setUser } = useContext(AuthContext); // Get setUser from context
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  setLoading(true);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
 
-  try {
-    console.log("Sending login request...");
-    
-    const res = await api.post("/auth/login", { email, password });
-console.log("Login response:", res);
+    try {
+      console.log("Sending login request...");
 
-    console.log("Login success:", res.data);
+      const res = await api.post("/auth/login", { email, password });
+      console.log("Login response:", res);
+      
+      console.log("Login success:", res.data);
 
-    localStorage.setItem("token", res.data.token);
-    localStorage.setItem("user", JSON.stringify(res.data.user));
+      // Save token and user to localStorage
+      localStorage.setItem("token", res.data.token);
+      localStorage.setItem("user", JSON.stringify(res.data.user));
 
-    navigate("/dashboard");
+      // Update AuthContext user state
+      setUser(res.data.user);
 
-  } catch (error) {
-    console.log("Login error:", error);
-    alert("Invalid email or password");
-  } finally {
-    console.log("Finally block running");
-    setLoading(false);
-  }
-};
+      // Navigate to home
+      navigate("/");
+
+    } catch (error) {
+      console.log("Login error:", error);
+      alert(error.response?.data?.message || "Invalid email or password");
+    } finally {
+      console.log("Finally block running");
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100">
@@ -97,7 +104,7 @@ console.log("Login response:", res);
 
         {/* Signup Link */}
         <p className="text-center text-sm text-gray-500 mt-4">
-          Don’t have an account?{" "}
+          Don't have an account?{" "}
           <span
             onClick={() => navigate("/signup")}
             className="text-blue-600 cursor-pointer hover:underline font-medium"

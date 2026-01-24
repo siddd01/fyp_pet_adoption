@@ -1,37 +1,73 @@
 import { Calendar, Check, Edit2, Mail, Shield, User, X } from "lucide-react";
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import { AuthContext } from "../Context/AuthContext";
 
 const Profile = () => {
-  const [user, setUser] = useState({
-    id: 1,
-    first_name: "Siddhant",
-    last_name: "Shrestha",
-    email: "siddhant@example.com",
-    role: "Customer",
-    date_of_birth: "2002-05-12",
-    gender: "Male",
-    image: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
-    is_verified: 1,
-    created_at: "2025-01-01",
+  const { user, updateUser } = useContext(AuthContext);
+  
+  // Initialize with default empty values to avoid undefined
+  const [formData, setFormData] = useState({
+    first_name: "",
+    last_name: "",
+    email: "",
+    date_of_birth: "",
+    gender: "",
+    image: "",
+    role: "",
+    is_verified: 0,
+    created_at: ""
   });
-  const [formData, setFormData] = useState({ ...user });
+  
   const [isEditing, setIsEditing] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        first_name: user.first_name || "",
+        last_name: user.last_name || "",
+        email: user.email || "",
+        date_of_birth: user.date_of_birth || "",
+        gender: user.gender || "",
+        image: user.image || "",
+        role: user.role || "",
+        is_verified: user.is_verified || 0,
+        created_at: user.created_at || ""
+      });
+    }
+  }, [user]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setUser(formData);
-    setIsEditing(false);
-    alert("Profile updated successfully!");
+    try {
+      await updateUser(formData);
+      alert("Profile updated successfully!");
+      setIsEditing(false);
+    } catch (err) {
+      console.error("Update error:", err);
+      alert(`Failed to update profile: ${err.response?.data?.message || err.message}`);
+    }
   };
 
   const handleCancel = () => {
-    setFormData({ ...user });
+    setFormData({
+      first_name: user.first_name || "",
+      last_name: user.last_name || "",
+      email: user.email || "",
+      date_of_birth: user.date_of_birth || "",
+      gender: user.gender || "",
+      image: user.image || "",
+      role: user.role || "",
+      is_verified: user.is_verified || 0,
+      created_at: user.created_at || ""
+    });
     setIsEditing(false);
   };
+
+  if (!user) return <p>Loading...</p>;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-12 px-4">
@@ -44,7 +80,7 @@ const Profile = () => {
               <div className="flex flex-col md:flex-row items-center md:items-end gap-4">
                 <div className="relative">
                   <img
-                    src={isEditing ? formData.image : user.image}
+                    src={formData.image || "https://via.placeholder.com/150"}
                     alt="Profile"
                     className="w-32 h-32 rounded-full border-4 border-white shadow-xl object-cover"
                   />
@@ -100,7 +136,7 @@ const Profile = () => {
             </div>
             <div>
               <p className="text-sm text-gray-600">Gender</p>
-              <p className="font-semibold text-gray-900">{user.gender}</p>
+              <p className="font-semibold text-gray-900">{user.gender || "Not set"}</p>
             </div>
           </div>
 

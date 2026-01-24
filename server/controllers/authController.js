@@ -149,41 +149,30 @@ export const resendOTP = async (req, res) => {
 };
 
 export const login = async (req, res) => {
+  const { email, password } = req.body;
+
   try {
-    const { email, password } = req.body;
+    const [rows] = await db.execute("SELECT * FROM users WHERE email = ?", [email]);
 
-    console.log(" Login request received:", email);
-
-    // 1. Query using async/await
-    const [rows] = await db.query("SELECT * FROM users WHERE email = ?", [email]);
-
-    console.log("📌 DB result:", rows);
-
-    // 2. User not found
     if (rows.length === 0) {
-      return res.status(401).json({ message: "Invalid credentials" });
+      return res.status(404).json({ message: "User not found" });
     }
 
     const user = rows[0];
 
-    // 3. Compare password
-    const isMatch = await bcrypt.compare(password, user.password);
+    // If using bcrypt
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) return res.status(401).json({ message: "Invalid credentials" });
 
-    if (!isMatch) {
-      return res.status(401).json({ message: "Invalid credentials" });
-    }
-
-    // 4. Create token
+    // Generate JWT
     const token = jwt.sign(
       { id: user.id, role_id: user.role_id },
       process.env.JWT_SECRET,
       { expiresIn: "1d" }
     );
 
-    console.log(" Login successful");
-
-    // 5. Send response
-    return res.json({
+    // Return token and user info
+    res.json({
       token,
       user: {
         id: user.id,
@@ -191,16 +180,13 @@ export const login = async (req, res) => {
         last_name: user.last_name,
         email: user.email,
         role_id: user.role_id,
-        name: `${user.first_name} ${user.last_name}`,
       },
     });
-
-  } catch (err) {
-    console.error(" Login error:", err);
-    return res.status(500).json({ message: "Server error" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
   }
 };
-
 
 export const forgotPassword = async (req, res) => {
   const { email } = req.body;
@@ -230,6 +216,9 @@ export const forgotPassword = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+
+
 
 
 export const resetPassword = async (req, res) => {
