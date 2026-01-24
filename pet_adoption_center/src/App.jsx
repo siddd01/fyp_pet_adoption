@@ -1,6 +1,8 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import AboutUs from "./Pages/AboutUs/AboutUs";
-import Adopt from "./Pages/adopt/adopt";
+import Adopt from "./Pages/Adopt/Adopt";
+import PetDetails from "./Pages/Details/PetDetails";
+import ProductDetails from "./Pages/Details/ProductDetails";
 import Donate from "./Pages/Donate/Donate";
 import Dashboard from "./Pages/Home/Dashboard";
 import Home from "./Pages/Home/Home";
@@ -10,6 +12,7 @@ import OTPVerification from "./Pages/Login/OTPVerification"; // import the OTP p
 import OTPVerificationReset from "./Pages/Login/OTPVerificationReset ";
 import ResetPassword from "./Pages/Login/ResetPassword";
 import Shop from "./Pages/Shop/Shop";
+import Profile from "./Profile/Profile";
 
 const App = () => {
   return (
@@ -18,12 +21,17 @@ const App = () => {
          <Route element={<Home />}>
           <Route path="/" element={<Dashboard />} />
           <Route path="/adopt" element={<Adopt />} />
+          <Route path="/adopt/:id" element={<PetDetails />} />
+          <Route path="/shop/:id" element={<ProductDetails />} />
+
           {/* later */}
            <Route path="/shop" element={<Shop />} />
            <Route path="/about" element={<AboutUs />} />
            <Route path="/donate" element={<Donate />} />
+            <Route path="/profile" element={<Profile/>} />
         </Route>
         <Route path="/" element={<Home/>} />
+       
         <Route path="/login" element={<Login />} />
   
         

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const products = [
   {
@@ -26,6 +27,7 @@ const products = [
 ];
 
 const Shop = () => {
+  const navigate =useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [category, setCategory] = useState("All");
 
@@ -60,14 +62,14 @@ const Shop = () => {
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="w-full sm:w-72 px-4 py-2 rounded-lg border text-sm
-                     focus:outline-none focus:ring-2 focus:ring-emerald-500"
+          focus:outline-none focus:ring-2 focus:ring-emerald-500"
         />
 
         <select
           value={category}
           onChange={(e) => setCategory(e.target.value)}
           className="w-full sm:w-44 px-4 py-2 rounded-lg border text-sm
-                     focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            focus:outline-none focus:ring-2 focus:ring-emerald-500"
         >
           <option value="All">All Categories</option>
           <option value="Food">Food</option>
@@ -76,10 +78,11 @@ const Shop = () => {
       </div>
 
       {/* Product Cards */}
-      <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <div  className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {filteredProducts.length > 0 ? (
           filteredProducts.map((product) => (
             <div
+            onClick={()=>navigate(`/shop/${product.id}`)}
               key={product.id}
               className="bg-white rounded-xl shadow-sm overflow-hidden
                          hover:shadow-md transition duration-300"

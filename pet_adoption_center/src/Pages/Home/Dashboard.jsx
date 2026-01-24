@@ -1,8 +1,10 @@
+import { useNavigate } from "react-router-dom";
+
 const Dashboard = () => {
   const isLoggedIn = false; // later connect with auth
-
+  const navigate = useNavigate()
   return (
-    <div className="min-h-[calc(90vh-56px)] bg-[#F7FAFC] px-6 py-10">
+    <div className="min-h-[calc(90vh-56px)] min-w-full bg-[#F7FAFC] px-6 py-10">
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-10">
 
         {/* LEFT SECTION */}
@@ -17,10 +19,10 @@ const Dashboard = () => {
           </p>
 
           <div className="flex gap-4">
-            <button className="px-6 py-3 bg-[#40565E] text-white rounded-lg hover:bg-[#32444B]">
+            <button onClick={() => navigate("/adopt")} className="px-6 py-3 bg-[#40565E] text-white rounded-lg hover:bg-[#32444B]">
               Adopt Now
             </button>
-            <button className="px-6 py-3 border border-[#40565E] text-[#40565E] rounded-lg hover:bg-gray-100">
+            <button  onClick={() => navigate("/shop")}  className="px-6 py-3 border border-[#40565E] text-[#40565E] rounded-lg hover:bg-gray-100">
               Shop Now
             </button>
           </div>
@@ -31,7 +33,7 @@ const Dashboard = () => {
               <p className="text-gray-600 mb-2">
                 New here?
               </p>
-              <button className="px-5 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+              <button onClick={() => navigate("/login")}  className="px-5 py-2 bg-green-600 text-white rounded hover:bg-green-700">
                 Create an Account
               </button>
             </div>

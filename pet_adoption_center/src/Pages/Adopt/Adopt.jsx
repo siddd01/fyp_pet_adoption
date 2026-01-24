@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const pets = [
   {
@@ -27,7 +28,9 @@ const pets = [
 
 const Adopt = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [species, setSpecies] = useState("All");
+  const [species, setSpecies] = useState("All"); 
+  const navigate = useNavigate();
+  
 
   const filteredPets = pets.filter((pet) => {
     const matchesSearch = pet.name
@@ -66,8 +69,7 @@ const Adopt = () => {
         <select
           value={species}
           onChange={(e) => setSpecies(e.target.value)}
-          className="w-full sm:w-44 px-4 py-2 rounded-lg border text-sm
-                     focus:outline-none focus:ring-2 focus:ring-emerald-500"
+          className="w-full sm:w-44 px-4 py-2 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
         >
           <option value="All">All Pets</option>
           <option value="Dog">Dogs</option>
@@ -121,6 +123,7 @@ const Adopt = () => {
               {/* Button */}
               <div className="px-4 pb-4">
                 <button
+                  onClick={() => navigate(`/adopt/${pet.id}`)}
                   className="w-full bg-emerald-600 text-white py-1.5 rounded-lg
                              hover:bg-emerald-700 active:scale-95 transition
                              text-xs font-medium"
