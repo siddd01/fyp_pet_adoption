@@ -16,7 +16,7 @@ import Login from "./Pages/Login/Login";
 import OTPVerification from "./Pages/Login/OTPVerification";
 import OTPVerificationReset from "./Pages/Login/OTPVerificationReset";
 import ResetPassword from "./Pages/Login/ResetPassword";
-import Cart from "./Pages/Shop/cart";
+import Cart from "./Pages/Shop/Cart";
 import Shop from "./Pages/Shop/Shop";
 import Profile from "./Profile/Profile";
 

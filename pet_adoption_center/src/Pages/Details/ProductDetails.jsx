@@ -1,44 +1,47 @@
-import { ArrowLeft, Calendar, Heart, Package, Share2, Shield, ShoppingCart, Star, Tag } from 'lucide-react';
-import { useState } from 'react';
+import {
+  ArrowLeft,
+  Calendar,
+  Heart,
+  Package,
+  Share2,
+  Shield,
+  ShoppingCart,
+  Star,
+  Tag,
+} from "lucide-react";
+import { useContext, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { ProductContext } from "../../Context/ProductContext";
 
-const products = [
-  {
-    id: 1,
-    name: "Premium Dog Food",
-    description:
-      "High quality dog food made with natural ingredients for healthy growth. Rich in protein and essential vitamins to keep your dog healthy and energetic.",
-    category: "Food",
-    price: 25.99,
-    stock: 12,
-    quantity: 12,
-    image_url:
-      "https://www.prodograw.com/wp-content/uploads/2024/06/Complete-Chicken-tub-angled-web.png",
-    created_at: "2024-12-01",
-  },
-  {
-    id: 2,
-    name: "Cat Scratching Post",
-    description:
-      "Durable scratching post designed to keep cats active, reduce stress, and protect your furniture.",
-    category: "Accessories",
-    price: 18.5,
-    stock: 5,
-    quantity: 5,
-    image_url:
-      "https://images.unsplash.com/photo-1595433707802-6b2626ef1c91",
-    created_at: "2024-12-05",
-  },
-];
+import { CartContext } from "../../Context/CartContext";
+
+
 
 const ProductDetails = () => {
-  const [currentProduct, setCurrentProduct] = useState(products[0]);
+  const { id } = useParams();               // 👈 product id from URL
+  const navigate = useNavigate();
+  const { products, productLoading } = useContext(ProductContext);
+  const {  addToCart } = useContext(CartContext);
+
   const [isFavorited, setIsFavorited] = useState(false);
   const [cartQuantity, setCartQuantity] = useState(1);
-  const product = currentProduct;
+
+  // 🔍 Find product by id
+  const product = products.find(
+    (p) => Number(p.id) === Number(id)
+  );
+
+  if (productLoading) {
+    return (
+      <div className="h-screen flex items-center justify-center">
+        <p>Loading product...</p>
+      </div>
+    );
+  }
 
   if (!product) {
     return (
-      <div className="h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 to-teal-100">
+      <div className="h-screen flex items-center justify-center">
         <p className="text-gray-600 text-lg">Product not found</p>
       </div>
     );
@@ -234,7 +237,7 @@ const ProductDetails = () => {
                 
               <button
         className="w-full border-2 border-emerald-600 text-emerald-600 py-4 rounded-xl hover:bg-emerald-50 transition font-semibold flex items-center justify-center gap-2"
-        onClick={() => addToCart(product.id, 1, product.price, user.token)}
+        onClick={() => addToCart(product.id, 1, product.price)}
       >
         <ShoppingCart className="w-5 h-5" />
         Add to Cart

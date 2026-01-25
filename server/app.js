@@ -17,7 +17,6 @@ app.use("/api/auth", authRoutes);
 app.use("/api/pets", petRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/cart", cartRoutes);
-
 app.use("/api/user", userRoutes);
 // Health Check
 app.get("/", (req, res) => {
