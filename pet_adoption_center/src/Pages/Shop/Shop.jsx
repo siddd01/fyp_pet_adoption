@@ -1,149 +1,124 @@
-import { Minus, Plus, ShoppingCart, Trash2 } from "lucide-react";
-import { useContext } from "react";
+import { useContext, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { CartContext } from "../../Context/CartContext";
+import { ProductContext } from "../../Context/ProductContext";
 
-const Cart = () => {
-  const {
-    cartItems,
-    cartLoading,
-    totalAmount,
-    updateQuantity,
-    removeItem,
-  } = useContext(CartContext);
+const Shop = () => {
+  const navigate = useNavigate();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [category, setCategory] = useState("All");
 
-  if (cartLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading cart...</p>
-        </div>
-      </div>
-    );
-  }
+  const { products, productLoading } = useContext(ProductContext);
+  const {  addToCart } = useContext(CartContext);
+  if (productLoading) return <p>Loading products...</p>;
+  const token = localStorage.getItem("token");
 
-  if (cartItems.length === 0) {
-    return (
-      <div className="min-h-screen  bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <ShoppingCart className="w-24 h-24 text-gray-300 mx-auto mb-4" />
-          <h2 className="text-2xl font-semibold text-gray-700 mb-2">Your cart is empty</h2>
-          <p className="text-gray-500">Add some items to get started!</p>
-        </div>
-      </div>
-    );
-  }
+  // Fetch products from database
+ 
+ 
+
+  const filteredProducts = products.filter((product) => {
+    const matchesSearch = product.name
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase());
+
+    const matchesCategory =
+      category === "All" || product.category === category;
+
+    return matchesSearch && matchesCategory;
+  });
 
   return (
-    <div className="min-h-screen min-w-full bg-gray-50 py-8 px-4">
-      <div className="w-[90%] mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Shopping Cart</h1>
-          <p className="text-gray-600 mt-1">{cartItems.length} {cartItems.length === 1 ? 'item' : 'items'} in your cart</p>
-        </div>
+    <div className="min-h-screen bg-gray-50 px-4 py-10">
+      {/* Header */}
+      <div className="text-center mb-8">
+        <h2 className="text-3xl font-bold text-gray-800">Pet Store</h2>
+        <p className="text-gray-600 mt-2 text-sm">
+          Every purchase supports animal welfare at Sano Ghar
+        </p>
+      </div>
 
-        <div className="grid lg:grid-cols-3 gap-6">
-          {/* Cart Items */}
-          <div className="lg:col-span-2 space-y-4">
-            {cartItems.map((item) => (
+      {/* Search & Filter */}
+      <div className="max-w-4xl mx-auto flex gap-3 mb-8 justify-center">
+        <input
+          type="text"
+          placeholder="Search products..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-72 px-4 py-2 rounded-lg border text-sm focus:ring-2 focus:ring-emerald-500"
+        />
+
+        <select
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          className="w-44 px-4 py-2 rounded-lg border text-sm focus:ring-2 focus:ring-emerald-500"
+        >
+          <option value="All">All Categories</option>
+          <option value="Food">Food</option>
+          <option value="Accessories">Accessories</option>
+        </select>
+      </div>
+
+      {/* Products */}
+      <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {productLoading ? (
+          <p className="text-center text-gray-500 col-span-full">Loading products...</p>
+        ) : filteredProducts.length > 0 ? (
+          filteredProducts.map((product) => (
+            <div
+              key={product.id}
+              className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition"
+            >
+              {/* Image */}
               <div
-                key={item.id}
-                className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow p-6 border border-gray-100"
+                className="cursor-pointer"
+                onClick={() => navigate(`/shop/${product.id}`)}
               >
-                <div className="flex gap-6">
-                  {/* Product Image */}
-                  <div className="flex-shrink-0">
-                    <img
-                      src={item.image_url}
-                      alt={item.name}
-                      className="w-24 h-24 object-cover rounded-lg border border-gray-200"
-                    />
-                  </div>
-
-                  {/* Product Details */}
-                  <div className="flex-grow">
-                    <div className="flex justify-between items-start mb-3">
-                      <div>
-                        <h3 className="font-semibold text-lg text-gray-900">{item.name}</h3>
-                        <p className="text-gray-500 text-sm mt-1">${item.price} each</p>
-                      </div>
-                      <button
-                        onClick={() => removeItem(item.id)}
-                        className="text-gray-400 hover:text-red-500 transition-colors p-1"
-                        aria-label="Remove item"
-                      >
-                        <Trash2 className="w-5 h-5" />
-                      </button>
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      {/* Quantity Controls */}
-                      <div className="flex items-center gap-3 bg-gray-50 rounded-lg p-1">
-                        <button
-                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                          disabled={item.quantity <= 1}
-                          className="w-8 h-8 rounded-md bg-white border border-gray-200 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-colors"
-                        >
-                          <Minus className="w-4 h-4" />
-                        </button>
-                        <span className="w-12 text-center font-medium text-gray-900">{item.quantity}</span>
-                        <button
-                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                          className="w-8 h-8 rounded-md bg-white border border-gray-200 hover:bg-gray-50 flex items-center justify-center transition-colors"
-                        >
-                          <Plus className="w-4 h-4" />
-                        </button>
-                      </div>
-
-                      {/* Item Total */}
-                      <p className="font-bold text-xl text-gray-900">
-                        ${Number(item.total_price).toFixed(2)}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Order Summary */}
-          <div className="lg:col-span-1">
-            <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 sticky top-8">
-              <h2 className="text-xl font-bold text-gray-900 mb-6">Order Summary</h2>
-              
-              <div className="space-y-3 mb-6">
-                <div className="flex justify-between text-gray-600">
-                  <span>Subtotal</span>
-                  <span>${Number(totalAmount).toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between text-gray-600">
-                  <span>Shipping</span>
-                  <span className="text-green-600">Free</span>
-                </div>
-                <div className="border-t border-gray-200 pt-3 mt-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-lg font-semibold text-gray-900">Total</span>
-                    <span className="text-2xl font-bold text-gray-900">
-                      ${Number(totalAmount).toFixed(2)}
-                    </span>
-                  </div>
-                </div>
+                <img
+                  src={product.image_url || product.image}
+                  alt={product.name}
+                  className="h-36 w-full object-cover hover:scale-105 transition"
+                />
               </div>
 
-              <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition-colors">
-                Proceed to Checkout
-              </button>
+              {/* Content */}
+              <div className="p-4 space-y-1">
+                <h3 className="font-semibold text-gray-800">
+                  {product.name}
+                </h3>
+                <p className="text-xs text-gray-500 line-clamp-2">
+                  {product.description}
+                </p>
+                <p className="font-bold text-emerald-600">
+                  ${product.price}
+                </p>
+              </div>
 
-              <p className="text-xs text-gray-500 text-center mt-4">
-                Taxes calculated at checkout
-              </p>
+              {/* Actions */}
+              <div className="px-4 pb-4 flex gap-2">
+                <button
+                   onClick={() => addToCart(product.id, 1, product.price)}
+                  className="flex-1 bg-gray-200 text-gray-700 py-1.5 rounded-lg text-xs hover:bg-gray-300"
+                >
+                  Add to Cart
+                </button>
+
+                <button
+                  className="flex-1 bg-emerald-600 text-white py-1.5 rounded-lg text-xs hover:bg-emerald-700"
+                >
+                  Buy Now
+                </button>
+              </div>
             </div>
-          </div>
-        </div>
+          ))
+        ) : (
+          <p className="text-center text-gray-500 col-span-full">
+            No products found
+          </p>
+        )}
       </div>
     </div>
   );
 };
 
-export default Cart;
+export default Shop;
