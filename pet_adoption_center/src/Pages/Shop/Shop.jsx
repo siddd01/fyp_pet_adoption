@@ -1,33 +1,20 @@
-import { useEffect, useState } from "react";
+import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../api/axios";
+import { ProductContext } from "../../Context/ProductContext";
 
 const Shop = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [category, setCategory] = useState("All");
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
 
+  const { products, productLoading } = useContext(ProductContext);
+
+  if (productLoading) return <p>Loading products...</p>;
   const token = localStorage.getItem("token");
 
   // Fetch products from database
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const response = await api.get("/products");
-        setProducts(response.data);
-      } catch (error) {
-        console.error("Error fetching products:", error);
-      } finally {
-        setLoading(false);
-        console.log("finished")
-      }
-    };
-
-    fetchProducts();
-  }, []);
-
+ 
   const handleAddToCart = async (product) => {
     if (!token) {
       alert("Please login to add items to cart");
@@ -101,7 +88,7 @@ const Shop = () => {
 
       {/* Products */}
       <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {loading ? (
+        {productLoading ? (
           <p className="text-center text-gray-500 col-span-full">Loading products...</p>
         ) : filteredProducts.length > 0 ? (
           filteredProducts.map((product) => (

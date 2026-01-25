@@ -232,10 +232,14 @@ const ProductDetails = () => {
                   Buy Now
                 </button>
                 
-                <button className="w-full border-2 border-emerald-600 text-emerald-600 py-4 rounded-xl hover:bg-emerald-50 transition font-semibold flex items-center justify-center gap-2">
-                  <ShoppingCart className="w-5 h-5" />
-                  Add to Cart
-                </button>
+              <button
+        className="w-full border-2 border-emerald-600 text-emerald-600 py-4 rounded-xl hover:bg-emerald-50 transition font-semibold flex items-center justify-center gap-2"
+        onClick={() => addToCart(product.id, 1, product.price, user.token)}
+      >
+        <ShoppingCart className="w-5 h-5" />
+        Add to Cart
+      </button>
+
               </div>
 
               <div className="mt-6 p-4 bg-blue-50 rounded-xl border border-blue-200">

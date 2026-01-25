@@ -1,8 +1,9 @@
 import { useContext } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
-import { AuthContext } from "./Context/AuthContext";
+
 
 // Pages
+import { AuthContext } from "./Context/AuthContext.jsx";
 import AboutUs from "./Pages/AboutUs/AboutUs";
 import Adopt from "./Pages/Adopt/Adopt";
 import PetDetails from "./Pages/Details/PetDetails";

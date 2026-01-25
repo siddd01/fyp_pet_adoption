@@ -29,22 +29,14 @@ export const AuthProvider = ({ children }) => {
 
   const updateUser = async (updatedData) => {
     const token = localStorage.getItem("token");
-    if (!token) {
-      throw new Error("No token found");
-    }
+    if (!token) throw new Error("No token found");
 
-    try {
-      console.log("Updating user with data:", updatedData); // Debug log
-      const res = await api.put("/user/profile", updatedData, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setUser(res.data); // Now setUser is accessible
-      return res.data;
-    } catch (err) {
-      console.error("Error updating user:", err);
-      console.error("Error response:", err.response?.data);
-      throw err;
-    }
+    const res = await api.put("/user/profile", updatedData, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    setUser(res.data);
+    return res.data;
   };
 
   useEffect(() => {
@@ -52,7 +44,15 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, setUser, loading, updateUser, fetchUser }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        setUser,
+        loading,
+        fetchUser,
+        updateUser,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
