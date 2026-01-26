@@ -2,7 +2,7 @@
 const Login = () => {
   return (
     <div>
-      Login page for staff
+      Logiin for admin
     </div>
   )
 }
