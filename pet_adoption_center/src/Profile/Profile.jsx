@@ -14,9 +14,11 @@ const Profile = () => {
   });
 
   const [isEditing, setIsEditing] = useState(false);
+    const [disabled, setDisabled] = useState(false);
 
   useEffect(() => {
     if (user) {
+      console.log("User data loaded:", user);
       setFormData({
         first_name: user.first_name || "",
         last_name: user.last_name || "",
@@ -64,6 +66,14 @@ const Profile = () => {
       image: user.image || "",
     });
     setIsEditing(false);
+  };
+   const handleClick = () => {
+    setDisabled(true);
+
+
+    setTimeout(() => {
+      setDisabled(false);
+    }, 2000);
   };
 
   if (!user) return <p>Loading...</p>;
@@ -160,10 +170,15 @@ const Profile = () => {
                 }
                 className="w-full border p-3 rounded-lg"
               />
-
-              <button className="w-full bg-blue-600 text-white py-3 rounded-lg">
-                Save Changes
-              </button>
+    <button
+      onClick={handleClick}
+      disabled={disabled}
+      className={`w-full py-3 rounded-lg text-white transition
+        ${disabled ? "bg-gray-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"}
+      `}
+    >
+      {disabled ? "Saving..." : "Save Changes"}
+    </button>
             </form>
           </div>
         )}

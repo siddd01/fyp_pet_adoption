@@ -6,6 +6,7 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { AuthContext } from "./Context/AuthContext.jsx";
 import AboutUs from "./Pages/AboutUs/AboutUs";
 import Adopt from "./Pages/Adopt/Adopt";
+import AdoptionForm from "./Pages/Adopt/AdoptionForm.jsx";
 import PetDetails from "./Pages/Details/PetDetails";
 import ProductDetails from "./Pages/Details/ProductDetails";
 import Donate from "./Pages/Donate/Donate";
@@ -59,6 +60,7 @@ const App = () => {
           <Route path="donate" element={<Donate />} />
           <Route path="profile" element={<Profile />} />
           <Route path="cart" element={<Cart />} />
+          <Route path="adopt-form/:id" element={<AdoptionForm />} />
         </Route>
 
         {/* Catch-all redirect for unknown routes */}

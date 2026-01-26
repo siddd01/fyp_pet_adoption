@@ -1,5 +1,6 @@
 import cors from "cors";
 import express from "express";
+import adoptionRoutes from "./routes/adoptionRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import cartRoutes from "./routes/cartRoutes.js";
 import petRoutes from "./routes/petRoutes.js";
@@ -18,6 +19,8 @@ app.use("/api/pets", petRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/user", userRoutes);
+app.use("/api/adoptions", adoptionRoutes);
+
 // Health Check
 app.get("/", (req, res) => {
   res.json({ message: "Pet Adoption Center API is running!" });

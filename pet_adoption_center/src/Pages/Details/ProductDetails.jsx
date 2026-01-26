@@ -230,7 +230,8 @@ const ProductDetails = () => {
               </div>
 
               <div className="space-y-3">
-                <button className="w-full bg-gradient-to-r from-emerald-600 to-emerald-500 text-white py-4 rounded-xl hover:from-emerald-700 hover:to-emerald-600 transition font-semibold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center justify-center gap-2">
+                <button  onClick={() => {addToCart(product.id, 1, product.price) 
+                  navigate("/cart") }} className="w-full bg-gradient-to-r from-emerald-600 to-emerald-500 text-white py-4 rounded-xl hover:from-emerald-700 hover:to-emerald-600 transition font-semibold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center justify-center gap-2">
                   <ShoppingCart className="w-5 h-5" />
                   Buy Now
                 </button>

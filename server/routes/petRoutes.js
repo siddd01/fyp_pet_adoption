@@ -1,23 +1,13 @@
 import express from "express";
-import upload from "../middleware/uploadMiddleware.js"; // ES module import
+import { addPet, getAllPets } from "../controllers/petController.js";
+import upload from "../middleware/uploadMiddleware.js";
 
 const router = express.Router();
 
-// Add pet
-router.post("/", upload.single("image"), async (req, res) => {
-  try {
-    const { name, age, breed } = req.body;
+// Get all pets
+router.get("/", getAllPets);
 
-    const imageUrl = req.file.path; // Cloudinary URL
-
-    // TODO: Save pet data to DB
-    res.status(201).json({
-      message: "Pet added successfully",
-      image_url: imageUrl,
-    });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+// Add pet (Cloudinary + Multer works here)
+router.post("/", upload.single("image"), addPet);
 
 export default router;

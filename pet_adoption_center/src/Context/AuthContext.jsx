@@ -18,6 +18,7 @@ export const AuthProvider = ({ children }) => {
       const res = await api.get("/user/profile", {
         headers: { Authorization: `Bearer ${token}` },
       });
+      console.log(res.data)
       setUser(res.data);
     } catch (err) {
       console.error("Error fetching user:", err);
@@ -43,6 +44,11 @@ export const AuthProvider = ({ children }) => {
     fetchUser();
   }, []);
 
+    const logout = () => {
+    localStorage.removeItem("token"); // remove JWT
+    setUser(null);                     // clear user state
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -51,6 +57,7 @@ export const AuthProvider = ({ children }) => {
         loading,
         fetchUser,
         updateUser,
+        logout
       }}
     >
       {children}

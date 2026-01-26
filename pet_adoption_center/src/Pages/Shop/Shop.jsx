@@ -103,7 +103,8 @@ const Shop = () => {
                   Add to Cart
                 </button>
 
-                <button
+                <button  onClick={() => {addToCart(product.id, 1, product.price) 
+                  navigate("/cart") }}
                   className="flex-1 bg-emerald-600 text-white py-1.5 rounded-lg text-xs hover:bg-emerald-700"
                 >
                   Buy Now
