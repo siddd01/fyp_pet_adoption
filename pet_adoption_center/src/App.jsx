@@ -4,22 +4,25 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 
 // Pages
 import { AuthContext } from "./Context/AuthContext.jsx";
-import AboutUs from "./Pages/AboutUs/AboutUs";
-import Adopt from "./Pages/Adopt/Adopt";
-import AdoptionForm from "./Pages/Adopt/AdoptionForm.jsx";
-import PetDetails from "./Pages/Details/PetDetails";
-import ProductDetails from "./Pages/Details/ProductDetails";
-import Donate from "./Pages/Donate/Donate";
-import Dashboard from "./Pages/Home/Dashboard";
-import Home from "./Pages/Home/Home";
-import ForgotPassword from "./Pages/Login/ForgotPassword";
-import Login from "./Pages/Login/Login";
-import OTPVerification from "./Pages/Login/OTPVerification";
-import OTPVerificationReset from "./Pages/Login/OTPVerificationReset";
-import ResetPassword from "./Pages/Login/ResetPassword";
-import Cart from "./Pages/Shop/Cart";
-import Shop from "./Pages/Shop/Shop";
-import Profile from "./Profile/Profile";
+import AboutUs from "./User/Pages/AboutUs/AboutUs";
+import Adopt from "./User/Pages/Adopt/Adopt";
+import AdoptionForm from "./User/Pages/Adopt/AdoptionForm.jsx";
+import PetDetails from "./User/Pages/Details/PetDetails";
+import ProductDetails from "./User/Pages/Details/ProductDetails";
+import Donate from "./User/Pages/Donate/Donate";
+import Dashboard from "./User/Pages/Home/Dashboard";
+import Home from "./User/Pages/Home/Home";
+
+import AdminLogin from "./Admin/Pages/Login/AdminLogin.jsx";
+import AdminRegister from "./Admin/Pages/Login/AdminRegister.jsx";
+import ForgotPassword from "./User/Pages/Login/ForgotPassword";
+import Login from "./User/Pages/Login/Login";
+import OTPVerification from "./User/Pages/Login/OTPVerification";
+import OTPVerificationReset from "./User/Pages/Login/OTPVerificationReset";
+import ResetPassword from "./User/Pages/Login/ResetPassword";
+import Cart from "./User/Pages/Shop/Cart";
+import Shop from "./User/Pages/Shop/Shop";
+import Profile from "./User/Profile/Profile";
 
 // --------- Protected Route Component ---------
 const PrivateRoute = ({ children }) => {
@@ -37,6 +40,8 @@ const App = () => {
       <Routes>
         {/* Public Routes */}
         <Route path="/login" element={<Login />} />
+        <Route path="/admin-Login" element={<AdminLogin />} />
+        <Route path="/admin-Signup" element={<AdminRegister />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/otp-verification" element={<OTPVerification />} />
         <Route path="/otp-verification-reset" element={<OTPVerificationReset/>} />

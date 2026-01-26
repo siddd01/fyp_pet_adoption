@@ -1,6 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App.jsx";
+import { AdminAuthProvider } from "./Context/AdminAuthContext.jsx";
 import { AuthProvider } from "./Context/AuthContext.jsx";
 import { CartProvider } from "./Context/CartContext.jsx";
 import { PetProvider } from "./Context/PetContext.jsx";
@@ -13,7 +14,10 @@ ReactDOM.createRoot(document.getElementById("root")).render(
       <ProductProvider>
         <CartProvider>
           <PetProvider>
-          <App />
+            <AdminAuthProvider>
+                        <App />
+            </AdminAuthProvider>
+
           </PetProvider>
 
         </CartProvider>
