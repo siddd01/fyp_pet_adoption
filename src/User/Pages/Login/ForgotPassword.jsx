@@ -14,6 +14,7 @@ const ForgotPassword = () => {
 
 try {
   const res = await api.post("/auth/forgot-password", { email });
+
   alert(res.data.message); // show server response
  navigate("/otp-verification-reset", { state: { email } });
 } catch (error) {
