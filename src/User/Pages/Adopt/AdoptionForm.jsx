@@ -1,6 +1,6 @@
 import { useContext, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { AuthContext } from "../../../Context/AuthContext.jsx";
+import { AuthContext } from "../../../Context/AuthContext";
 import api from "../../../api/axios.js";
 
 const AdoptionForm = () => {

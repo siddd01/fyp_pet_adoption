@@ -1,7 +1,7 @@
 import { ArrowLeft, Calendar, Heart, Share2, Shield, Sparkles, Users } from 'lucide-react';
 import { useContext, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { PetContext } from '../../Context/PetContext';
+import { PetContext } from '../../../Context/PetContext';
 
 const PetDetails = () => {
   const { id } = useParams();

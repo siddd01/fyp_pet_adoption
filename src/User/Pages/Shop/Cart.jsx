@@ -1,6 +1,6 @@
 import { Minus, Plus, ShoppingCart, Trash2 } from "lucide-react";
 import { useContext } from "react";
-import { CartContext } from "../../Context/CartContext";
+import { CartContext } from "../../../Context/CartContext";
 
 const Cart = () => {
   const {

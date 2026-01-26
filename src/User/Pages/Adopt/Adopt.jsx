@@ -1,6 +1,6 @@
 import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { PetContext } from "../../Context/PetContext";
+import { PetContext } from "../../../Context/PetContext";
 
 const Adopt = () => {
   const [searchTerm, setSearchTerm] = useState("");
