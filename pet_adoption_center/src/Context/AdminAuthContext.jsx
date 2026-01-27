@@ -7,6 +7,7 @@ export const AdminAuthProvider = ({ children }) => {
   const [admin, setAdmin] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [AdminProfileLoading, setAdminProfileLoading] = useState(true);
 
   // Check if user is already logged in on mount
   useEffect(() => {
@@ -15,7 +16,8 @@ export const AdminAuthProvider = ({ children }) => {
     const token = localStorage.getItem("adminToken");
     const storedAdmin = localStorage.getItem("admin");
     
-    if (token && storedAdmin) {
+if (token && token !== "null" && storedAdmin) {
+
       setAdmin(JSON.parse(storedAdmin));
       setIsAuthenticated(true);
     }
@@ -54,6 +56,32 @@ export const AdminAuthProvider = ({ children }) => {
     setIsAuthenticated(false);
   };
 
+  const fetchAdminProfile = async () => {
+  try {
+    const token = localStorage.getItem("adminToken");
+
+    if (!token) throw "Not authenticated";
+
+    const res = await api.get("/admin/profile", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    setAdmin(res.data);
+    localStorage.setItem("admin", JSON.stringify(res.data));
+
+    return res.data;
+  } catch (error) {
+    console.error("Failed to fetch admin profile", error);
+    throw error.response?.data?.message || "Failed to load profile";
+  }
+  finally{
+    setAdminProfileLoading(false);  
+  }
+};
+
+
   return (
     <AdminAuthContext.Provider
       value={{
@@ -62,6 +90,8 @@ export const AdminAuthProvider = ({ children }) => {
         loading,
         adminLogin,
         adminLogout,
+        fetchAdminProfile,
+        AdminProfileLoading,
       }}
     >
       {children}

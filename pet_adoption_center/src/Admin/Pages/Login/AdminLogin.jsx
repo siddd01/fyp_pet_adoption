@@ -4,7 +4,7 @@ import { AdminAuthContext } from "../../../Context/AdminAuthContext";
 
 const AdminLogin = () => {
   const { adminLogin } = useContext(AdminAuthContext);
-  const navigate = useNavigate(); // <-- moved here
+  const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -17,11 +17,13 @@ const AdminLogin = () => {
     setLoading(true);
 
     try {
+      // ✅ Use adminLogin from context
       await adminLogin(email, password);
-      // Navigate after successful login
-      navigate("/admin/dashboard"); 
+
+      // Login successful, redirect
+      navigate("/admin/Home");
     } catch (err) {
-      setError(err);
+      setError(err); // err is string from context
     } finally {
       setLoading(false);
     }

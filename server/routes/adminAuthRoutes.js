@@ -3,14 +3,11 @@ import {
     adminLogin,
     adminRegister,
 } from "../controllers/adminAuthController.js";
-import adminAuth from "../middleware/adminAuthMiddleware.js";
 
 const router = express.Router();
 
-// SUPER_ADMIN creates admins
-router.post("/register", adminAuth(["SUPER_ADMIN"]), adminRegister);
-
-// Admin login
+// ✅ NO middleware here
+router.post("/register", adminRegister);
 router.post("/login", adminLogin);
 
 export default router;

@@ -4,6 +4,7 @@ import adminAuth from "../middleware/adminAuthMiddleware.js";
 
 const router = express.Router();
 
+// 🔒 Protected route
 router.get("/profile", adminAuth(), getAdminProfile);
 
 export default router;

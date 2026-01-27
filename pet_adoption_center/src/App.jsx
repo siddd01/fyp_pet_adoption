@@ -13,6 +13,7 @@ import Donate from "./User/Pages/Donate/Donate";
 import Dashboard from "./User/Pages/Home/Dashboard";
 import Home from "./User/Pages/Home/Home";
 
+import AdminHome from "./Admin/Pages/Home/AdminHome.jsx";
 import AdminLogin from "./Admin/Pages/Login/AdminLogin.jsx";
 import AdminRegister from "./Admin/Pages/Login/AdminRegister.jsx";
 import ForgotPassword from "./User/Pages/Login/ForgotPassword";
@@ -46,6 +47,7 @@ const App = () => {
         <Route path="/otp-verification" element={<OTPVerification />} />
         <Route path="/otp-verification-reset" element={<OTPVerificationReset/>} />
         <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/admin/Home" element={<AdminHome />} />
 
         {/* Protected Routes */}
         <Route
