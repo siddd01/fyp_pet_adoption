@@ -64,20 +64,19 @@ export const staffLogin = async (req, res) => {
     res.status(500).json({ message: "Login failed" });
   }
 };
-
-// Delete Staff (only MANAGER can delete)
 export const deleteStaff = async (req, res) => {
   const { staff_id } = req.params;
 
   try {
-    // Only MANAGER can delete
-    if (req.staff.role !== "MANAGER") {
+    // Only ADMIN can delete
+    if (req.staff.role !== "ADMIN") {
       return res.status(403).json({ message: "Access denied" });
     }
 
     const [result] = await db.query("DELETE FROM staff WHERE staff_id = ?", [staff_id]);
 
-    if (result.affectedRows === 0) return res.status(404).json({ message: "Staff not found" });
+    if (result.affectedRows === 0) 
+      return res.status(404).json({ message: "Staff not found" });
 
     res.json({ message: "Staff deleted successfully" });
   } catch (error) {

@@ -16,6 +16,7 @@ import Home from "./User/Pages/Home/Home";
 import AdminHome from "./Admin/Pages/Home/AdminHome.jsx";
 import AdminLogin from "./Admin/Pages/Login/AdminLogin.jsx";
 import AdminRegister from "./Admin/Pages/Login/AdminRegister.jsx";
+import StaffLogin from "./Staff/Pages/Login/StaffLogin.jsx";
 import ForgotPassword from "./User/Pages/Login/ForgotPassword";
 import Login from "./User/Pages/Login/Login";
 import OTPVerification from "./User/Pages/Login/OTPVerification";
@@ -41,6 +42,7 @@ const App = () => {
       <Routes>
         {/* Public Routes */}
         <Route path="/login" element={<Login />} />
+        <Route path="/staff-login" element={<StaffLogin/>} />
         <Route path="/admin-Login" element={<AdminLogin />} />
         <Route path="/admin-Signup" element={<AdminRegister />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
