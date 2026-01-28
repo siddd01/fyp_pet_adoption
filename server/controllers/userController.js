@@ -1,40 +1,47 @@
 import db from "../config/db.js";
 
-// Get currently logged-in user's profile
-export const getLoggedInUser = async (req, res) => {
+
+// controllers/userController.js
+export const getUserProfile = async (req, res) => {
+  const userId = req.user?.id;
+
+  if (!userId) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+
   try {
-    const userId = req.user.id;
-    
-    // Use profile_image instead of image
     const [rows] = await db.execute(
-      `SELECT 
-        u.id, 
-        u.first_name, 
-        u.last_name, 
-        u.email, 
-        u.role_id,
-        r.name as role,
-        u.date_of_birth, 
-        u.gender, 
-        u.profile_image as image,
-        u.is_verified, 
-        u.created_at 
+      `
+      SELECT 
+        u.id,
+        u.first_name,
+        u.last_name,
+        u.email,
+        u.date_of_birth,
+        u.gender,
+        u.profile_image AS image,
+        r.name AS role,
+        u.is_verified,
+        u.created_at
       FROM users u
       LEFT JOIN roles r ON u.role_id = r.id
-      WHERE u.id = ?`,
+      WHERE u.id = ?
+      `,
       [userId]
     );
 
-    if (rows.length === 0) {
+    if (!rows.length) {
       return res.status(404).json({ message: "User not found" });
     }
 
     res.json(rows[0]);
   } catch (error) {
-    console.error("Error fetching logged-in user:", error);
+    console.error("Profile error:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
+
+
 export const updateUserProfile = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -46,13 +53,16 @@ export const updateUserProfile = async (req, res) => {
       });
     }
 
-    // Cloudinary image URL (if uploaded)
-    const imageUrl = req.file ? req.file.path : null;
+    const imageUrl = req.file?.path || null;
 
     let query = `
       UPDATE users
-      SET first_name = ?, last_name = ?, date_of_birth = ?, gender = ?
+      SET first_name = ?, 
+          last_name = ?, 
+          date_of_birth = ?, 
+          gender = ?
     `;
+
     const values = [
       first_name,
       last_name,
@@ -60,7 +70,6 @@ export const updateUserProfile = async (req, res) => {
       gender || null,
     ];
 
-    // Only update image if a new one was uploaded
     if (imageUrl) {
       query += `, profile_image = ?`;
       values.push(imageUrl);
@@ -71,21 +80,20 @@ export const updateUserProfile = async (req, res) => {
 
     await db.execute(query, values);
 
-    // Fetch updated user
+    // return UPDATED user (same format as getUserProfile)
     const [rows] = await db.execute(
       `
       SELECT 
-        u.id, 
-        u.first_name, 
-        u.last_name, 
-        u.email, 
-        u.role_id,
-        r.name as role,
-        u.date_of_birth, 
-        u.gender, 
-        u.profile_image as image,
-        u.is_verified, 
-        u.created_at 
+        u.id,
+        u.first_name,
+        u.last_name,
+        u.email,
+        u.date_of_birth,
+        u.gender,
+        u.profile_image AS image,
+        r.name AS role,
+        u.is_verified,
+        u.created_at
       FROM users u
       LEFT JOIN roles r ON u.role_id = r.id
       WHERE u.id = ?
@@ -95,7 +103,10 @@ export const updateUserProfile = async (req, res) => {
 
     res.json(rows[0]);
   } catch (error) {
-    console.error("Error updating user profile:", error);
+    console.error("Error updating profile:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
+
+
+

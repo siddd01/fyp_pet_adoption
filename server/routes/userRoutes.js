@@ -1,11 +1,11 @@
 import express from "express";
-import { getLoggedInUser, updateUserProfile } from "../controllers/userController.js";
+import { getUserProfile, updateUserProfile } from "../controllers/userController.js";
 import { verifyToken } from "../middleware/authMiddleware.js";
 import upload from "../middleware/uploadMiddleware.js";
 const router = express.Router();
 
 // GET /api/user/profile
-router.get("/profile", verifyToken, getLoggedInUser);
+router.get("/profile", verifyToken, getUserProfile);
 
 // PUT /api/user/profile - Update user profile
 router.put(

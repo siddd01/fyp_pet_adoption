@@ -1,13 +1,11 @@
-import AdminProfile from '../../Profile/AdminProfile'
-import AdminDeleteStaff from './AdminDeleteStaff'
-import AdminStaffRegister from './AdminStaffRegister'
+import { Outlet } from 'react-router-dom'
+import AdminNavbar from '../../Components/AdminNavbar'
 
 const AdminHome = () => {
   return (
     <div>
-        <AdminDeleteStaff/>
-        <AdminStaffRegister/>
-      <AdminProfile/>
+      <AdminNavbar/>
+       <Outlet/>
     </div>
   )
 }

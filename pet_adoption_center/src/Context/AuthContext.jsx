@@ -7,47 +7,59 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchUser = async () => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      setLoading(false);
-      return;
-    }
+  // 🔹 Fetch logged-in user profile
 
-    try {
-      const res = await api.get("/user/profile", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      console.log(res.data)
-      setUser(res.data);
-    } catch (err) {
-      console.error("Error fetching user:", err);
-      setUser(null);
-    } finally {
-      setLoading(false);
-    }
-  };
+const fetchUser = async () => {
+  try {
+    const res = await api.get("/user/profile");
+    setUser(res.data);
+  } catch (err) {
+    console.error("Error fetching user:", err);
+    setUser(null);
+    localStorage.removeItem("token");
+  } finally {
+    setLoading(false);
+  }
+};
 
+
+
+  // 🔹 Update profile (FIXED: FormData)
   const updateUser = async (updatedData) => {
     const token = localStorage.getItem("token");
-    if (!token) throw new Error("No token found");
+    if (!token) return;
 
-    const res = await api.put("/user/profile", updatedData, {
-      headers: { Authorization: `Bearer ${token}` },
+    const formData = new FormData();
+    formData.append("first_name", updatedData.first_name);
+    formData.append("last_name", updatedData.last_name);
+    formData.append("date_of_birth", updatedData.date_of_birth || "");
+    formData.append("gender", updatedData.gender || "");
+
+    if (updatedData.image instanceof File) {
+      formData.append("image", updatedData.image);
+    }
+
+    const res = await api.put("/user/profile", formData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "multipart/form-data",
+      },
     });
 
-    setUser(res.data);
+    setUser(res.data); // 🔥 update context instantly
     return res.data;
   };
 
+  // 🔹 Logout
+  const logout = () => {
+    localStorage.removeItem("token");
+    setUser(null);
+  };
+
+  // 🔹 Run once on app load
   useEffect(() => {
     fetchUser();
   }, []);
-
-    const logout = () => {
-    localStorage.removeItem("token"); // remove JWT
-    setUser(null);                     // clear user state
-  };
 
   return (
     <AuthContext.Provider
@@ -57,7 +69,7 @@ export const AuthProvider = ({ children }) => {
         loading,
         fetchUser,
         updateUser,
-        logout
+        logout,
       }}
     >
       {children}

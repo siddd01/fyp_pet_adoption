@@ -8,38 +8,30 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const { setUser } = useContext(AuthContext); // Get setUser from context
+  const { setUser, fetchUser } = useContext(AuthContext); // Get setUser and fetchUser from context
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
+ const handleSubmit = async (e) => {
+  e.preventDefault();
+  setLoading(true);
 
-    try {
-      console.log("Sending login request...");
+  try {
+    const res = await api.post("/auth/login", { email, password });
 
-      const res = await api.post("/auth/login", { email, password });
-      console.log("Login response:", res);
-      
-      console.log("Login success:", res.data);
+    // 1️⃣ Save JWT only
+    localStorage.setItem("token", res.data.token);
 
-      // Save token and user to localStorage
-      localStorage.setItem("token", res.data.token);
-      localStorage.setItem("user", JSON.stringify(res.data.user));
+    // 2️⃣ Fetch full user profile
+    await fetchUser();
 
-      // Update AuthContext user state
-      setUser(res.data.user);
-
-      // Navigate to home
-      navigate("/");
-
-    } catch (error) {
-      console.log("Login error:", error);
-      alert(error.response?.data?.message || "Invalid email or password");
-    } finally {
-      console.log("Finally block running");
-      setLoading(false);
-    }
-  };
+    // 3️⃣ Go home
+    navigate("/");
+  } catch (error) {
+    console.error("Login error:", error);
+    alert(error.response?.data?.message || "Invalid email or password");
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100">

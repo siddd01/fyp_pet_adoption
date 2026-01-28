@@ -13,7 +13,7 @@ const staffAuth = (roles = []) => {
       return res.status(403).json({ message: "Access denied" });
     }
 
-    req.staff = decoded; // <-- decoded.role is 'ADMIN'
+    req.staff = decoded;
     next();
   };
 };

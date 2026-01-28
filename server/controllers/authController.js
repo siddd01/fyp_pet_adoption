@@ -3,58 +3,51 @@ import jwt from "jsonwebtoken";
 import db from "../config/db.js";
 import sendEmail from "../utils/sendEmail.js";
 
+// controllers/authController.js
 export const signup = async (req, res) => {
+  const {
+    first_name,
+    last_name,
+    email,
+    password,
+    role_id,
+    date_of_birth,
+    gender
+  } = req.body;
+
+  if (!first_name || !last_name || !email || !password || !role_id) {
+    return res.status(400).json({ message: "Missing required fields" });
+  }
+
   try {
-    const { first_name, last_name, email, password, role_id, date_of_birth, gender } = req.body;
-
-    // Check if email exists
-    const [existingUser] = await db.query("SELECT id FROM users WHERE email = ?", [email]);
-    if (existingUser.length > 0) {
-      return res.status(409).json({ success: false, message: "Email already exists."});
-    }
-
-    // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Generate OTP
-    const otp = Math.floor(100000 + Math.random() * 900000);
-    const otp_expiry = new Date(Date.now() + 10 * 60 * 1000);
-
-    // Insert user into DB
-    await db.query(
+    const [result] = await db.execute(
       `INSERT INTO users 
-      (first_name, last_name, email, password, role_id, date_of_birth, gender, otp, otp_expiry) 
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [first_name, last_name, email, hashedPassword, role_id, date_of_birth, gender, otp, otp_expiry]
+       (first_name, last_name, email, password, role_id, date_of_birth, gender)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [
+        first_name,
+        last_name,
+        email,
+        hashedPassword,
+        role_id,
+        date_of_birth || null,
+        gender || null,
+      ]
     );
 
-    // ----------------------------
-    // Send OTP via email
-    // ----------------------------
-    await sendEmail({
-      to: email,
-      subject: "Your OTP for Pet Adoption Center",
-      text: `Your OTP is ${otp}. It is valid for 10 minutes.`,
-    });
-
-    // Respond success
     res.status(201).json({
-      success: true,
-      message: "Account created successfully! OTP sent to email."
+      message: "Signup successful. Please verify OTP.",
+      user_id: result.insertId,
     });
 
   } catch (error) {
-    console.log(error);
-    if (error.code === "ER_DUP_ENTRY") {
-      return res.status(409).json({ success: false, message: "Email already exists." });
-    }
-    res.status(500).json({ success: false, message: "Internal server error." });
+    console.error("Signup error:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
-
-
-// ----------------------
 // Verify OTP
 // ----------------------
 
