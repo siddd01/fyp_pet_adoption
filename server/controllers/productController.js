@@ -56,3 +56,63 @@ export const getProductById = async (req, res) => {
     res.status(500).json({ error: "Failed to fetch product" });
   }
 };
+export const updateProduct = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, description, category, price, stock, quantity } = req.body;
+
+    const imageUrl = req.file ? req.file.path : null;
+
+    // check product exists
+    const [existing] = await db.execute(
+      "SELECT * FROM products WHERE id = ?",
+      [id]
+    );
+
+    if (existing.length === 0) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    const sql = `
+      UPDATE products
+      SET name = ?, description = ?, category = ?, price = ?, stock = ?, quantity = ?,
+          image_url = ?
+      WHERE id = ?
+    `;
+
+    await db.execute(sql, [
+      name,
+      description,
+      category,
+      price,
+      stock,
+      quantity,
+      imageUrl || existing[0].image_url,
+      id,
+    ]);
+
+    res.json({ message: "Product updated successfully" });
+  } catch (error) {
+    console.error("Update product error:", error);
+    res.status(500).json({ error: "Failed to update product" });
+  }
+};
+export const deleteProduct = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const [result] = await db.execute(
+      "DELETE FROM products WHERE id = ?",
+      [id]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    res.json({ message: "Product deleted successfully" });
+  } catch (error) {
+    console.error("Delete product error:", error);
+    res.status(500).json({ error: "Failed to delete product" });
+  }
+};

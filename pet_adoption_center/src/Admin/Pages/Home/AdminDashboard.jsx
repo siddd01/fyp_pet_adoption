@@ -1,9 +1,9 @@
 import {
-    ClipboardList,
-    HeartHandshake,
-    PawPrint,
-    ShoppingBag,
-    Users,
+  ClipboardList,
+  HeartHandshake,
+  PawPrint,
+  ShoppingBag,
+  Users,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -23,24 +23,31 @@ const AdminDashboard = () => {
       color: "bg-blue-100 text-blue-600",
     },
     {
-      title: "Pet Management",
+      title: "Pet Delete",
       desc: "Add, edit and manage pets",
       icon: <PawPrint size={32} />,
-      link: "/admin/pets",
+      link: "/admin/pet/delete-pets",
+      color: "bg-green-100 text-green-600",
+    },
+    {
+      title: "Pet add",
+      desc: "Add, edit and manage pets",
+      icon: <PawPrint size={32} />,
+      link: "/admin/pet/add-pets",
       color: "bg-green-100 text-green-600",
     },
     {
       title: "Adoption Requests",
       desc: "Approve or reject adoption requests",
       icon: <ClipboardList size={32} />,
-      link: "/admin/adoptions",
+      link: "/admin/pet/handle-adoptions",
       color: "bg-yellow-100 text-yellow-600",
     },
     {
-      title: "Store Management",
+      title: "Restock Store Management",
       desc: "Manage products and orders",
       icon: <ShoppingBag size={32} />,
-      link: "/admin/store",
+      link: "store/handle-product",
       color: "bg-purple-100 text-purple-600",
     },
     {

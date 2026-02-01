@@ -81,6 +81,44 @@ if (token && token !== "null" && storedAdmin) {
   }
 };
 
+// Add pet (Admin)
+const addPet = async (formData) => {
+  try {
+    const token = localStorage.getItem("adminToken");
+
+    const res = await api.post("/pets", formData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    return res.data;
+  } catch (error) {
+    console.error("Failed to add pet", error);
+    throw error.response?.data?.message || "Failed to add pet";
+  }
+};
+
+// Delete pet by ID (Admin)
+const deletePet = async (id) => {
+  try {
+    const token = localStorage.getItem("adminToken");
+
+    const res = await api.delete(`/pets/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return res.data;
+  } catch (error) {
+    console.error("Failed to delete pet", error);
+    throw error.response?.data?.message || "Failed to delete pet";
+  }
+};
+
+
 
   return (
     <AdminAuthContext.Provider
@@ -92,6 +130,8 @@ if (token && token !== "null" && storedAdmin) {
         adminLogout,
         fetchAdminProfile,
         AdminProfileLoading,
+            addPet,
+    deletePet,
       }}
     >
       {children}

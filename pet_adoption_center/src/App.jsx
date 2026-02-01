@@ -34,7 +34,12 @@ import AdminStaffRegister from "./Admin/Pages/Staff/AdminStaffRegister.jsx";
 import StaffLogin from "./Staff/Pages/Login/StaffLogin.jsx";
 
 // Admin Guard
+import AdminHandleAdoption from "./Admin/Pages/Adoptions/AdminHandleAdoption.jsx";
+import AdminAddPets from "./Admin/Pages/Pets/AdminAddPets.jsx";
+import AdminDeletePets from "./Admin/Pages/Pets/AdminDeletePets.jsx";
 import AdminAddProduct from "./Admin/Pages/Store/AdminAddProduct.jsx";
+import AdminEditProduct from "./Admin/Pages/Store/AdminEditProduct.jsx";
+import AdminProducts from "./Admin/Pages/Store/AdminProducts.jsx";
 import AdminPrivateRoute from "./Admin/Routes/AdminPrivateRoute.jsx";
 import Signup from "./User/Pages/Login/Signup.jsx";
 
@@ -78,6 +83,14 @@ const App = () => {
           <Route path="staff/add" element={<AdminStaffRegister />} />
           <Route path="staff/delete" element={<AdminDeleteStaff />} />
           <Route path="store/add-product" element={<AdminAddProduct />} />
+          <Route path="store/handle-product" element={<AdminProducts />} />
+          <Route path="products/edit/:id" element={<AdminEditProduct />} />
+          <Route path="pet/delete-pets" element={<AdminDeletePets />} />
+          <Route path="pet/add-pets" element={<AdminAddPets />} />
+          <Route path="pet/handle-adoptions" element={<AdminHandleAdoption />} />
+
+
+
         </Route>
 
         {/* -------- User Routes -------- */}
