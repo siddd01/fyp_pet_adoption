@@ -40,6 +40,7 @@ import StaffHandleAdoption from "./Staff/Pages/Adoptions/StaffHandleAdoption.jsx
 import StaffAddProduct from "./Staff/Pages/Store/StaffAddProduct.jsx";
 import StaffProducts from "./Staff/Pages/Store/StaffProducts.jsx";
 import StaffEditProduct from "./Staff/Pages/Store/StaffEditProduct.jsx";
+import StaffProfile from "./Staff/Pages/Profile/StaffProfile.jsx";
 
 // Admin Guard
 import AdminHandleAdoption from "./Admin/Pages/Adoptions/AdminHandleAdoption.jsx";
@@ -130,6 +131,7 @@ const App = () => {
           <Route path="store/add-product" element={<StaffAddProduct />} />
           <Route path="store/products" element={<StaffProducts />} />
           <Route path="store/products/edit/:id" element={<StaffEditProduct />} />
+          <Route path="profile" element={<StaffProfile />} />
         </Route>
 
         {/* -------- User Routes -------- */}

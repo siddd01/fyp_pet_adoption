@@ -84,3 +84,99 @@ export const deleteStaff = async (req, res) => {
     res.status(500).json({ message: "Failed to delete staff" });
   }
 };
+
+// Get Staff Profile
+export const getStaffProfile = async (req, res) => {
+  try {
+    const staffId = req.staff.staff_id;
+    
+    const [rows] = await db.query(
+      `SELECT staff_id, first_name, last_name, email, phone_number, date_of_birth, role, profile_image, status
+       FROM staff WHERE staff_id = ?`,
+      [staffId]
+    );
+
+    if (!rows.length) {
+      return res.status(404).json({ message: "Staff not found" });
+    }
+
+    res.json(rows[0]);
+  } catch (error) {
+    console.error("Error fetching staff profile:", error);
+    res.status(500).json({ message: "Failed to fetch profile" });
+  }
+};
+
+// Update Staff Profile
+export const updateStaffProfile = async (req, res) => {
+  try {
+    console.log("Update staff profile request received");
+    console.log("Staff from token:", req.staff);
+    
+    const staffId = req.staff.staff_id;
+    
+    if (!staffId) {
+      return res.status(401).json({ message: "Staff ID not found in token" });
+    }
+
+    const { first_name, last_name, phone_number, date_of_birth } = req.body;
+    
+    console.log("Request body:", { first_name, last_name, phone_number, date_of_birth });
+    console.log("File uploaded:", req.file ? "Yes" : "No");
+
+    if (!first_name || !last_name) {
+      return res.status(400).json({
+        message: "First name and last name are required",
+      });
+    }
+
+    // Cloudinary image URL (if uploaded)
+    const imageUrl = req.file ? req.file.path : null;
+    console.log("Image URL:", imageUrl);
+
+    let query = `
+      UPDATE staff
+      SET first_name = ?, 
+          last_name = ?, 
+          phone_number = ?, 
+          date_of_birth = ?
+    `;
+
+    const values = [
+      first_name,
+      last_name,
+      phone_number || null,
+      date_of_birth || null,
+    ];
+
+    // Only update image if a new one was uploaded
+    if (imageUrl) {
+      query += `, profile_image = ?`;
+      values.push(imageUrl);
+    }
+
+    query += ` WHERE staff_id = ?`;
+    values.push(staffId);
+
+    console.log("Executing query:", query);
+    console.log("Values:", values);
+
+    await db.query(query, values);
+
+    // Fetch updated staff profile
+    const [rows] = await db.query(
+      `SELECT staff_id, first_name, last_name, email, phone_number, date_of_birth, role, profile_image, status
+       FROM staff WHERE staff_id = ?`,
+      [staffId]
+    );
+
+    console.log("Updated staff profile:", rows[0]);
+    res.json(rows[0]);
+  } catch (error) {
+    console.error("Error updating staff profile:", error);
+    res.status(500).json({ 
+      message: "Server error",
+      error: error.message 
+    });
+  }
+};

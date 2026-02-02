@@ -1,4 +1,4 @@
-import { createContext, useEffect, useState } from "react";
+import { createContext, useCallback, useEffect, useState } from "react";
 import api from "../api/axios"; // Adjust path
 
 export const StaffContext = createContext();
@@ -84,6 +84,59 @@ export const StaffProvider = ({ children }) => {
     }
   };
 
+  // Fetch Staff Profile
+  const fetchStaffProfile = useCallback(async () => {
+    try {
+      const token = localStorage.getItem("staffToken");
+
+      if (!token) {
+        throw new Error("Not authenticated");
+      }
+
+      const res = await api.get("/staff/profile", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      setStaff(res.data);
+      localStorage.setItem("staff", JSON.stringify(res.data));
+
+      return res.data;
+    } catch (error) {
+      console.error("Failed to fetch staff profile", error);
+      const errorMessage = error.response?.data?.message || error.message || "Failed to load profile";
+      throw new Error(errorMessage);
+    }
+  }, []);
+
+  // Update Staff Profile
+  const updateStaffProfile = useCallback(async (formData) => {
+    try {
+      const token = localStorage.getItem("staffToken");
+
+      if (!token) {
+        throw new Error("Not authenticated");
+      }
+
+      const res = await api.put("/staff/profile", formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      setStaff(res.data);
+      localStorage.setItem("staff", JSON.stringify(res.data));
+
+      return res.data;
+    } catch (error) {
+      console.error("Failed to update staff profile", error);
+      const errorMessage = error.response?.data?.message || error.message || "Failed to update profile";
+      throw new Error(errorMessage);
+    }
+  }, []);
+
   return (
     <StaffContext.Provider
       value={{
@@ -95,6 +148,8 @@ export const StaffProvider = ({ children }) => {
         staffLogout,
         addPet,
         deletePet,
+        fetchStaffProfile,
+        updateStaffProfile,
       }}
     >
       {children}
