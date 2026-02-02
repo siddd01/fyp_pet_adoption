@@ -39,7 +39,7 @@ const AdminEditProduct = () => {
     if (image) data.append("image", image);
 
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("adminToken");
       await api.put(`/products/${id}`, data, {
         headers: {
           Authorization: `Bearer ${token}`,

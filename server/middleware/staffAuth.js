@@ -1,5 +1,5 @@
-import jwt from "jsonwebtoken";
-const staffAuth = (roles = []) => {
+  import jwt from "jsonwebtoken";
+  const staffAuth = (roles = []) => {
   return (req, res, next) => {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -7,16 +7,18 @@ const staffAuth = (roles = []) => {
     }
 
     const token = authHeader.split(" ")[1];
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-    if (roles.length && !roles.includes(decoded.role)) {
-      return res.status(403).json({ message: "Access denied" });
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      if (roles.length && !roles.includes(decoded.role)) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      req.staff = decoded;
+      next();
+    } catch (err) {
+      return res.status(401).json({ message: "Invalid token" });
     }
-
-    req.staff = decoded;
-    next();
   };
-};
+  };
 
 
-export default staffAuth;
+  export default staffAuth;

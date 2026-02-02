@@ -50,13 +50,13 @@ useEffect(() => {
         </li>
 
         <li>
-          <Link to="/admin/staff/add" className="hover:text-teal-600">
+          <Link to="/admin/staff-add" className="hover:text-teal-600">
             Add Staff
           </Link>
         </li>
 
         <li>
-          <Link to="/admin/staff/delete" className="hover:text-teal-600">
+          <Link to="/admin/staff-delete" className="hover:text-teal-600">
             Remove Staff
           </Link>
         </li>

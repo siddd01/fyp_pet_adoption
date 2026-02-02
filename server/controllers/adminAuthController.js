@@ -29,6 +29,11 @@ console.log("Authorization header:", req.headers.authorization);
 
       try {
         requestingAdmin = jwt.verify(token, process.env.JWT_SECRET);
+
+if (requestingAdmin.role !== "ADMIN") {
+  return res.status(403).json({ message: "Admins only" });
+}
+
       } catch (err) {
         return res.status(401).json({ message: "Invalid token" });
       }

@@ -12,7 +12,7 @@ const AdminProducts = () => {
     if (!window.confirm("Delete this product?")) return;
 
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("adminToken");
       await api.delete(`/products/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,

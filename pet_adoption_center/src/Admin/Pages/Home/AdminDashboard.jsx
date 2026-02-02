@@ -13,13 +13,13 @@ const AdminDashboard = () => {
       title: "Add Staff Management",
       desc: "Add staff members",
       icon: <Users size={32} />,
-      link: "/admin/staff/add",
+      link: "/admin/staff-add",
       color: "bg-blue-100 text-blue-600",
     },    {
       title: "Remove Staff ",
       desc: "Remove staff members",
       icon: <Users size={32} />,
-      link: "/admin/staff/delete",
+      link: "/admin/staff-delete",
       color: "bg-blue-100 text-blue-600",
     },
     {

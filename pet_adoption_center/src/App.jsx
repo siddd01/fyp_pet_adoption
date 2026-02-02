@@ -41,6 +41,8 @@ import AdminAddProduct from "./Admin/Pages/Store/AdminAddProduct.jsx";
 import AdminEditProduct from "./Admin/Pages/Store/AdminEditProduct.jsx";
 import AdminProducts from "./Admin/Pages/Store/AdminProducts.jsx";
 import AdminPrivateRoute from "./Admin/Routes/AdminPrivateRoute.jsx";
+import StaffDashboard from "./Staff/Pages/Home/StaffDashboard.jsx";
+import StaffHome from "./Staff/Pages/Home/StaffHome.jsx";
 import Signup from "./User/Pages/Login/Signup.jsx";
 
 // -------- User Protected Route --------
@@ -61,7 +63,7 @@ const App = () => {
         {/* -------- Public Routes -------- */}
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-        <Route path="/staff-login" element={<StaffLogin />} />
+        <Route path="/staff/login" element={<StaffLogin />} />
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/admin/signup" element={<AdminRegister />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -80,14 +82,31 @@ const App = () => {
         >
           <Route index element={<AdminDashboard />} />
           <Route path="dashboard" element={<AdminDashboard />} />
-          <Route path="staff/add" element={<AdminStaffRegister />} />
-          <Route path="staff/delete" element={<AdminDeleteStaff />} />
+          <Route path="staff-add" element={<AdminStaffRegister />} />
+          <Route path="staff-delete" element={<AdminDeleteStaff />} />
           <Route path="store/add-product" element={<AdminAddProduct />} />
           <Route path="store/handle-product" element={<AdminProducts />} />
           <Route path="products/edit/:id" element={<AdminEditProduct />} />
           <Route path="pet/delete-pets" element={<AdminDeletePets />} />
           <Route path="pet/add-pets" element={<AdminAddPets />} />
           <Route path="pet/handle-adoptions" element={<AdminHandleAdoption />} />
+
+
+
+        </Route>
+
+
+          <Route
+          path="/staff"
+          element={
+         
+              <StaffHome />
+
+          }
+        >
+          <Route index element={<StaffDashboard />} />
+          <Route path="dashboard" element={<StaffDashboard />} />
+
 
 
 
