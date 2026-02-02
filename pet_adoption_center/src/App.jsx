@@ -3,6 +3,7 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 
 // Context
 import { AuthContext } from "./Context/AuthContext.jsx";
+import { StaffContext } from "./Context/StaffContext.jsx";
 
 // User Pages
 import AboutUs from "./User/Pages/AboutUs/AboutUs";
@@ -32,6 +33,13 @@ import AdminStaffRegister from "./Admin/Pages/Staff/AdminStaffRegister.jsx";
 
 // Staff
 import StaffLogin from "./Staff/Pages/Login/StaffLogin.jsx";
+import StaffAddPets from "./Staff/Pages/Pets/StaffAddPets.jsx";
+import StaffViewPets from "./Staff/Pages/Pets/StaffViewPets.jsx";
+import StaffDeletePets from "./Staff/Pages/Pets/StaffDeletePets.jsx";
+import StaffHandleAdoption from "./Staff/Pages/Adoptions/StaffHandleAdoption.jsx";
+import StaffAddProduct from "./Staff/Pages/Store/StaffAddProduct.jsx";
+import StaffProducts from "./Staff/Pages/Store/StaffProducts.jsx";
+import StaffEditProduct from "./Staff/Pages/Store/StaffEditProduct.jsx";
 
 // Admin Guard
 import AdminHandleAdoption from "./Admin/Pages/Adoptions/AdminHandleAdoption.jsx";
@@ -52,6 +60,15 @@ const PrivateRoute = ({ children }) => {
   if (loading) return <p>Loading...</p>;
 
   return user ? children : <Navigate to="/login" />;
+};
+
+// -------- Staff Protected Route --------
+const StaffPrivateRoute = ({ children }) => {
+  const { isAuthenticated, staffLoginLoading } = useContext(StaffContext);
+
+  if (staffLoginLoading) return <p>Loading...</p>;
+
+  return isAuthenticated ? children : <Navigate to="/staff/login" />;
 };
 
 // -------- App --------
@@ -99,17 +116,20 @@ const App = () => {
           <Route
           path="/staff"
           element={
-         
+            <StaffPrivateRoute>
               <StaffHome />
-
+            </StaffPrivateRoute>
           }
         >
           <Route index element={<StaffDashboard />} />
           <Route path="dashboard" element={<StaffDashboard />} />
-
-
-
-
+          <Route path="pets/add" element={<StaffAddPets />} />
+          <Route path="pets/view" element={<StaffViewPets />} />
+          <Route path="pets/delete" element={<StaffDeletePets />} />
+          <Route path="adoptions" element={<StaffHandleAdoption />} />
+          <Route path="store/add-product" element={<StaffAddProduct />} />
+          <Route path="store/products" element={<StaffProducts />} />
+          <Route path="store/products/edit/:id" element={<StaffEditProduct />} />
         </Route>
 
         {/* -------- User Routes -------- */}

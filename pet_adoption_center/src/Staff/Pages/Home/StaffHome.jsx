@@ -1,10 +1,13 @@
+import { Outlet } from 'react-router-dom';
+import StaffNavbar from '../../Components/StaffNavbar';
 
 const StaffHome = () => {
   return (
     <div>
-      home
+      <StaffNavbar />
+      <Outlet />
     </div>
-  )
-}
+  );
+};
 
-export default StaffHome
+export default StaffHome;

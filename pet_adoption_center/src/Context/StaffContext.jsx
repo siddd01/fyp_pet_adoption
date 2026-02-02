@@ -47,6 +47,43 @@ export const StaffProvider = ({ children }) => {
     setIsAuthenticated(false);
   };
 
+  // Add pet (Staff)
+  const addPet = async (formData) => {
+    try {
+      const token = localStorage.getItem("staffToken");
+
+      const res = await api.post("/pets", formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      return res.data;
+    } catch (error) {
+      console.error("Failed to add pet", error);
+      throw error.response?.data?.message || "Failed to add pet";
+    }
+  };
+
+  // Delete pet (Staff)
+  const deletePet = async (id) => {
+    try {
+      const token = localStorage.getItem("staffToken");
+
+      const res = await api.delete(`/pets/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      return res.data;
+    } catch (error) {
+      console.error("Failed to delete pet", error);
+      throw error.response?.data?.message || "Failed to delete pet";
+    }
+  };
+
   return (
     <StaffContext.Provider
       value={{
@@ -56,6 +93,8 @@ export const StaffProvider = ({ children }) => {
         setStaffLoginLoading,
         staffLogin,
         staffLogout,
+        addPet,
+        deletePet,
       }}
     >
       {children}
