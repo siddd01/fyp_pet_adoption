@@ -1,4 +1,5 @@
 import db from "../config/db.js";
+
 export const createAdoptionApplication = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -32,20 +33,33 @@ export const createAdoptionApplication = async (req, res) => {
       return res.status(400).json({ message: "Pet does not exist" });
     }
 
+    // 🔁 Check if application already exists
+    const [existingApplication] = await db.query(
+      "SELECT id FROM adoption_applications WHERE user_id = ? AND pet_id = ?",
+      [userId, petId]
+    );
+
+    if (existingApplication.length > 0) {
+      // ✅ Update existing application
+      await db.execute(
+        `UPDATE adoption_applications
+         SET full_name = ?, age = ?, job = ?, phone = ?, experience_with_pets = ?, reason_for_adoption = ?
+         WHERE user_id = ? AND pet_id = ?`,
+        [full_name, age, job, phone, experience_with_pets, reason_for_adoption, userId, petId]
+      );
+
+      return res.status(200).json({
+        success: true,
+        message: "Adoption application updated"
+      });
+    }
+
+    // ✅ Insert new application
     await db.execute(
       `INSERT INTO adoption_applications
-      (user_id, pet_id, full_name, age, job, phone, experience_with_pets, reason_for_adoption)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-      [
-        userId,
-        petId,
-        full_name,
-        age,
-        job,
-        phone,
-        experience_with_pets,
-        reason_for_adoption
-      ]
+       (user_id, pet_id, full_name, age, job, phone, experience_with_pets, reason_for_adoption)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [userId, petId, full_name, age, job, phone, experience_with_pets, reason_for_adoption]
     );
 
     res.status(201).json({
@@ -58,6 +72,7 @@ export const createAdoptionApplication = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
 
 
 // GET all adoption applications
@@ -85,6 +100,7 @@ export const updateAdoptionStatus = async (req, res) => {
   try {
     const { id } = req.params;
     const { status } = req.body;
+
 
     if (!["pending", "approved", "rejected"].includes(status)) {
       return res.status(400).json({ message: "Invalid status value" });
