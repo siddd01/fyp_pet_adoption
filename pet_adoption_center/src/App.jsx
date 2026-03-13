@@ -32,15 +32,15 @@ import AdminDeleteStaff from "./Admin/Pages/Staff/AdminDeleteStaff.jsx";
 import AdminStaffRegister from "./Admin/Pages/Staff/AdminStaffRegister.jsx";
 
 // Staff
+import StaffHandleAdoption from "./Staff/Pages/Adoptions/StaffHandleAdoption.jsx";
 import StaffLogin from "./Staff/Pages/Login/StaffLogin.jsx";
 import StaffAddPets from "./Staff/Pages/Pets/StaffAddPets.jsx";
-import StaffViewPets from "./Staff/Pages/Pets/StaffViewPets.jsx";
 import StaffDeletePets from "./Staff/Pages/Pets/StaffDeletePets.jsx";
-import StaffHandleAdoption from "./Staff/Pages/Adoptions/StaffHandleAdoption.jsx";
-import StaffAddProduct from "./Staff/Pages/Store/StaffAddProduct.jsx";
-import StaffProducts from "./Staff/Pages/Store/StaffProducts.jsx";
-import StaffEditProduct from "./Staff/Pages/Store/StaffEditProduct.jsx";
+import StaffViewPets from "./Staff/Pages/Pets/StaffViewPets.jsx";
 import StaffProfile from "./Staff/Pages/Profile/StaffProfile.jsx";
+import StaffAddProduct from "./Staff/Pages/Store/StaffAddProduct.jsx";
+import StaffEditProduct from "./Staff/Pages/Store/StaffEditProduct.jsx";
+import StaffProducts from "./Staff/Pages/Store/StaffProducts.jsx";
 
 // Admin Guard
 import AdminHandleAdoption from "./Admin/Pages/Adoptions/AdminHandleAdoption.jsx";

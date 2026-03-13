@@ -53,6 +53,7 @@ const Adopt = () => {
           <option value="All">All Pets</option>
           <option value="Dog">Dog</option>
           <option value="Cat">Cat</option>
+          <option value="Bird">Bird</option>
         </select>
       </div>
 

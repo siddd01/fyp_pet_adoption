@@ -7,7 +7,9 @@ const AdminLogin = () => {
   const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
+  // const [defaultEmail, setDefaultEmail] = useState("heroadmin@gmail.com");
   const [password, setPassword] = useState("");
+  // const [defaultPassword, setDefaultPassword] = useState("heroadmin");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -21,7 +23,7 @@ const AdminLogin = () => {
       await adminLogin(email, password);
 
       // Login successful, redirect
-      navigate("/admin/Home");
+      navigate("/admin");
     } catch (err) {
       setError(err); // err is string from context
     } finally {
@@ -43,7 +45,7 @@ const AdminLogin = () => {
 
         <input
           type="email"
-          placeholder="Admin Email"
+          placeholder="heroadmin@gmail.com"
           className="w-full mb-4 p-2 border rounded"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
@@ -52,7 +54,7 @@ const AdminLogin = () => {
 
         <input
           type="password"
-          placeholder="Password"
+          placeholder="heroadmin"
           className="w-full mb-6 p-2 border rounded"
           value={password}
           onChange={(e) => setPassword(e.target.value)}

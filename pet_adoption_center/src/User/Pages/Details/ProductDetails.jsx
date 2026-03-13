@@ -201,7 +201,9 @@ const ProductDetails = () => {
             <div className="bg-white rounded-2xl shadow-xl p-6 sticky top-24 border-2 border-emerald-100">
               <div className="mb-6">
                 <p className="text-sm text-gray-500 mb-2">Price</p>
-                <p className="text-4xl font-bold text-emerald-600">${product.price}</p>
+                <p className="text-4xl font-bold text-emerald-600">
+                              ${(product.price * cartQuantity).toFixed(2)}
+                            </p>
               </div>
 
               {/* Quantity Selector */}
@@ -248,7 +250,7 @@ const ProductDetails = () => {
 
               <div className="mt-6 p-4 bg-blue-50 rounded-xl border border-blue-200">
                 <p className="text-sm text-blue-800 font-medium">
-                  🚚 Free shipping on orders over $50
+                  🚚 Free shipping on orders over $150
                 </p>
               </div>
 

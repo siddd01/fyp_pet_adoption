@@ -35,6 +35,7 @@ const Login = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100">
+      
       <form
         onSubmit={handleSubmit}
         className="w-full max-w-md bg-white p-8 rounded-xl shadow-lg"
@@ -103,6 +104,25 @@ const Login = () => {
           >
             Sign up
           </span>
+          <div>
+               <div className="flex items-center justify-center gap-4 text-lg font-medium">
+      <span
+        onClick={() => navigate("/admin/login")}
+        className="cursor-pointer text-blue-600 hover:underline"
+      >
+        Admin
+      </span>
+
+      <span className="text-gray-400">|</span>
+
+      <span
+        onClick={() => navigate("/staff/login")}
+        className="cursor-pointer text-blue-600 hover:underline"
+      >
+        Staff
+      </span>
+    </div>
+          </div>
         </p>
       </form>
     </div>
