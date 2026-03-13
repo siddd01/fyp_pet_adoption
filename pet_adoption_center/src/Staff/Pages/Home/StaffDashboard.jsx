@@ -4,93 +4,175 @@ import {
   ShoppingBag,
   Trash2,
 } from "lucide-react";
-import { Link } from "react-router-dom";
 import { useContext } from "react";
+import { Link } from "react-router-dom";
 import { StaffContext } from "../../../Context/StaffContext";
 
 const StaffDashboard = () => {
   const { staff } = useContext(StaffContext);
-  
-  const cards = [
+
+  const groups = [
     {
-      title: "Add Pets",
-      desc: "Add new pets to the adoption center",
-      icon: <PawPrint size={32} />,
-      link: "/staff/pets/add",
-      color: "bg-green-100 text-green-600",
+      section: "Pets",
+      items: [
+        {
+          title: "Add Pet",
+          desc: "Register a new pet to the adoption listings",
+          icon: <PawPrint size={22} />,
+          link: "/staff/pets/add",
+          iconColor: "bg-emerald-100 text-emerald-600",
+          badge: "Pets",
+          badgeColor: "bg-emerald-100 text-emerald-700",
+        },
+        {
+          title: "View Pets",
+          desc: "Browse and manage all listed pets",
+          icon: <PawPrint size={22} />,
+          link: "/staff/pets/view",
+          iconColor: "bg-blue-100 text-blue-600",
+          badge: "Pets",
+          badgeColor: "bg-blue-100 text-blue-700",
+        },
+        {
+          title: "Delete Pet",
+          desc: "Remove a pet from the adoption listings",
+          icon: <Trash2 size={22} />,
+          link: "/staff/pets/delete",
+          iconColor: "bg-rose-100 text-rose-600",
+          badge: "Pets",
+          badgeColor: "bg-rose-100 text-rose-700",
+        },
+        {
+          title: "Adoption Requests",
+          desc: "Review and approve or reject adoption applications",
+          icon: <ClipboardList size={22} />,
+          link: "/staff/adoptions",
+          iconColor: "bg-amber-100 text-amber-600",
+          badge: "Adoptions",
+          badgeColor: "bg-amber-100 text-amber-700",
+        },
+      ],
     },
     {
-      title: "View Pets",
-      desc: "View and manage all pets",
-      icon: <PawPrint size={32} />,
-      link: "/staff/pets/view",
-      color: "bg-blue-100 text-blue-600",
-    },
-    {
-      title: "Delete Pets",
-      desc: "Delete pets from the system",
-      icon: <Trash2 size={32} />,
-      link: "/staff/pets/delete",
-      color: "bg-red-100 text-red-600",
-    },
-    {
-      title: "Adoption Requests",
-      desc: "Approve or reject adoption requests",
-      icon: <ClipboardList size={32} />,
-      link: "/staff/adoptions",
-      color: "bg-yellow-100 text-yellow-600",
-    },
-    {
-      title: "Store Management",
-      desc: "View and manage products",
-      icon: <ShoppingBag size={32} />,
-      link: "/staff/store/products",
-      color: "bg-purple-100 text-purple-600",
-    },
-    {
-      title: "Add Product",
-      desc: "Add new products to the store",
-      icon: <ShoppingBag size={32} />,
-      link: "/staff/store/add-product",
-      color: "bg-indigo-100 text-indigo-600",
+      section: "Store",
+      items: [
+        {
+          title: "Store Management",
+          desc: "View and manage existing store products",
+          icon: <ShoppingBag size={22} />,
+          link: "/staff/store/products",
+          iconColor: "bg-violet-100 text-violet-600",
+          badge: "Store",
+          badgeColor: "bg-violet-100 text-violet-700",
+        },
+        {
+          title: "Add Product",
+          desc: "List a new product in the store",
+          icon: <ShoppingBag size={22} />,
+          link: "/staff/store/add-product",
+          iconColor: "bg-indigo-100 text-indigo-600",
+          badge: "Store",
+          badgeColor: "bg-indigo-100 text-indigo-700",
+        },
+      ],
     },
   ];
 
-  return (
-    <div className="p-6">
-      {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold mb-2">
-          Staff Dashboard
-        </h1>
-        {staff && (
-          <p className="text-gray-600">
-            Welcome, {staff.first_name} {staff.last_name}!
-          </p>
-        )}
-      </div>
+  const allCards = groups.flatMap((g) => g.items);
 
-      {/* Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {cards.map((card, index) => (
-          <Link
-            key={index}
-            to={card.link}
-            className="bg-white shadow-md rounded-xl p-6 hover:shadow-lg transition"
-          >
-            <div
-              className={`w-14 h-14 flex items-center justify-center rounded-full ${card.color} mb-4`}
-            >
-              {card.icon}
-            </div>
-            <h2 className="text-lg font-semibold mb-1">
-              {card.title}
-            </h2>
-            <p className="text-gray-600 text-sm">
-              {card.desc}
+  const stats = [
+    { label: "Total Modules", value: allCards.length, color: "text-stone-800" },
+    { label: "Pet Actions", value: 4, color: "text-emerald-600" },
+    { label: "Store Actions", value: 2, color: "text-violet-600" },
+    { label: "Adoptions", value: 1, color: "text-amber-600" },
+  ];
+
+  return (
+    <div className="min-h-screen bg-stone-50 px-10 py-12">
+      <div className="max-w-6xl mx-auto">
+
+        {/* Header */}
+        <div className="flex items-end justify-between mb-10">
+          <div>
+            <p className="text-xs font-semibold tracking-widest text-gray-400 uppercase mb-1.5">
+              Control Center
             </p>
-          </Link>
-        ))}
+            <h1 className="text-4xl font-serif text-stone-900 leading-tight">
+              Staff Dashboard
+            </h1>
+            {staff && (
+              <p className="text-sm text-gray-400 mt-2">
+                Welcome back,{" "}
+                <span className="font-semibold text-stone-700">
+                  {staff.first_name} {staff.last_name}
+                </span>
+              </p>
+            )}
+          </div>
+          <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-lg px-4 py-2 text-sm text-gray-500 shadow-sm">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            System Active
+          </div>
+        </div>
+
+        {/* Stats Row */}
+        <div className="grid grid-cols-4 gap-4 mb-10">
+          {stats.map(({ label, value, color }) => (
+            <div key={label} className="bg-white rounded-xl border border-gray-200 shadow-sm px-5 py-4">
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">{label}</p>
+              <p className={`text-3xl font-bold ${color}`}>{value}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Grouped Sections */}
+        <div className="space-y-10">
+          {groups.map(({ section, items }) => (
+            <div key={section}>
+              <div className="flex items-center gap-3 mb-4">
+                <span className="text-xs font-bold tracking-widest text-gray-400 uppercase">
+                  {section}
+                </span>
+                <div className="flex-1 h-px bg-gray-200" />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {items.map((card, i) => (
+                  <Link
+                    key={i}
+                    to={card.link}
+                    className="group bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 overflow-hidden"
+                  >
+                    <div className={`h-1 w-full ${card.iconColor.split(" ")[0].replace("100", "400")}`} />
+                    <div className="p-5">
+                      <div className="flex items-start justify-between mb-4">
+                        <div className={`w-10 h-10 flex items-center justify-center rounded-xl ${card.iconColor}`}>
+                          {card.icon}
+                        </div>
+                        <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${card.badgeColor}`}>
+                          {card.badge}
+                        </span>
+                      </div>
+                      <h2 className="text-sm font-semibold text-stone-800 mb-1 group-hover:text-stone-900">
+                        {card.title}
+                      </h2>
+                      <p className="text-xs text-gray-400 leading-relaxed">
+                        {card.desc}
+                      </p>
+                      <div className="mt-4 flex items-center gap-1 text-xs font-semibold text-gray-400 group-hover:text-stone-700 transition-colors">
+                        Open
+                        <svg className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                          <path d="M9 18l6-6-6-6" />
+                        </svg>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+
       </div>
     </div>
   );
