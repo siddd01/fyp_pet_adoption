@@ -4,134 +4,141 @@ import { PetContext } from "../../../Context/PetContext";
 
 const Adopt = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [species, setSpecies] = useState("All"); 
+  const [species, setSpecies] = useState("All");
   const navigate = useNavigate();
-  const { pets, petLoading, getAllPets } = useContext(PetContext);
+  const { pets, petLoading } = useContext(PetContext);
 
-  console.log("in adopt", pets);
-
-  // Fixed filtering logic
   const filteredPets = pets.filter((pet) => {
-    const matchesSearch = pet.name
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase());
-
-    // Filter by species (Dog/Cat) - matches the species column in database
+    const matchesSearch = pet.name.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesSpecies = species === "All" || pet.species === species;
-
     return matchesSearch && matchesSpecies;
   });
 
   return (
-    <div className="min-h-screen min-w-full bg-gray-50 px-4 py-10">
-      {/* Header */}
-      <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold text-gray-800">
-          Adopt a Pet
-        </h2>
-        <p className="text-gray-600 mt-2 text-sm">
-          Give a loving home to a rescued friend from Sano Ghar
-        </p>
-      </div>
+    <div className="min-h-screen bg-stone-50">
 
-      {/* Search & Filter */}
-      <div className="max-w-4xl mx-auto flex flex-col sm:flex-row gap-3 mb-8 justify-center">
-        <input
-          type="text"
-          placeholder="Search pets..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full sm:w-72 px-4 py-2 rounded-lg border text-sm
-                     focus:outline-none focus:ring-2 focus:ring-emerald-500"
-        />
-
-        <select
-          value={species}
-          onChange={(e) => setSpecies(e.target.value)}
-          className="w-full sm:w-44 px-4 py-2 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
-        >
-          <option value="All">All Pets</option>
-          <option value="Dog">Dog</option>
-          <option value="Cat">Cat</option>
-        </select>
-      </div>
-
-      {/* Loading State */}
-      {petLoading ? (
-        <div className="text-center text-gray-500 text-sm">
-          Loading pets...
+      {/* ── Page Header ── */}
+      <div className="bg-white border-b border-stone-100">
+        <div className="max-w-6xl mx-auto px-6 py-10">
+          <p className="text-xs font-semibold tracking-widest text-stone-400 uppercase mb-2">
+            Sano Ghar
+          </p>
+          <h1 className="text-4xl font-serif text-stone-900 leading-tight mb-2">
+            Adopt a Pet
+          </h1>
+          <p className="text-stone-500 text-sm">
+            Give a loving home to a rescued friend
+          </p>
         </div>
-      ) : (
-        /* Pet Cards */
-        <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {filteredPets.length > 0 ? (
-            filteredPets.map((pet) => (
+      </div>
+
+      <div className="max-w-6xl mx-auto px-6 py-8">
+
+        {/* ── Search & Filter ── */}
+        <div className="flex flex-col sm:flex-row gap-3 mb-8">
+          <input
+            type="text"
+            placeholder="Search by name..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full sm:w-72 px-4 py-2.5 rounded-xl border border-stone-200 bg-white text-sm text-stone-800 placeholder-stone-300 outline-none focus:border-stone-400 focus:ring-2 focus:ring-stone-900/10 transition"
+          />
+          <select
+            value={species}
+            onChange={(e) => setSpecies(e.target.value)}
+            className="w-full sm:w-44 px-4 py-2.5 rounded-xl border border-stone-200 bg-white text-sm text-stone-700 outline-none focus:border-stone-400 focus:ring-2 focus:ring-stone-900/10 transition"
+          >
+            <option value="All">All Pets</option>
+            <option value="Dog">Dog</option>
+            <option value="Cat">Cat</option>
+            <option value="Bird">Bird</option>
+          </select>
+
+          {/* result count */}
+          {!petLoading && (
+            <span className="self-center text-xs text-stone-400 sm:ml-auto">
+              {filteredPets.length} pet{filteredPets.length !== 1 ? "s" : ""} found
+            </span>
+          )}
+        </div>
+
+        {/* ── Loading ── */}
+        {petLoading ? (
+          <div className="flex flex-col items-center gap-3 py-24">
+            <div className="w-8 h-8 rounded-full border-2 border-stone-200 border-t-stone-600 animate-spin" />
+            <p className="text-stone-400 text-xs tracking-widest uppercase">Loading pets</p>
+          </div>
+        ) : filteredPets.length === 0 ? (
+          <div className="text-center py-24">
+            <p className="text-4xl mb-4">🐾</p>
+            <p className="text-stone-400 text-sm">No pets found matching your criteria</p>
+          </div>
+        ) : (
+
+          /* ── Pet Grid ── */
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+            {filteredPets.map((pet) => (
               <div
                 key={pet.id}
-                className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition duration-300"
+                className="bg-white rounded-2xl border border-stone-100 shadow-sm overflow-hidden group hover:shadow-md hover:border-stone-200 transition-all duration-300"
               >
                 {/* Image */}
-                <div className="relative h-36 overflow-hidden">
+                <div className="relative h-44 overflow-hidden bg-stone-100">
                   <img
-                    src={pet.image_url || pet.image || '/placeholder-pet.jpg'}
+                    src={pet.image_url || pet.image || "/placeholder-pet.jpg"}
                     alt={pet.name}
-                    className="h-full w-full object-cover
-                               hover:scale-105 transition duration-500"
+                    className="h-full w-full object-cover group-hover:scale-105 transition duration-500"
                   />
+                  {/* gradient overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-stone-900/40 via-transparent to-transparent" />
 
-                  <span className="absolute top-2 left-2 bg-emerald-600
-                                   text-white text-xs px-2 py-0.5 rounded-full">
-                    {pet.breed || 'Unknown'}
+                  {/* breed badge */}
+                  <span className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm text-stone-700 text-xs font-medium px-2.5 py-1 rounded-full shadow-sm">
+                    {pet.breed || "Unknown"}
+                  </span>
+
+                  {/* species badge */}
+                  <span className="absolute top-3 right-3 bg-stone-900/80 text-white text-xs px-2.5 py-1 rounded-full">
+                    {pet.species}
                   </span>
                 </div>
 
                 {/* Content */}
-                <div className="p-4 space-y-1">
-                  <h3 className="text-base font-semibold text-gray-800">
-                    {pet.name}
-                  </h3>
+                <div className="p-4">
+                  <div className="flex items-start justify-between mb-1.5">
+                    <h3 className="text-base font-semibold text-stone-800">{pet.name}</h3>
+                    <span className="text-xs text-stone-400 mt-0.5">{pet.gender}</span>
+                  </div>
 
-                  <p className="text-xs text-gray-600">
-                    {pet.age ? `${pet.age} years` : 'Age unknown'} • {pet.gender}
-                  </p>
-
-                  <p className="text-xs text-gray-600">
-                    {pet.breed || 'Mixed breed'}
+                  <p className="text-xs text-stone-400 mb-2">
+                    {pet.age ? `${pet.age} years old` : "Age unknown"}
                   </p>
 
                   {pet.description && (
-                    <p className="text-xs text-gray-500 line-clamp-2 mt-1">
+                    <p className="text-xs text-stone-500 line-clamp-2 leading-relaxed mb-3">
                       {pet.description}
                     </p>
                   )}
 
                   {pet.health_status && (
-                    <p className="text-xs text-emerald-600 mt-1">
-                      Health: {pet.health_status}
-                    </p>
+                    <div className="flex items-center gap-1.5 mb-3">
+                      <div className="w-1.5 h-1.5 rounded-full bg-teal-400" />
+                      <p className="text-xs text-teal-600 font-medium">{pet.health_status}</p>
+                    </div>
                   )}
-                </div>
 
-                {/* Button */}
-                <div className="px-4 pb-4">
                   <button
                     onClick={() => navigate(`/adopt/${pet.id}`)}
-                    className="w-full bg-emerald-600 text-white py-1.5 rounded-lg
-                               hover:bg-emerald-700 active:scale-95 transition
-                               text-xs font-medium"
+                    className="w-full bg-stone-900 hover:bg-stone-700 text-white py-2 rounded-xl text-xs font-semibold tracking-wide transition hover:-translate-y-0.5 hover:shadow-md"
                   >
                     View Details
                   </button>
                 </div>
               </div>
-            ))
-          ) : (
-            <p className="text-center text-gray-500 col-span-full text-sm">
-              No pets found matching your criteria
-            </p>
-          )}
-        </div>
-      )}
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 };

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../../api/axios";
-u
+
 const Signup = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -19,6 +19,7 @@ const handleSubmit = async (e) => {
   e.preventDefault();
   setLoading(true);
   setMessage(null);
+  console.log(dob)
 
   try {
     await api.post("/auth/signup", {

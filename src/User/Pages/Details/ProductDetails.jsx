@@ -51,7 +51,7 @@ const ProductDetails = () => {
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50">
       {/* Navigation Bar */}
       <div className="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
+        <div className="max-w-8xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
           <button className="flex items-center gap-2 text-gray-700 hover:text-emerald-600 transition">
             <ArrowLeft className="w-5 h-5" />
             <span className="font-medium">Back to Shop</span>
@@ -201,7 +201,9 @@ const ProductDetails = () => {
             <div className="bg-white rounded-2xl shadow-xl p-6 sticky top-24 border-2 border-emerald-100">
               <div className="mb-6">
                 <p className="text-sm text-gray-500 mb-2">Price</p>
-                <p className="text-4xl font-bold text-emerald-600">${product.price}</p>
+                <p className="text-4xl font-bold text-emerald-600">
+                              ${(product.price * cartQuantity).toFixed(2)}
+                            </p>
               </div>
 
               {/* Quantity Selector */}
@@ -248,7 +250,7 @@ const ProductDetails = () => {
 
               <div className="mt-6 p-4 bg-blue-50 rounded-xl border border-blue-200">
                 <p className="text-sm text-blue-800 font-medium">
-                  🚚 Free shipping on orders over $50
+                  🚚 Free shipping on orders over $150
                 </p>
               </div>
 

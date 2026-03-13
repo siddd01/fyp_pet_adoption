@@ -16,75 +16,108 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="h-14 bg-[#40565E] px-6 flex items-center justify-between text-white">
-      <div className="flex items-center gap-10">
-        <div onClick={() => navigate("/")} className="flex items-center gap-2 cursor-pointer">
-          <img
-            src="https://static.vecteezy.com/system/resources/previews/005/096/209/non_2x/adopt-animal-care-and-rescue-logo-for-organization-medical-pet-or-brand-vector.jpg"
-            alt="Logo"
-            className="h-8 w-8 rounded"
-          />
-          <span className="font-semibold text-lg">Sano Ghar</span>
-        </div>
+    <nav className="bg-white border-b border-stone-100 sticky top-0 z-50">
+      {/* yellow accent line — same as AdoptionForm / AboutUs */}
+      <div className="h-0.5 bg-gradient-to-r from-yellow-700 to-yellow-500" />
 
-        <div className="hidden md:flex gap-6 text-sm font-medium">
-          <Link to="/">Home</Link>
-          <Link to="/adopt">Adopt Now</Link>
-          <Link to="/shop">Shop Now</Link>
-          <Link to="/about">About Us</Link>
-          <Link to="/donate">Donate</Link>
-        </div>
-      </div>
+      <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
 
-      <div className="relative flex items-center gap-3">
-        <button
-          onClick={() => navigate("/cart")}
-          className="flex items-center gap-2 bg-emerald-600 px-4 py-2 rounded-lg hover:bg-emerald-700"
-        >
-          <ShoppingCart size={18} />
-          Cart
-        </button>
+        {/* ── Left: Logo + Links ── */}
+        <div className="flex items-center gap-10">
 
-        {/* SHOW ONLY IF LOGGED IN */}
-        {user && (
-          <>
+          {/* Logo */}
+          <div
+            onClick={() => navigate("/")}
+            className="flex items-center gap-2.5 cursor-pointer group"
+          >
             <img
-              src={user.image || "/default-user.png"}
-              alt="Profile"
-              className="h-8 w-8 rounded-full border cursor-pointer"
-              onClick={() => navigate("/profile")}
+              src="https://static.vecteezy.com/system/resources/previews/005/096/209/non_2x/adopt-animal-care-and-rescue-logo-for-organization-medical-pet-or-brand-vector.jpg"
+              alt="Logo"
+              className="h-7 w-7 rounded-md object-cover"
             />
+            <span className="font-semibold text-stone-900 text-base tracking-tight group-hover:text-stone-600 transition">
+              Sano Ghar
+            </span>
+          </div>
 
-            {/* 3 DOT MENU */}
-            <div className="relative">
-              <FiMoreVertical
-                className="cursor-pointer text-xl"
-                onClick={() => setOpenMenu(!openMenu)}
-              />
+          {/* Nav Links */}
+          <div className="hidden md:flex items-center gap-1">
+            {[
+              { label: "Home",     to: "/" },
+              { label: "Adopt",    to: "/adopt" },
+              { label: "Shop",     to: "/shop" },
+              { label: "About",    to: "/about" },
+              { label: "Donate",   to: "/donate" },
+            ].map(({ label, to }) => (
+              <Link
+                key={to}
+                to={to}
+                className="px-3 py-1.5 text-sm font-medium text-stone-500 hover:text-stone-900 hover:bg-stone-100 rounded-lg transition"
+              >
+                {label}
+              </Link>
+            ))}
+          </div>
+        </div>
 
-              {openMenu && (
-                <div className="absolute right-0 mt-2 w-32 bg-white text-black rounded shadow-lg overflow-hidden z-50">
-                  <button
-                    onClick={() => {
-                      navigate("/profile");
-                      setOpenMenu(false);
-                    }}
-                    className="block w-full px-4 py-2 text-sm hover:bg-gray-100 text-left"
-                  >
-                    Profile
-                  </button>
+        {/* ── Right: Cart + User ── */}
+        <div className="flex items-center gap-2">
 
-                  <button
-                    onClick={handleLogout}
-                    className="block w-full px-4 py-2 text-sm hover:bg-gray-100 text-left text-red-600"
-                  >
-                    Logout
-                  </button>
-                </div>
-              )}
+          {/* Cart */}
+          <button
+            onClick={() => navigate("/cart")}
+            className="flex items-center gap-1.5 bg-stone-900 hover:bg-stone-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition hover:-translate-y-0.5 hover:shadow-md"
+          >
+            <ShoppingCart size={15} />
+            Cart
+          </button>
+
+          {/* User section */}
+          {user && (
+            <div className="flex items-center gap-1">
+
+              {/* Avatar */}
+              <button
+                onClick={() => navigate("/profile")}
+                className="rounded-full ring-2 ring-stone-200 hover:ring-stone-400 transition"
+              >
+                <img
+                  src={user.image || "/default-user.png"}
+                  alt="Profile"
+                  className="h-8 w-8 rounded-full object-cover"
+                />
+              </button>
+
+              {/* 3-dot menu */}
+              <div className="relative">
+                <button
+                  onClick={() => setOpenMenu(!openMenu)}
+                  className="p-1.5 rounded-lg hover:bg-stone-100 transition text-stone-400 hover:text-stone-700"
+                >
+                  <FiMoreVertical className="text-lg" />
+                </button>
+
+                {openMenu && (
+                  <div className="absolute right-0 mt-2 w-36 bg-white border border-stone-100 rounded-xl shadow-lg overflow-hidden z-50">
+                    <button
+                      onClick={() => { navigate("/profile"); setOpenMenu(false); }}
+                      className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-stone-700 hover:bg-stone-50 transition text-left"
+                    >
+                      Profile
+                    </button>
+                    <div className="h-px bg-stone-100" />
+                    <button
+                      onClick={handleLogout}
+                      className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition text-left"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
-          </>
-        )}
+          )}
+        </div>
       </div>
     </nav>
   );

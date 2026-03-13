@@ -6,6 +6,7 @@ export const PetContext = createContext();
 export const PetProvider = ({ children }) => {
       const [pets, setPets] = useState([]);
       const [petLoading, setPetLoading] = useState(true);
+      
 const getAllPets = async () => {
     try {
       const res = await api.get("/pets");
