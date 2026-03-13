@@ -3,7 +3,7 @@ import { useContext } from "react";
 import { CartContext } from "../../../Context/CartContext";
 
 const Cart = () => {
-<<<<<<< HEAD:src/User/Pages/Shop/Cart.jsx
+
   const { cartItems, cartLoading, totalAmount, updateQuantity, removeItem } = useContext(CartContext);
 
   if (cartLoading) {
@@ -12,7 +12,7 @@ const Cart = () => {
         <div className="flex flex-col items-center gap-3">
           <div className="w-8 h-8 rounded-full border-2 border-stone-200 border-t-stone-600 animate-spin" />
           <p className="text-stone-400 text-xs tracking-widest uppercase">Loading cart</p>
-=======
+
   const {
     cartItems,
     cartLoading,
@@ -27,7 +27,7 @@ const Cart = () => {
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Loading cart...</p>
->>>>>>> a778c015cee701f7c6f96e6a1499157a1fb2da33:pet_adoption_center/src/User/Pages/Shop/Cart.jsx
+
         </div>
       </div>
     );
@@ -35,27 +35,27 @@ const Cart = () => {
 
   if (cartItems.length === 0) {
     return (
-<<<<<<< HEAD:src/User/Pages/Shop/Cart.jsx
+
       <div className="min-h-screen bg-stone-50 flex items-center justify-center">
         <div className="text-center">
           <ShoppingCart className="w-16 h-16 text-stone-200 mx-auto mb-5" />
           <p className="text-xs tracking-[0.25em] uppercase text-stone-400 mb-2">Your cart</p>
           <h2 className="text-2xl font-serif text-stone-800 mb-2">Nothing here yet</h2>
           <p className="text-stone-400 text-sm">Add some items from the shop to get started.</p>
-=======
+
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <ShoppingCart className="w-24 h-24 text-gray-300 mx-auto mb-4" />
           <h2 className="text-2xl font-semibold text-gray-700 mb-2">Your cart is empty</h2>
           <p className="text-gray-500">Add some items to get started!</p>
->>>>>>> a778c015cee701f7c6f96e6a1499157a1fb2da33:pet_adoption_center/src/User/Pages/Shop/Cart.jsx
+
         </div>
       </div>
     );
   }
 
   return (
-<<<<<<< HEAD:src/User/Pages/Shop/Cart.jsx
+
     <div className="min-h-screen bg-stone-50">
 
       {/* ── Page Header ── */}
@@ -77,7 +77,7 @@ const Cart = () => {
         <div className="grid lg:grid-cols-3 gap-6">
 
           {/* ── Cart Items ── */}
-=======
+
     <div className="min-h-screen min-w-full bg-gray-50 py-8 px-4">
       <div className="max-w-5xl mx-auto">
         {/* Header */}
@@ -88,27 +88,27 @@ const Cart = () => {
 
         <div className="grid lg:grid-cols-3 gap-6">
           {/* Cart Items */}
->>>>>>> a778c015cee701f7c6f96e6a1499157a1fb2da33:pet_adoption_center/src/User/Pages/Shop/Cart.jsx
+
           <div className="lg:col-span-2 space-y-4">
             {cartItems.map((item) => (
               <div
                 key={item.id}
-<<<<<<< HEAD:src/User/Pages/Shop/Cart.jsx
+
                 className="bg-white rounded-2xl border border-stone-100 shadow-sm hover:border-stone-200 hover:shadow-md transition-all p-5"
               >
                 <div className="flex gap-5">
                   {/* Image */}
-=======
+
                 className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow p-6 border border-gray-100"
               >
                 <div className="flex gap-6">
                   {/* Product Image */}
->>>>>>> a778c015cee701f7c6f96e6a1499157a1fb2da33:pet_adoption_center/src/User/Pages/Shop/Cart.jsx
+
                   <div className="flex-shrink-0">
                     <img
                       src={item.image_url}
                       alt={item.name}
-<<<<<<< HEAD:src/User/Pages/Shop/Cart.jsx
+
                       className="w-20 h-20 object-cover rounded-xl border border-stone-100"
                     />
                   </div>
@@ -126,7 +126,7 @@ const Cart = () => {
                         aria-label="Remove item"
                       >
                         <Trash2 className="w-4 h-4" />
-=======
+
                       className="w-24 h-24 object-cover rounded-lg border border-gray-200"
                     />
                   </div>
@@ -144,13 +144,12 @@ const Cart = () => {
                         aria-label="Remove item"
                       >
                         <Trash2 className="w-5 h-5" />
->>>>>>> a778c015cee701f7c6f96e6a1499157a1fb2da33:pet_adoption_center/src/User/Pages/Shop/Cart.jsx
+
                       </button>
                     </div>
 
                     <div className="flex items-center justify-between">
                       {/* Quantity Controls */}
-<<<<<<< HEAD:src/User/Pages/Shop/Cart.jsx
                       <div className="flex items-center gap-2 bg-stone-50 border border-stone-100 rounded-xl p-1">
                         <button
                           onClick={() => updateQuantity(item.id, item.quantity - 1)}
@@ -172,7 +171,7 @@ const Cart = () => {
 
                       {/* Line total */}
                       <p className="font-bold text-stone-900 text-base">
-=======
+
                       <div className="flex items-center gap-3 bg-gray-50 rounded-lg p-1">
                         <button
                           onClick={() => updateQuantity(item.id, item.quantity - 1)}
@@ -192,7 +191,7 @@ const Cart = () => {
 
                       {/* Item Total */}
                       <p className="font-bold text-xl text-gray-900">
->>>>>>> a778c015cee701f7c6f96e6a1499157a1fb2da33:pet_adoption_center/src/User/Pages/Shop/Cart.jsx
+
                         ${Number(item.total_price).toFixed(2)}
                       </p>
                     </div>
@@ -202,7 +201,7 @@ const Cart = () => {
             ))}
           </div>
 
-<<<<<<< HEAD:src/User/Pages/Shop/Cart.jsx
+
           {/* ── Order Summary ── */}
           <div className="lg:col-span-1">
             <div className="sticky top-8 rounded-2xl overflow-hidden shadow-xl border border-stone-200">
@@ -246,7 +245,7 @@ const Cart = () => {
             </div>
           </div>
 
-=======
+
           {/* Order Summary */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 sticky top-8">
@@ -280,7 +279,7 @@ const Cart = () => {
               </p>
             </div>
           </div>
->>>>>>> a778c015cee701f7c6f96e6a1499157a1fb2da33:pet_adoption_center/src/User/Pages/Shop/Cart.jsx
+
         </div>
       </div>
     </div>

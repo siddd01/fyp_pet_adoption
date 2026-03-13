@@ -4,10 +4,7 @@ import api from "../../../api/axios";
 
 const Dashboard = () => {
   const navigate = useNavigate();
-<<<<<<< HEAD:src/User/Pages/Home/Dashboard.jsx
-=======
 
->>>>>>> a778c015cee701f7c6f96e6a1499157a1fb2da33:pet_adoption_center/src/User/Pages/Home/Dashboard.jsx
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -16,14 +13,14 @@ const Dashboard = () => {
 
   useEffect(() => {
     const fetchUser = async () => {
-<<<<<<< HEAD:src/User/Pages/Home/Dashboard.jsx
+
       if (!token) { setLoading(false); return; }
-=======
+
       if (!token) {
         setLoading(false);
         return;
       }
->>>>>>> a778c015cee701f7c6f96e6a1499157a1fb2da33:pet_adoption_center/src/User/Pages/Home/Dashboard.jsx
+
       try {
         const res = await api.get("/user/profile", {
           headers: { Authorization: `Bearer ${token}` },
@@ -42,51 +39,52 @@ const Dashboard = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-stone-50 flex items-center justify-center">
-<<<<<<< HEAD:src/User/Pages/Home/Dashboard.jsx
+
         <div className="flex flex-col items-center gap-3">
           <div className="w-8 h-8 rounded-full border-2 border-stone-200 border-t-stone-600 animate-spin" />
           <p className="text-stone-400 text-xs tracking-widest uppercase">Loading</p>
-=======
+
         <div className="flex items-center gap-3 text-gray-400">
           <svg className="w-5 h-5 animate-spin" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
             <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
           </svg>
           <span className="text-sm font-medium">Loading...</span>
->>>>>>> a778c015cee701f7c6f96e6a1499157a1fb2da33:pet_adoption_center/src/User/Pages/Home/Dashboard.jsx
+
         </div>
       </div>
+      
     );
   }
 
   const features = [
-<<<<<<< HEAD:src/User/Pages/Home/Dashboard.jsx
+
     { emoji: "🐾", label: "Adopt a Pet",  sub: "Find your companion",       to: "/adopt" },
     { emoji: "🛍️", label: "Pet Shop",     sub: "Quality essentials",         to: "/shop"  },
     { emoji: "❤️", label: "Charity",      sub: "Support animals in need",    to: "/donate"},
-=======
+
     { emoji: "🐾", label: "Adopt a Pet", sub: "Find your companion" },
     { emoji: "🛍️", label: "Pet Shop", sub: "Quality essentials" },
     { emoji: "❤️", label: "Charity", sub: "Support animals in need" },
->>>>>>> a778c015cee701f7c6f96e6a1499157a1fb2da33:pet_adoption_center/src/User/Pages/Home/Dashboard.jsx
+
   ];
 
   return (
     <div className="min-h-screen bg-stone-50">
 
-<<<<<<< HEAD:src/User/Pages/Home/Dashboard.jsx
+
       {/* ── Hero ── */}
       <div className="max-w-6xl mx-auto px-6 py-16">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-=======
+
       {/* Hero Section */}
       <div className="max-w-7xl mx-auto px-10 py-16">
         <div className="grid grid-cols-2 gap-16 items-center">
->>>>>>> a778c015cee701f7c6f96e6a1499157a1fb2da33:pet_adoption_center/src/User/Pages/Home/Dashboard.jsx
+
 
           {/* LEFT */}
           <div className="space-y-8">
 
-<<<<<<< HEAD:src/User/Pages/Home/Dashboard.jsx
+
             {/* Welcome / trust pill */}
             {isLoggedIn && user ? (
               <div className="inline-flex items-center gap-2 bg-white border border-stone-200 rounded-full px-4 py-1.5 text-sm text-stone-600 shadow-sm">
@@ -97,7 +95,7 @@ const Dashboard = () => {
             ) : (
               <div className="inline-flex items-center gap-2 bg-white border border-stone-200 rounded-full px-4 py-1.5 text-sm text-stone-500 shadow-sm">
                 <span className="w-2 h-2 rounded-full bg-yellow-500" />
-=======
+
             {/* Welcome pill */}
             {isLoggedIn && user ? (
               <div className="inline-flex items-center gap-2 bg-white border border-gray-200 rounded-full px-4 py-1.5 text-sm text-gray-600 shadow-sm">
@@ -107,14 +105,14 @@ const Dashboard = () => {
             ) : (
               <div className="inline-flex items-center gap-2 bg-white border border-gray-200 rounded-full px-4 py-1.5 text-sm text-gray-500 shadow-sm">
                 <span className="w-2 h-2 rounded-full bg-amber-400" />
->>>>>>> a778c015cee701f7c6f96e6a1499157a1fb2da33:pet_adoption_center/src/User/Pages/Home/Dashboard.jsx
+
                 Trusted by 50,000+ pet lovers
               </div>
             )}
 
             {/* Headline */}
             <div className="space-y-3">
-<<<<<<< HEAD:src/User/Pages/Home/Dashboard.jsx
+
               <p className="text-xs tracking-[0.25em] uppercase text-stone-400">Sano Ghar</p>
               <h1 className="text-5xl font-serif text-stone-900 leading-tight">
                 Find Your{" "}
@@ -122,24 +120,24 @@ const Dashboard = () => {
                 Today
               </h1>
               <p className="text-stone-500 text-base leading-relaxed max-w-md">
-=======
+
               <h1 className="text-5xl font-serif text-stone-900 leading-tight">
                 Find Your{" "}
                 <span className="italic text-amber-700">Perfect Pet</span>{" "}
                 Today
               </h1>
               <p className="text-gray-500 text-lg leading-relaxed max-w-md">
->>>>>>> a778c015cee701f7c6f96e6a1499157a1fb2da33:pet_adoption_center/src/User/Pages/Home/Dashboard.jsx
+
                 Adopt loving pets, shop essentials, and support charity — all in one trusted platform.
               </p>
             </div>
 
             {/* CTA Buttons */}
-<<<<<<< HEAD:src/User/Pages/Home/Dashboard.jsx
+
             <div className="flex flex-wrap gap-3">
-=======
+
             <div className="flex gap-3">
->>>>>>> a778c015cee701f7c6f96e6a1499157a1fb2da33:pet_adoption_center/src/User/Pages/Home/Dashboard.jsx
+
               <button
                 onClick={() => navigate("/adopt")}
                 className="px-7 py-3 bg-stone-900 hover:bg-stone-700 text-white text-sm font-semibold rounded-xl transition hover:-translate-y-0.5 hover:shadow-lg"
@@ -148,22 +146,21 @@ const Dashboard = () => {
               </button>
               <button
                 onClick={() => navigate("/shop")}
-<<<<<<< HEAD:src/User/Pages/Home/Dashboard.jsx
+
                 className="px-7 py-3 bg-white border border-stone-200 hover:border-stone-400 text-stone-700 text-sm font-semibold rounded-xl transition hover:-translate-y-0.5 hover:shadow-md"
-=======
                 className="px-7 py-3 bg-white border border-gray-200 hover:border-stone-400 text-stone-700 text-sm font-semibold rounded-xl transition hover:-translate-y-0.5 hover:shadow-md"
->>>>>>> a778c015cee701f7c6f96e6a1499157a1fb2da33:pet_adoption_center/src/User/Pages/Home/Dashboard.jsx
+
               >
                 Shop Now →
               </button>
               {!isLoggedIn && (
                 <button
                   onClick={() => navigate("/login")}
-<<<<<<< HEAD:src/User/Pages/Home/Dashboard.jsx
+
                   className="px-7 py-3 border border-stone-200 hover:border-stone-400 bg-white text-stone-700 text-sm font-semibold rounded-xl transition hover:-translate-y-0.5 hover:shadow-md"
-=======
+
                   className="px-7 py-3 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-xl transition hover:-translate-y-0.5 hover:shadow-lg"
->>>>>>> a778c015cee701f7c6f96e6a1499157a1fb2da33:pet_adoption_center/src/User/Pages/Home/Dashboard.jsx
+
                 >
                   Join Free
                 </button>
@@ -171,11 +168,11 @@ const Dashboard = () => {
             </div>
 
             {/* Social proof */}
-<<<<<<< HEAD:src/User/Pages/Home/Dashboard.jsx
+
             <div className="flex items-center gap-4 pt-1">
-=======
+
             <div className="flex items-center gap-4 pt-2">
->>>>>>> a778c015cee701f7c6f96e6a1499157a1fb2da33:pet_adoption_center/src/User/Pages/Home/Dashboard.jsx
+
               <div className="flex -space-x-2.5">
                 {[1, 2, 3, 4, 5].map((i) => (
                   <img
@@ -188,7 +185,7 @@ const Dashboard = () => {
               </div>
               <div>
                 <p className="text-sm font-semibold text-stone-800">50,000+ happy customers</p>
-<<<<<<< HEAD:src/User/Pages/Home/Dashboard.jsx
+x
                 <p className="text-xs text-stone-400">Trusted by pet lovers worldwide</p>
               </div>
             </div>
@@ -199,7 +196,6 @@ const Dashboard = () => {
             {/* glow halo */}
             <div className="absolute -inset-4 bg-gradient-to-br from-stone-200 via-stone-100 to-stone-300 rounded-3xl blur-2xl opacity-60" />
 
-=======
                 <p className="text-xs text-gray-400">Trusted by pet lovers worldwide</p>
               </div>
             </div>
@@ -209,14 +205,14 @@ const Dashboard = () => {
           {/* RIGHT — Image */}
           <div className="relative">
             <div className="absolute -inset-4 bg-amber-100/50 rounded-3xl blur-2xl" />
->>>>>>> a778c015cee701f7c6f96e6a1499157a1fb2da33:pet_adoption_center/src/User/Pages/Home/Dashboard.jsx
+
             <img
               src="https://images.unsplash.com/photo-1548199973-03cce0bbc87b"
               alt="Happy pets"
               className="relative w-full rounded-3xl shadow-2xl object-cover aspect-square"
             />
 
-<<<<<<< HEAD:src/User/Pages/Home/Dashboard.jsx
+
             {/* Floating — pets adopted */}
             <div className="absolute -bottom-5 -left-6 bg-white rounded-2xl shadow-xl border border-stone-100 px-5 py-3.5 flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-stone-100 flex items-center justify-center text-xl">
@@ -224,7 +220,7 @@ const Dashboard = () => {
               </div>
               <div>
                 <p className="text-xs text-stone-400 font-medium">Pets adopted</p>
-=======
+
             {/* Floating stat card */}
             <div className="absolute -bottom-5 -left-6 bg-white rounded-2xl shadow-xl border border-gray-100 px-5 py-3.5 flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center text-xl">
@@ -232,12 +228,12 @@ const Dashboard = () => {
               </div>
               <div>
                 <p className="text-xs text-gray-400 font-medium">Pets adopted</p>
->>>>>>> a778c015cee701f7c6f96e6a1499157a1fb2da33:pet_adoption_center/src/User/Pages/Home/Dashboard.jsx
+
                 <p className="text-lg font-bold text-stone-900">12,400+</p>
               </div>
             </div>
 
-<<<<<<< HEAD:src/User/Pages/Home/Dashboard.jsx
+
             {/* Floating — rating */}
             <div className="absolute -top-4 -right-4 bg-white rounded-2xl shadow-xl border border-stone-100 px-4 py-3 flex items-center gap-2">
               <span className="text-yellow-400 text-sm">★★★★★</span>
@@ -272,7 +268,7 @@ const Dashboard = () => {
                 <p className="text-xs text-stone-400">{sub}</p>
               </div>
               <svg className="w-4 h-4 text-stone-300 group-hover:text-stone-500 transition" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-=======
+
             {/* Floating rating card */}
             <div className="absolute -top-4 -right-4 bg-white rounded-2xl shadow-xl border border-gray-100 px-4 py-3 flex items-center gap-2">
               <span className="text-yellow-400 text-base">★★★★★</span>
@@ -300,7 +296,7 @@ const Dashboard = () => {
                 <p className="text-xs text-gray-400">{sub}</p>
               </div>
               <svg className="w-4 h-4 text-gray-300 ml-auto" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
->>>>>>> a778c015cee701f7c6f96e6a1499157a1fb2da33:pet_adoption_center/src/User/Pages/Home/Dashboard.jsx
+
                 <path d="M9 18l6-6-6-6" />
               </svg>
             </div>
@@ -310,6 +306,7 @@ const Dashboard = () => {
 
     </div>
   );
+
 };
 
 export default Dashboard;

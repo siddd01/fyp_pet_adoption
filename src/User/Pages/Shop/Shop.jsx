@@ -9,7 +9,7 @@ const Shop = () => {
   const [category, setCategory] = useState("All");
 
   const { products, productLoading } = useContext(ProductContext);
-<<<<<<< HEAD:src/User/Pages/Shop/Shop.jsx
+
   const { addToCart } = useContext(CartContext);
 
   const token = localStorage.getItem("token");
@@ -17,7 +17,7 @@ const Shop = () => {
   const filteredProducts = products.filter((product) => {
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = category === "All" || product.category === category;
-=======
+
   const {  addToCart } = useContext(CartContext);
   if (productLoading) return <p>Loading products...</p>;
   const token = localStorage.getItem("token");
@@ -34,12 +34,12 @@ const Shop = () => {
     const matchesCategory =
       category === "All" || product.category === category;
 
->>>>>>> a778c015cee701f7c6f96e6a1499157a1fb2da33:pet_adoption_center/src/User/Pages/Shop/Shop.jsx
+
     return matchesSearch && matchesCategory;
   });
 
   return (
-<<<<<<< HEAD:src/User/Pages/Shop/Shop.jsx
+
     <div className="min-h-screen bg-stone-50">
 
       {/* ── Page Header ── */}
@@ -164,7 +164,7 @@ const Shop = () => {
               </div>
             ))}
           </div>
-=======
+
     <div className="min-h-screen bg-gray-50 px-4 py-10">
       {/* Header */}
       <div className="text-center mb-8">
@@ -252,15 +252,13 @@ const Shop = () => {
           <p className="text-center text-gray-500 col-span-full">
             No products found
           </p>
->>>>>>> a778c015cee701f7c6f96e6a1499157a1fb2da33:pet_adoption_center/src/User/Pages/Shop/Shop.jsx
+
         )}
       </div>
     </div>
   );
 };
 
-<<<<<<< HEAD:src/User/Pages/Shop/Shop.jsx
+
 export default Shop;
-=======
-export default Shop;
->>>>>>> a778c015cee701f7c6f96e6a1499157a1fb2da33:pet_adoption_center/src/User/Pages/Shop/Shop.jsx
+
