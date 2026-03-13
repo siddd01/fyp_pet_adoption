@@ -1,4 +1,4 @@
-import { Edit2, Mail, Save, User, X } from "lucide-react";
+import { Calendar, Edit2, Mail, Phone, Save, User, X } from "lucide-react";
 import { useContext, useEffect, useState } from "react";
 import { StaffContext } from "../../../Context/StaffContext";
 
@@ -144,379 +144,244 @@ const StaffProfile = () => {
     );
   }
 
-  return (
-    <div className="min-h-screen bg-stone-50 px-10 py-12">
-      <div className="max-w-6xl mx-auto">
-
-        {/* Page Header */}
-        <div className="mb-9">
-          <p className="text-xs font-semibold tracking-widest text-gray-400 uppercase mb-1.5">
-            Staff Account
-          </p>
-          <h1 className="text-4xl font-serif text-stone-900 leading-tight">
-            Profile & Account Details
-          </h1>
+  if (!staff) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50">
+        <div className="text-center">
+          <p className="text-red-600 text-lg">Failed to load profile</p>
+          {error && <p className="text-gray-600 mt-2">{error}</p>}
         </div>
+      </div>
+    );
+  }
 
-        {/* Three-column layout (2 + 1) */}
-        <div className="grid grid-cols-3 gap-7 items-start">
-
-          {/* LEFT — Main profile card (2/3) */}
-          <div className="col-span-2 bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-            {/* Accent bar */}
-            <div className="h-1 bg-gradient-to-r from-blue-700 to-blue-500" />
-
-            <div className="p-9">
-              {/* Top: Avatar + basic info + edit button */}
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-10">
-                <div className="flex items-center gap-5">
-                  <div className="relative">
-                    <div className="w-20 h-20 rounded-full border border-gray-200 overflow-hidden bg-stone-100 flex items-center justify-center">
-                      <img
-                        src={
-                          formData.image instanceof File
-                            ? URL.createObjectURL(formData.image)
-                            : formData.image || "https://via.placeholder.com/150"
-                        }
-                        alt="Profile"
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <p className="text-xs font-semibold tracking-widest text-gray-400 uppercase mb-1.5">
-                      Signed in as
-                    </p>
-                    <h2 className="text-2xl font-semibold text-stone-900 leading-snug">
-                      {staff.first_name} {staff.last_name}
-                    </h2>
-                    <p className="flex items-center gap-2 text-sm text-gray-500 mt-1">
-                      <Mail className="w-3.5 h-3.5" />
-                      {staff.email}
-                    </p>
-                    <p className="flex items-center gap-2 text-xs text-gray-400 mt-1">
-                      <User className="w-3.5 h-3.5" />
-                      {staff.role}
-                    </p>
-                  </div>
-                </div>
-
-                <button
-                  onClick={() => setIsEditing(!isEditing)}
-                  className="self-start inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-gray-200 text-xs font-semibold text-stone-800 bg-white hover:bg-stone-50 hover:border-stone-300 transition"
-                >
-                  {isEditing ? (
-                    <>
-                      <X className="w-3.5 h-3.5" />
-                      Cancel editing
-                    </>
-                  ) : (
-                    <>
-                      <Edit2 className="w-3.5 h-3.5" />
-                      Edit profile
-                    </>
-                  )}
-                </button>
-              </div>
-
-              {error && (
-                <div className="mb-6 bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-xs text-red-700">
-                  {error}
-                </div>
-              )}
-
-              {/* Form sections */}
-              <form onSubmit={handleSubmit} className="space-y-8">
-
-                {/* Section: Basic Details */}
-                <div>
-                  <div className="flex items-center gap-3 mb-5">
-                    <span className="text-xs font-bold tracking-widest text-gray-400 uppercase whitespace-nowrap">
-                      Basic Details
-                    </span>
-                    <div className="flex-1 h-px bg-gray-100" />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4 mb-4">
-                    {/* First Name */}
-                    <div>
-                      <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
-                        First Name
-                      </label>
-                      {isEditing ? (
-                        <input
-                          type="text"
-                          name="first_name"
-                          value={formData.first_name}
-                          onChange={handleChange}
-                          required
-                          className="w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-lg bg-white text-stone-800 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/10 transition"
-                        />
-                      ) : (
-                        <div className="w-full px-3.5 py-2.5 text-sm border border-gray-100 rounded-lg bg-stone-50 text-gray-600">
-                          {staff.first_name}
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Last Name */}
-                    <div>
-                      <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
-                        Last Name
-                      </label>
-                      {isEditing ? (
-                        <input
-                          type="text"
-                          name="last_name"
-                          value={formData.last_name}
-                          onChange={handleChange}
-                          required
-                          className="w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-lg bg-white text-stone-800 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/10 transition"
-                        />
-                      ) : (
-                        <div className="w-full px-3.5 py-2.5 text-sm border border-gray-100 rounded-lg bg-stone-50 text-gray-600">
-                          {staff.last_name}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    {/* Email (read-only) */}
-                    <div>
-                      <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
-                        Email
-                      </label>
-                      <div className="w-full px-3.5 py-2.5 text-sm border border-gray-100 rounded-lg bg-stone-50 text-gray-500 cursor-default">
-                        {staff.email}
-                      </div>
-                      <p className="text-[10px] text-gray-400 mt-1">
-                        Email cannot be changed from this screen.
-                      </p>
-                    </div>
-
-                    {/* Role (read-only) */}
-                    <div>
-                      <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
-                        Role
-                      </label>
-                      <div className="w-full px-3.5 py-2.5 text-sm border border-gray-100 rounded-lg bg-stone-50 text-gray-600 cursor-default">
-                        {staff.role}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Section: Contact & Personal */}
-                <div>
-                  <div className="flex items-center gap-3 mb-5">
-                    <span className="text-xs font-bold tracking-widest text-gray-400 uppercase whitespace-nowrap">
-                      Contact & Personal
-                    </span>
-                    <div className="flex-1 h-px bg-gray-100" />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    {/* Phone */}
-                    <div>
-                      <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
-                        Phone Number
-                      </label>
-                      {isEditing ? (
-                        <input
-                          type="tel"
-                          name="phone_number"
-                          value={formData.phone_number}
-                          onChange={handleChange}
-                          placeholder="+1 (555) 000-0000"
-                          className="w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-lg bg-white text-stone-800 placeholder-gray-300 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/10 transition"
-                        />
-                      ) : (
-                        <div className="w-full px-3.5 py-2.5 text-sm border border-gray-100 rounded-lg bg-stone-50 text-gray-600">
-                          {staff.phone_number || "Not provided"}
-                        </div>
-                      )}
-                    </div>
-
-                    {/* DOB */}
-                    <div>
-                      <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
-                        Date of Birth
-                      </label>
-                      {isEditing ? (
-                        <input
-                          type="date"
-                          name="date_of_birth"
-                          value={formData.date_of_birth}
-                          onChange={handleChange}
-                          className="w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-lg bg-white text-stone-800 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/10 transition"
-                        />
-                      ) : (
-                        <div className="w-full px-3.5 py-2.5 text-sm border border-gray-100 rounded-lg bg-stone-50 text-gray-600">
-                          {formatDateForDisplay(staff.date_of_birth) || "Not provided"}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Section: Profile Image */}
-                <div>
-                  <div className="flex items-center gap-3 mb-5">
-                    <span className="text-xs font-bold tracking-widest text-gray-400 uppercase whitespace-nowrap">
-                      Profile Image
-                    </span>
-                    <div className="flex-1 h-px bg-gray-100" />
-                  </div>
-
-                  {isEditing ? (
-                    <div>
-                      <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
-                        Upload New Image
-                      </label>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImageChange}
-                        className="w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-lg bg-white text-stone-800 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/10 transition file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 file:cursor-pointer"
-                      />
-                      <p className="text-[11px] text-gray-400 mt-1.5">
-                        JPG or PNG, up to 2MB. Your image is stored securely using Cloudinary.
-                      </p>
-                    </div>
-                  ) : (
-                    <p className="text-xs text-gray-400">
-                      Use “Edit profile” to upload a new profile picture.
-                    </p>
-                  )}
-                </div>
-
-                {/* Submit row */}
-                {isEditing && (
-                  <div className="flex justify-end pt-3 border-t border-gray-100">
-                    <button
-                      type="submit"
-                      disabled={loading}
-                      className="inline-flex items-center gap-2 px-7 py-2.5 bg-stone-900 hover:bg-stone-700 disabled:bg-gray-300 text-white text-xs font-semibold rounded-xl transition hover:-translate-y-0.5 hover:shadow-lg disabled:cursor-not-allowed"
-                    >
-                      {loading ? (
-                        <>
-                          <svg
-                            className="animate-spin"
-                            width="14"
-                            height="14"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2.5"
-                          >
-                            <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
-                          </svg>
-                          Saving...
-                        </>
-                      ) : (
-                        <>
-                          <Save className="w-3.5 h-3.5" />
-                          Save changes
-                        </>
-                      )}
-                    </button>
-                  </div>
-                )}
-              </form>
-            </div>
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-12 px-4">
+      <div className="max-w-4xl mx-auto">
+        {/* Header */}
+        <div className="bg-white rounded-2xl shadow-xl overflow-hidden mb-8 transition-all hover:shadow-2xl">
+          <div className="h-36 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-500 relative">
+            <div className="absolute inset-0 bg-black opacity-10"></div>
           </div>
 
-          {/* RIGHT — Sidebar (1/3) */}
-          <div className="col-span-1 flex flex-col gap-4">
-            {/* Intro card */}
-            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-              <div className="h-1 bg-gradient-to-r from-blue-700 to-blue-500" />
-              <div className="p-6">
-                <div className="text-3xl mb-3">👤</div>
-                <h3 className="font-serif text-xl text-stone-900 mb-2">
-                  Keep your details current
-                </h3>
-                <p className="text-sm text-gray-500 leading-relaxed">
-                  Accurate profile information helps the admin team contact you
-                  quickly about pet updates, adoption requests, and store
-                  management tasks.
+          <div className="px-8 pb-8">
+            <div className="flex flex-col md:flex-row md:items-end md:justify-between -mt-20">
+              <div className="flex flex-col md:flex-row items-center md:items-end gap-6">
+                <div className="relative group">
+                  <img
+                    src={
+                      formData.image instanceof File
+                        ? URL.createObjectURL(formData.image)
+                        : formData.image || "https://via.placeholder.com/150"
+                    }
+                    alt="Profile"
+                    className="w-36 h-36 rounded-full border-4 border-white shadow-2xl object-cover transition-transform group-hover:scale-105"
+                  />
+                </div>
+
+                <div className="text-center md:text-left mb-4 md:mb-0">
+                  <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                    {staff.first_name} {staff.last_name}
+                  </h1>
+                  <p className="flex items-center justify-center md:justify-start gap-2 text-gray-600 mt-2">
+                    <Mail className="w-4 h-4" />
+                    {staff.email}
+                  </p>
+                  <p className="flex items-center justify-center md:justify-start gap-2 text-gray-500 mt-1 text-sm">
+                    <User className="w-4 h-4" />
+                    {staff.role}
+                  </p>
+                </div>
+              </div>
+
+              <button
+                onClick={() => setIsEditing(!isEditing)}
+                className="mt-4 md:mt-0 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 font-medium shadow-md"
+              >
+                {isEditing ? (
+                  <>
+                    <X className="w-4 h-4" />
+                    Cancel
+                  </>
+                ) : (
+                  <>
+                    <Edit2 className="w-4 h-4" />
+                    Edit Profile
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Profile Form */}
+        <div className="bg-white rounded-2xl shadow-xl p-8">
+          {error && (
+            <div className="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded">
+              <p className="text-red-700 text-sm">{error}</p>
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* First Name */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  First Name *
+                </label>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    name="first_name"
+                    value={formData.first_name}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                  />
+                ) : (
+                  <p className="px-4 py-2 bg-gray-50 rounded-lg text-gray-800">
+                    {staff.first_name}
+                  </p>
+                )}
+              </div>
+
+              {/* Last Name */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Last Name *
+                </label>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    name="last_name"
+                    value={formData.last_name}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                  />
+                ) : (
+                  <p className="px-4 py-2 bg-gray-50 rounded-lg text-gray-800">
+                    {staff.last_name}
+                  </p>
+                )}
+              </div>
+
+              {/* Email (Read-only) */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <Mail className="w-4 h-4 inline mr-1" />
+                  Email
+                </label>
+                <p className="px-4 py-2 bg-gray-50 rounded-lg text-gray-600">
+                  {staff.email}
+                </p>
+                <p className="text-xs text-gray-500 mt-1">Email cannot be changed</p>
+              </div>
+
+              {/* Phone Number */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <Phone className="w-4 h-4 inline mr-1" />
+                  Phone Number
+                </label>
+                {isEditing ? (
+                  <input
+                    type="tel"
+                    name="phone_number"
+                    value={formData.phone_number}
+                    onChange={handleChange}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                  />
+                ) : (
+                  <p className="px-4 py-2 bg-gray-50 rounded-lg text-gray-800">
+                    {staff.phone_number || "Not provided"}
+                  </p>
+                )}
+              </div>
+
+              {/* Date of Birth */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <Calendar className="w-4 h-4 inline mr-1" />
+                  Date of Birth
+                </label>
+                {isEditing ? (
+                  <input
+                    type="date"
+                    name="date_of_birth"
+                    value={formData.date_of_birth}
+                    onChange={handleChange}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                  />
+                ) : (
+                  <p className="px-4 py-2 bg-gray-50 rounded-lg text-gray-800">
+                    {formatDateForDisplay(staff.date_of_birth) || "Not provided"}
+                  </p>
+                )}
+              </div>
+
+              {/* Role (Read-only) */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <User className="w-4 h-4 inline mr-1" />
+                  Role
+                </label>
+                <p className="px-4 py-2 bg-gray-50 rounded-lg text-gray-800">
+                  {staff.role}
                 </p>
               </div>
             </div>
 
-            {/* Info about edits */}
-            <div className="bg-blue-50 border border-blue-200 rounded-xl px-4 py-4">
-              <p className="text-xs font-bold text-blue-800 uppercase tracking-wider mb-1.5">
-                ℹ️ Profile edits
-              </p>
-              <p className="text-xs text-blue-900 leading-relaxed">
-                Your <strong>name</strong>, <strong>phone number</strong>, and{" "}
-                <strong>date of birth</strong> can be updated here. Your{" "}
-                <strong>email</strong> and <strong>role</strong> are managed by
-                the admin.
-              </p>
-            </div>
-
-            {/* What to keep in mind */}
-            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
-              <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-5">
-                Good to know
-              </p>
-              <div className="space-y-4">
-                <div className="flex gap-3.5">
-                  <div className="w-7 h-7 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center text-xs font-bold text-blue-700 shrink-0">
-                    01
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-stone-800 mb-0.5">
-                      Cloud-based images
-                    </p>
-                    <p className="text-xs text-gray-400 leading-relaxed">
-                      Profile photos are stored securely via Cloudinary, so they
-                      load fast across the dashboard.
-                    </p>
-                  </div>
-                </div>
-                <div className="flex gap-3.5">
-                  <div className="w-7 h-7 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center text-xs font-bold text-blue-700 shrink-0">
-                    02
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-stone-800 mb-0.5">
-                      Contact visibility
-                    </p>
-                    <p className="text-xs text-gray-400 leading-relaxed">
-                      Only authorized admin users can see your full contact
-                      details inside the management tools.
-                    </p>
-                  </div>
-                </div>
-                <div className="flex gap-3.5">
-                  <div className="w-7 h-7 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center text-xs font-bold text-blue-700 shrink-0">
-                    03
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-stone-800 mb-0.5">
-                      Need changes to role?
-                    </p>
-                    <p className="text-xs text-gray-400 leading-relaxed">
-                      Contact an admin if your responsibilities change and you
-                      need your role updated.
-                    </p>
-                  </div>
-                </div>
+            {/* Profile Image Upload */}
+            {isEditing && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Profile Image
+                </label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 file:cursor-pointer"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Upload a new profile image (JPG, PNG, max 2MB)
+                </p>
               </div>
-            </div>
-          </div>
+            )}
+
+            {/* Submit Button */}
+            {isEditing && (
+              <div className="flex justify-end gap-4 pt-4 border-t">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsEditing(false);
+                    setFormData({
+                      first_name: staff.first_name || "",
+                      last_name: staff.last_name || "",
+                      phone_number: staff.phone_number || "",
+                      date_of_birth: formatDateForInput(staff.date_of_birth) || "",
+                      image: staff.profile_image || "",
+                    });
+                    setError("");
+                  }}
+                  className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center gap-2 shadow-md disabled:bg-gray-400 disabled:cursor-not-allowed"
+                >
+                  <Save className="w-4 h-4" />
+                  {loading ? "Saving..." : "Save Changes"}
+                </button>
+              </div>
+            )}
+          </form>
         </div>
-
-        {/* Footer note */}
-        <p className="text-center text-xs text-gray-400 mt-8">
-          Changes to your profile are effective immediately across the staff
-          dashboard.
-        </p>
-
       </div>
     </div>
   );
