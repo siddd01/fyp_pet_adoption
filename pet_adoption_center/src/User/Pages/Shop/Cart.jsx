@@ -23,7 +23,7 @@ const Cart = () => {
     return (
       <div className="min-h-screen bg-stone-50 flex items-center justify-center">
         <div className="text-center">
-          <ShoppingCart className="w-30 h-16 text-stone-200 mx-auto mb-5" />
+          <ShoppingCart className="w-16 h-16 text-stone-200 mx-auto mb-5" />
           <p className="text-xs tracking-[0.25em] uppercase text-stone-400 mb-2">
             Your cart
           </p>
