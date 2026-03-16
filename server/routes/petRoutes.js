@@ -1,5 +1,5 @@
 import express from "express";
-import { addPet, deletePet, getAllPets } from "../controllers/petController.js";
+import { addPet, getAllPets } from "../controllers/petController.js";
 import upload from "../middleware/uploadMiddleware.js";
 
 const router = express.Router();
@@ -7,11 +7,7 @@ const router = express.Router();
 // Get all pets
 router.get("/", getAllPets);
 
-// Add pet
+// Add pet (Cloudinary + Multer works here)
 router.post("/", upload.single("image"), addPet);
-
-
-// Delete pet
-router.delete("/:id", deletePet);
 
 export default router;

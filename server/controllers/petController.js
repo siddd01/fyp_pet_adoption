@@ -54,23 +54,3 @@ export const addPet = async (req, res) => {
     res.status(500).json({ message: "Failed to add pet" });
   }
 };
-
-export const deletePet = async (req, res) => {
-  const { id } = req.params;
-
-  try {
-    await db.query("DELETE FROM pets WHERE id = ?", [id]);
-    return res.json({ message: "🗑️ Pet deleted successfully." });
-
-  } catch (error) {
-    // 🔥 FK BLOCK — CUSTOM MESSAGE
-    if (error.code === "ER_ROW_IS_REFERENCED_2") {
-      return res.status(400).json({
-        message: "❌ This pet already has an adoption application and cannot be deleted."
-      });
-    }
-
-    console.error(error);
-    return res.status(500).json({ message: "Server error." });
-  }
-};
