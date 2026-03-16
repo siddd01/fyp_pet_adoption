@@ -17,6 +17,7 @@ const Dashboard = () => {
         setLoading(false);
         return;
       }
+
       try {
         const res = await api.get("/user/profile", {
           headers: { Authorization: `Bearer ${token}` },
@@ -29,88 +30,97 @@ const Dashboard = () => {
         setLoading(false);
       }
     };
+
     fetchUser();
   }, [token]);
 
   if (loading) {
     return (
       <div className="min-h-screen bg-stone-50 flex items-center justify-center">
-        <div className="flex items-center gap-3 text-gray-400">
-          <svg className="w-5 h-5 animate-spin" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-            <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
-          </svg>
-          <span className="text-sm font-medium">Loading...</span>
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 rounded-full border-2 border-stone-200 border-t-stone-600 animate-spin" />
+          <p className="text-stone-400 text-xs tracking-widest uppercase">
+            Loading
+          </p>
         </div>
       </div>
     );
   }
 
   const features = [
-    { emoji: "🐾", label: "Adopt a Pet", sub: "Find your companion" },
-    { emoji: "🛍️", label: "Pet Shop", sub: "Quality essentials" },
-    { emoji: "❤️", label: "Charity", sub: "Support animals in need" },
+    { emoji: "🐾", label: "Adopt a Pet", sub: "Find your companion", to: "/adopt" },
+    { emoji: "🛍️", label: "Pet Shop", sub: "Quality essentials", to: "/shop" },
+    { emoji: "❤️", label: "Charity", sub: "Support animals in need", to: "/donate" },
   ];
 
   return (
     <div className="min-h-screen bg-stone-50">
 
-      {/* Hero Section */}
-      <div className="max-w-7xl mx-auto px-10 py-16">
-        <div className="grid grid-cols-2 gap-16 items-center">
+      {/* Hero */}
+      <div className="max-w-6xl mx-auto px-6 py-16">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
 
           {/* LEFT */}
           <div className="space-y-8">
 
-            {/* Welcome pill */}
             {isLoggedIn && user ? (
-              <div className="inline-flex items-center gap-2 bg-white border border-gray-200 rounded-full px-4 py-1.5 text-sm text-gray-600 shadow-sm">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                Welcome back, <span className="font-semibold text-stone-800">{user.first_name}</span> 👋
+              <div className="inline-flex items-center gap-2 bg-white border border-stone-200 rounded-full px-4 py-1.5 text-sm text-stone-600 shadow-sm">
+                <span className="w-2 h-2 rounded-full bg-teal-400 animate-pulse" />
+                Welcome back,{" "}
+                <span className="font-semibold text-stone-900">
+                  {user.first_name}
+                </span>{" "}
+                👋
               </div>
             ) : (
-              <div className="inline-flex items-center gap-2 bg-white border border-gray-200 rounded-full px-4 py-1.5 text-sm text-gray-500 shadow-sm">
-                <span className="w-2 h-2 rounded-full bg-amber-400" />
+              <div className="inline-flex items-center gap-2 bg-white border border-stone-200 rounded-full px-4 py-1.5 text-sm text-stone-500 shadow-sm">
+                <span className="w-2 h-2 rounded-full bg-yellow-500" />
                 Trusted by 50,000+ pet lovers
               </div>
             )}
 
-            {/* Headline */}
             <div className="space-y-3">
+              <p className="text-xs tracking-[0.25em] uppercase text-stone-400">
+                Sano Ghar
+              </p>
+
               <h1 className="text-5xl font-serif text-stone-900 leading-tight">
                 Find Your{" "}
-                <span className="italic text-amber-700">Perfect Pet</span>{" "}
+                <span className="italic text-stone-500">Perfect Pet</span>{" "}
                 Today
               </h1>
-              <p className="text-gray-500 text-lg leading-relaxed max-w-md">
-                Adopt loving pets, shop essentials, and support charity — all in one trusted platform.
+
+              <p className="text-stone-500 text-base leading-relaxed max-w-md">
+                Adopt loving pets, shop essentials, and support charity — all
+                in one trusted platform.
               </p>
             </div>
 
-            {/* CTA Buttons */}
             <div className="flex gap-3">
               <button
                 onClick={() => navigate("/adopt")}
-                className="px-7 py-3 bg-stone-900 hover:bg-stone-700 text-white text-sm font-semibold rounded-xl transition hover:-translate-y-0.5 hover:shadow-lg"
+                className="px-7 py-3 bg-stone-900 hover:bg-stone-700 text-white text-sm font-semibold rounded-xl transition"
               >
                 Adopt Now 🐾
               </button>
+
               <button
                 onClick={() => navigate("/shop")}
-                className="px-7 py-3 bg-white border border-gray-200 hover:border-stone-400 text-stone-700 text-sm font-semibold rounded-xl transition hover:-translate-y-0.5 hover:shadow-md"
+                className="px-7 py-3 bg-white border border-stone-200 hover:border-stone-400 text-stone-700 text-sm font-semibold rounded-xl transition"
               >
                 Shop Now →
               </button>
+
               {!isLoggedIn && (
                 <button
                   onClick={() => navigate("/login")}
-                  className="px-7 py-3 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-xl transition hover:-translate-y-0.5 hover:shadow-lg"
+                  className="px-7 py-3 border border-stone-200 hover:border-stone-400 bg-white text-stone-700 text-sm font-semibold rounded-xl transition"
                 >
                   Join Free
                 </button>
               )}
             </div>
 
-            {/* Social proof */}
             <div className="flex items-center gap-4 pt-2">
               <div className="flex -space-x-2.5">
                 {[1, 2, 3, 4, 5].map((i) => (
@@ -122,61 +132,93 @@ const Dashboard = () => {
                   />
                 ))}
               </div>
+
               <div>
-                <p className="text-sm font-semibold text-stone-800">50,000+ happy customers</p>
-                <p className="text-xs text-gray-400">Trusted by pet lovers worldwide</p>
+                <p className="text-sm font-semibold text-stone-800">
+                  50,000+ happy customers
+                </p>
+                <p className="text-xs text-stone-400">
+                  Trusted by pet lovers worldwide
+                </p>
               </div>
             </div>
 
           </div>
 
-          {/* RIGHT — Image */}
-          <div className="relative">
-            <div className="absolute -inset-4 bg-amber-100/50 rounded-3xl blur-2xl" />
+          {/* RIGHT IMAGE */}
+          <div className="relative hidden lg:block">
+            <div className="absolute -inset-4 bg-gradient-to-br from-stone-200 via-stone-100 to-stone-300 rounded-3xl blur-2xl opacity-60" />
+
             <img
               src="https://images.unsplash.com/photo-1548199973-03cce0bbc87b"
               alt="Happy pets"
               className="relative w-full rounded-3xl shadow-2xl object-cover aspect-square"
             />
 
-            {/* Floating stat card */}
-            <div className="absolute -bottom-5 -left-6 bg-white rounded-2xl shadow-xl border border-gray-100 px-5 py-3.5 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center text-xl">
+            <div className="absolute -bottom-5 -left-6 bg-white rounded-2xl shadow-xl border border-stone-100 px-5 py-3.5 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-stone-100 flex items-center justify-center text-xl">
                 🐶
               </div>
               <div>
-                <p className="text-xs text-gray-400 font-medium">Pets adopted</p>
-                <p className="text-lg font-bold text-stone-900">12,400+</p>
+                <p className="text-xs text-stone-400 font-medium">
+                  Pets adopted
+                </p>
+                <p className="text-lg font-bold text-stone-900">
+                  12,400+
+                </p>
               </div>
             </div>
 
-            {/* Floating rating card */}
-            <div className="absolute -top-4 -right-4 bg-white rounded-2xl shadow-xl border border-gray-100 px-4 py-3 flex items-center gap-2">
-              <span className="text-yellow-400 text-base">★★★★★</span>
-              <span className="text-sm font-bold text-stone-800">4.9</span>
-              <span className="text-xs text-gray-400">rating</span>
+            <div className="absolute -top-4 -right-4 bg-white rounded-2xl shadow-xl border border-stone-100 px-4 py-3 flex items-center gap-2">
+              <span className="text-yellow-400 text-sm">★★★★★</span>
+              <span className="text-sm font-bold text-stone-800">
+                4.9
+              </span>
+              <span className="text-xs text-stone-400">
+                rating
+              </span>
             </div>
+
           </div>
 
         </div>
       </div>
 
-      {/* Feature Strip */}
-      <div className="max-w-7xl mx-auto px-10 pb-16">
-        <div className="grid grid-cols-3 gap-5">
-          {features.map(({ emoji, label, sub }) => (
+      {/* Features */}
+      <div className="max-w-6xl mx-auto px-6 pb-16">
+        <div className="flex items-center gap-3 mb-8">
+          <div className="flex-1 h-px bg-stone-200" />
+          <p className="text-xs tracking-[0.25em] uppercase text-stone-400">
+            What we offer
+          </p>
+          <div className="flex-1 h-px bg-stone-200" />
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {features.map(({ emoji, label, sub, to }) => (
             <div
               key={label}
-              className="bg-white rounded-2xl border border-gray-200 shadow-sm px-6 py-5 flex items-center gap-4 hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer"
+              onClick={() => navigate(to)}
+              className="bg-white rounded-2xl border border-stone-100 shadow-sm px-6 py-5 flex items-center gap-4 hover:shadow-md transition cursor-pointer"
             >
-              <div className="w-12 h-12 bg-stone-100 rounded-xl flex items-center justify-center text-2xl shrink-0">
+              <div className="w-11 h-11 bg-stone-100 rounded-xl flex items-center justify-center text-2xl">
                 {emoji}
               </div>
-              <div>
-                <p className="text-sm font-semibold text-stone-800">{label}</p>
-                <p className="text-xs text-gray-400">{sub}</p>
+
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-stone-800">
+                  {label}
+                </p>
+                <p className="text-xs text-stone-400">{sub}</p>
               </div>
-              <svg className="w-4 h-4 text-gray-300 ml-auto" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+
+              <svg
+                className="w-4 h-4 text-stone-300"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                viewBox="0 0 24 24"
+              >
                 <path d="M9 18l6-6-6-6" />
               </svg>
             </div>

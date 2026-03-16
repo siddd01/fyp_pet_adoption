@@ -51,7 +51,7 @@ const ProductDetails = () => {
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50">
       {/* Navigation Bar */}
       <div className="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
+        <div className="max-w-8xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
           <button className="flex items-center gap-2 text-gray-700 hover:text-emerald-600 transition">
             <ArrowLeft className="w-5 h-5" />
             <span className="font-medium">Back to Shop</span>

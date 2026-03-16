@@ -7,26 +7,30 @@ const fadeUp = {
 
 const AboutUs = () => {
   return (
-    <div className="bg-gray-50 text-gray-800 mt-4">
-      {/* Hero Section */}
-      <section className="bg-gradient-to-r from-emerald-500 to-green-600 text-white py-20">
+    <div className="bg-stone-50 text-stone-800">
+
+      {/* Header (Shop Style) */}
+      <div className="bg-white border-b border-stone-100">
         <motion.div
           initial="hidden"
           animate="visible"
           variants={fadeUp}
           transition={{ duration: 0.8 }}
-          className="max-w-6xl mx-auto px-6 text-center"
+          className="max-w-6xl mx-auto px-6 py-10"
         >
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">
-            About Sano Ghar
+          <p className="text-xs font-semibold tracking-widest text-stone-400 uppercase mb-2">
+            Sano Ghar
+          </p>
+          <h1 className="text-4xl font-serif text-stone-900 mb-2">
+            About Us
           </h1>
-          <p className="text-lg md:text-xl opacity-90">
+          <p className="text-stone-500 text-sm">
             A safe home for every rescued soul
           </p>
         </motion.div>
-      </section>
+      </div>
 
-      {/* About Section */}
+      {/* Who We Are */}
       <section className="py-16 max-w-6xl mx-auto px-6">
         <motion.div
           initial="hidden"
@@ -35,8 +39,10 @@ const AboutUs = () => {
           variants={fadeUp}
           transition={{ duration: 0.7 }}
         >
-          <h2 className="text-3xl font-semibold mb-6">Who We Are</h2>
-          <p className="leading-relaxed text-gray-700">
+          <h2 className="text-3xl font-semibold mb-6 text-stone-900">
+            Who We Are
+          </h2>
+          <p className="leading-relaxed text-stone-600">
             <b>Sano Ghar</b> is a pet adoption and welfare center dedicated to
             rescuing abandoned and vulnerable animals and providing them with
             care, protection, and a second chance at life. We operate with a
@@ -47,17 +53,21 @@ const AboutUs = () => {
       </section>
 
       {/* Mission & Story */}
-      <section className="bg-white py-16">
-        <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-12">
+      <section className="py-16">
+        <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-10">
+          
           <motion.div
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
             variants={fadeUp}
             transition={{ duration: 0.7 }}
+            className="bg-white border border-stone-100 rounded-2xl p-6 shadow-sm"
           >
-            <h3 className="text-2xl font-semibold mb-4">Our Mission</h3>
-            <p className="text-gray-700 leading-relaxed">
+            <h3 className="text-xl font-semibold mb-3 text-stone-900">
+              Our Mission
+            </h3>
+            <p className="text-stone-600 text-sm leading-relaxed">
               Our mission is to create a responsible and humane adoption system
               where every pet receives proper medical care, shelter, and love.
               We promote adoption over purchasing pets and reinvest in animal
@@ -72,9 +82,12 @@ const AboutUs = () => {
             viewport={{ once: true }}
             variants={fadeUp}
             transition={{ duration: 0.9 }}
+            className="bg-white border border-stone-100 rounded-2xl p-6 shadow-sm"
           >
-            <h3 className="text-2xl font-semibold mb-4">Our Story</h3>
-            <p className="text-gray-700 leading-relaxed">
+            <h3 className="text-xl font-semibold mb-3 text-stone-900">
+              Our Story
+            </h3>
+            <p className="text-stone-600 text-sm leading-relaxed">
               Sano Ghar was founded after witnessing the increasing number of
               stray and abandoned animals lacking proper care. What began as a
               small rescue effort evolved into a structured pet adoption
@@ -83,6 +96,7 @@ const AboutUs = () => {
               reinforces our belief that every animal deserves a loving home.
             </p>
           </motion.div>
+
         </div>
       </section>
 
@@ -95,9 +109,11 @@ const AboutUs = () => {
           variants={fadeUp}
           transition={{ duration: 0.7 }}
         >
-          <h2 className="text-3xl font-semibold mb-8">What We Do</h2>
+          <h2 className="text-3xl font-semibold mb-8 text-stone-900">
+            What We Do
+          </h2>
 
-          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-5">
             {[
               "Ethical Pet Adoption Services",
               "Health & Care Management",
@@ -108,18 +124,18 @@ const AboutUs = () => {
             ].map((item, index) => (
               <motion.div
                 key={index}
-                whileHover={{ scale: 1.05 }}
-                className="bg-white rounded-xl shadow-md p-6 text-center"
+                whileHover={{ scale: 1.03 }}
+                className="bg-white border border-stone-100 rounded-2xl p-5 text-center shadow-sm"
               >
-                <p className="font-medium text-gray-700">{item}</p>
+                <p className="text-sm text-stone-700">{item}</p>
               </motion.div>
             ))}
           </div>
         </motion.div>
       </section>
 
-      {/* Contact Section */}
-      <section className="bg-gray-900 text-white py-16">
+      {/* Contact */}
+      <section className="bg-white border-t border-stone-100 py-16">
         <motion.div
           initial="hidden"
           whileInView="visible"
@@ -128,20 +144,28 @@ const AboutUs = () => {
           transition={{ duration: 0.7 }}
           className="max-w-6xl mx-auto px-6 text-center"
         >
-          <h2 className="text-3xl font-semibold mb-6">Contact Us</h2>
-          <p className="mb-2">📞 Phone: +977 98XXXXXXXX</p>
-          <p className="mb-2">📧 Email: support@sanoghar.com</p>
-          <p>📍 Location: Kathmandu, Nepal</p>
+          <h2 className="text-3xl font-semibold mb-6 text-stone-900">
+            Contact Us
+          </h2>
+          <p className="text-stone-600 text-sm mb-2">
+            📞 Phone: +977 98XXXXXXXX
+          </p>
+          <p className="text-stone-600 text-sm mb-2">
+            📧 Email: support@sanoghar.com
+          </p>
+          <p className="text-stone-600 text-sm">
+            📍 Location: Kathmandu, Nepal
+          </p>
         </motion.div>
       </section>
 
       {/* Footer Quote */}
-      <section className="py-10 bg-emerald-600 text-white text-center">
+      <section className="py-10 text-center">
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1.2 }}
-          className="italic text-lg"
+          className="italic text-sm text-stone-500"
         >
           “A small home can create a big change.”
         </motion.p>

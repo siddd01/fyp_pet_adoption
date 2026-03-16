@@ -16,7 +16,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="h-14 bg-[#40565E] px-6 flex items-center justify-between text-white">
+    <nav className="h-14 bg-white border-b border-stone-100 px-6 flex items-center justify-between text-stone-800">
       <div className="flex items-center gap-10">
         <div onClick={() => navigate("/")} className="flex items-center gap-2 cursor-pointer">
           <img
@@ -24,22 +24,22 @@ const Navbar = () => {
             alt="Logo"
             className="h-8 w-8 rounded"
           />
-          <span className="font-semibold text-lg">Sano Ghar</span>
+          <span className="font-semibold text-lg text-stone-900">Sano Ghar</span>
         </div>
 
         <div className="hidden md:flex gap-6 text-sm font-medium">
-          <Link to="/">Home</Link>
-          <Link to="/adopt">Adopt Now</Link>
-          <Link to="/shop">Shop Now</Link>
-          <Link to="/about">About Us</Link>
-          <Link to="/donate">Donate</Link>
+          <Link to="/" className="hover:text-stone-900">Home</Link>
+          <Link to="/adopt" className="hover:text-stone-900">Adopt Now</Link>
+          <Link to="/shop" className="hover:text-stone-900">Shop Now</Link>
+          <Link to="/about" className="hover:text-stone-900">About Us</Link>
+          <Link to="/donate" className="hover:text-stone-900">Donate</Link>
         </div>
       </div>
 
       <div className="relative flex items-center gap-3">
         <button
           onClick={() => navigate("/cart")}
-          className="flex items-center gap-2 bg-emerald-600 px-4 py-2 rounded-lg hover:bg-emerald-700"
+          className="flex items-center gap-2 bg-stone-900 text-white px-4 py-2 rounded-xl text-sm"
         >
           <ShoppingCart size={18} />
           Cart
@@ -51,32 +51,32 @@ const Navbar = () => {
             <img
               src={user.image || "/default-user.png"}
               alt="Profile"
-              className="h-8 w-8 rounded-full border cursor-pointer"
+              className="h-8 w-8 rounded-full border border-stone-200 cursor-pointer"
               onClick={() => navigate("/profile")}
             />
 
             {/* 3 DOT MENU */}
             <div className="relative">
               <FiMoreVertical
-                className="cursor-pointer text-xl"
+                className="cursor-pointer text-xl text-stone-600"
                 onClick={() => setOpenMenu(!openMenu)}
               />
 
               {openMenu && (
-                <div className="absolute right-0 mt-2 w-32 bg-white text-black rounded shadow-lg overflow-hidden z-50">
+                <div className="absolute right-0 mt-2 w-32 bg-white text-stone-800 rounded-xl border border-stone-100 shadow-sm overflow-hidden z-50">
                   <button
                     onClick={() => {
                       navigate("/profile");
                       setOpenMenu(false);
                     }}
-                    className="block w-full px-4 py-2 text-sm hover:bg-gray-100 text-left"
+                    className="block w-full px-4 py-2 text-sm hover:bg-stone-50 text-left"
                   >
                     Profile
                   </button>
 
                   <button
                     onClick={handleLogout}
-                    className="block w-full px-4 py-2 text-sm hover:bg-gray-100 text-left text-red-600"
+                    className="block w-full px-4 py-2 text-sm hover:bg-stone-50 text-left text-red-600"
                   >
                     Logout
                   </button>
