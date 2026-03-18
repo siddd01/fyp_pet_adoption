@@ -26,7 +26,7 @@ if (token && token !== "null" && storedAdmin) {
 
   const adminLogin = async (email, password) => {
     try {
-      const response = await api.post("/admin/auth/login", { 
+      const response = await api.post("/admin/auth/login", {
         email, 
         password 
       });
@@ -45,6 +45,7 @@ if (token && token !== "null" && storedAdmin) {
       return response.data;
     } catch (error) {
       console.error("❌ Login failed:", error.response?.data);
+
       throw error.response?.data?.message || "Login failed";
     }
   };
