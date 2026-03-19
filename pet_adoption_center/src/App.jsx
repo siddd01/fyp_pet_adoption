@@ -6,6 +6,7 @@ import { AuthContext } from "./Context/AuthContext.jsx";
 import { StaffContext } from "./Context/StaffContext.jsx";
 
 // User Pages
+
 import AboutUs from "./User/Pages/AboutUs/AboutUs";
 import Adopt from "./User/Pages/Adopt/Adopt";
 import AdoptionForm from "./User/Pages/Adopt/AdoptionForm.jsx";

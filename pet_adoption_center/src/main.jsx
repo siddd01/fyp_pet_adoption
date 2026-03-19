@@ -17,7 +17,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
           <PetProvider>
             <AdminAuthProvider>
               <StaffProvider>
-                                        <App />
+              <App />
               </StaffProvider>
 
             </AdminAuthProvider>

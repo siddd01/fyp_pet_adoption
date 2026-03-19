@@ -2,6 +2,8 @@ import { useContext, useEffect, useState } from "react";
 import api from "../../../api/axios";
 import { AdminAuthContext } from "../../../Context/AdminAuthContext";
 import { PetContext } from "../../../Context/PetContext";
+import axios from "axios";
+
 
 const AdminHandleAdoption = () => {
   const { admin } = useContext(AdminAuthContext);
