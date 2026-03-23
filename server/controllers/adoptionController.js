@@ -28,7 +28,8 @@ export const updateAdoptionStatus = async (req, res) => {
   }
 };
 
-export const getAllAdoptions = async (req, res) => {
+
+;export const getAllAdoptions = async (req, res) => {
   try {
     const [rows] = await db.execute(`
       SELECT * FROM adoption_applications ORDER BY created_at DESC
@@ -130,5 +131,35 @@ export const createAdoptionApplication = async (req, res) => {
       message: "Server error",
       error: error.message, // helpful for debugging
     });
+  }
+};
+
+export const getUserNotifications = async (req, res) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const userId = req.user.id;
+
+    const [rows] = await db.execute(`
+      SELECT 
+        aa.*,
+        p.name AS pet_name,
+        p.image_url
+      FROM adoption_applications aa
+      JOIN pets p ON aa.pet_id = p.id
+      WHERE aa.user_id = ?
+      ORDER BY aa.created_at DESC
+    `, [userId]);
+
+    res.json({
+      success: true,
+      notifications: rows,
+    });
+
+  } catch (error) {
+    console.error("❌ Notification error:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };

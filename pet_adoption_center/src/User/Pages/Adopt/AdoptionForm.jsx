@@ -98,6 +98,7 @@ const AdoptionForm = () => {
           <div className="col-span-2 bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
 
             {/* Amber accent bar */}
+            +
             <div className="h-1 bg-gradient-to-r from-yellow-700 to-yellow-500" />
 
             <div className="p-9">

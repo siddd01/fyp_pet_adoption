@@ -54,6 +54,7 @@ import AdminPrivateRoute from "./Admin/Routes/AdminPrivateRoute.jsx";
 import StaffDashboard from "./Staff/Pages/Home/StaffDashboard.jsx";
 import StaffHome from "./Staff/Pages/Home/StaffHome.jsx";
 import Signup from "./User/Pages/Login/Signup.jsx";
+import Notifications from "./User/Pages/Notifications/Notifications.jsx";
 
 // -------- User Protected Route --------
 const PrivateRoute = ({ children }) => {
@@ -149,6 +150,7 @@ const App = () => {
           <Route path="adopt/:id" element={<PetDetails />} />
           <Route path="adopt-form/:id" element={<AdoptionForm />} />
           <Route path="shop" element={<Shop />} />
+          <Route path="/notifications" element={<Notifications />} />
           <Route path="shop/:id" element={<ProductDetails />} />
           <Route path="about" element={<AboutUs />} />
           <Route path="donate" element={<Donate />} />
