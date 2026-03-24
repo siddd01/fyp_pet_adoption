@@ -3,11 +3,21 @@ import db from "../config/db.js";
 // Get all pets
 export const getAllPets = async (req, res) => {
   try {
-    const [pets] = await db.query(
-      "SELECT * FROM pets ORDER BY created_at DESC"
-    );
+    const [pets] = await db.query(`
+      SELECT *
+      FROM pets p
+      WHERE NOT EXISTS (
+        SELECT 1
+        FROM adoption_applications a
+        WHERE a.pet_id = p.id
+        AND a.status = 'approved'
+      )
+      ORDER BY p.created_at DESC
+    `);
+
     res.status(200).json(pets);
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: "Failed to fetch pets" });
   }
 };
