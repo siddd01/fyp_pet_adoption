@@ -1,11 +1,12 @@
 import { Bell, ShoppingCart } from "lucide-react";
 import { useContext, useState } from "react";
 import { FiMoreVertical } from "react-icons/fi";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../Context/AuthContext";
 
 const Navbar = () => {
   const navigate = useNavigate();
+  const location = useLocation(); // 👈 to detect active page
   const { user, logout } = useContext(AuthContext);
   const [openMenu, setOpenMenu] = useState(false);
 
@@ -15,72 +16,112 @@ const Navbar = () => {
     navigate("/login");
   };
 
-  return (
-    <nav className="h-14 bg-white border-b border-stone-100 px-6 flex items-center justify-between text-stone-800">
-      <div className="flex items-center gap-10">
-        <div onClick={() => navigate("/")} className="flex items-center gap-2 cursor-pointer">
-          <img
-            src="https://static.vecteezy.com/system/resources/previews/005/096/209/non_2x/adopt-animal-care-and-rescue-logo-for-organization-medical-pet-or-brand-vector.jpg"
-            alt="Logo"
-            className="h-8 w-8 rounded"
-          />
-          <span className="font-semibold text-lg text-stone-900">Sano Ghar</span>
-        </div>
+  const navLinks = [
+    { name: "Home", path: "/" },
+    { name: "Adopt Now", path: "/adopt" },
+    { name: "Shop Now", path: "/shop" },
+    { name: "About Us", path: "/about" },
+    { name: "Donate", path: "/donate" },
+  ];
 
-        <div className="hidden md:flex gap-6 text-sm font-medium">
-          <Link to="/" className="hover:text-stone-900">Home</Link>
-          <Link to="/adopt" className="hover:text-stone-900">Adopt Now</Link>
-          <Link to="/shop" className="hover:text-stone-900">Shop Now</Link>
-          <Link to="/about" className="hover:text-stone-900">About Us</Link>
-          <Link to="/donate" className="hover:text-stone-900">Donate</Link>
-        </div>
+  return (
+    <nav className="h-16 bg-white border-b border-stone-200 px-6 flex items-center justify-between shadow-sm">
+      
+      {/* LEFT - LOGO */}
+      <div
+        onClick={() => navigate("/")}
+        className="flex items-center gap-2 cursor-pointer"
+      >
+        <img
+          src="https://static.vecteezy.com/system/resources/previews/005/096/209/non_2x/adopt-animal-care-and-rescue-logo-for-organization-medical-pet-or-brand-vector.jpg"
+          alt="Logo"
+          className="h-9 w-9 rounded-lg"
+        />
+        <span className="font-bold text-xl text-stone-900 tracking-wide">
+          Sano Ghar
+        </span>
       </div>
 
+      {/* CENTER - NAV LINKS */}
+      <div className="hidden md:flex gap-10 text-base font-bold absolute left-1/2 transform -translate-x-1/2">
+
+        {navLinks.map((link) => {
+          const isActive = location.pathname === link.path;
+
+          return (
+            <Link
+              key={link.path}
+              to={link.path}
+              className={`relative transition-all duration-200 ${
+                isActive
+                  ? "text-stone-900 font-semibold"
+                  : "text-stone-500 hover:text-stone-900"
+              }`}
+            >
+              {link.name}
+
+              {/* underline animation */}
+              <span
+                className={`absolute left-0 -bottom-1 h-[2px] bg-stone-900 transition-all duration-300 ${
+                  isActive ? "w-full" : "w-0 group-hover:w-full"
+                }`}
+              />
+            </Link>
+          );
+        })}
+      </div>
+
+      {/* RIGHT - ICONS + USER */}
       <div className="relative flex items-center gap-3">
-        <button className="flex items-center gap-2 bg-stone-900 text-white px-4 py-2 rounded-xl text-sm"
-        onClick={()=>navigate("/notifications")}>
-          <Bell size={18} />
-        </button>
+        
+        {/* Notification */}
         <button
-          onClick={() => navigate("/cart")}
-          className="flex items-center gap-2 bg-stone-900 text-white px-4 py-2 rounded-xl text-sm"
+          onClick={() => navigate("/notifications")}
+          className="p-2 rounded-xl bg-stone-100 hover:bg-stone-200 transition shadow-sm"
         >
-          <ShoppingCart size={18} />
-          Cart
+          <Bell size={18} className="text-stone-700" />
         </button>
 
-        {/* SHOW ONLY IF LOGGED IN */}
+        {/* Cart */}
+        <button
+          onClick={() => navigate("/cart")}
+          className="p-2 rounded-xl bg-stone-600 hover:bg-stone-700 transition shadow-md"
+        >
+          <ShoppingCart size={18} className="text-white" />
+        </button>
+
+        {/* USER */}
         {user && (
           <>
             <img
               src={user.image || "/default-user.png"}
               alt="Profile"
-              className="h-8 w-8 rounded-full border border-stone-200 cursor-pointer"
+              className="h-9 w-9 rounded-full border-2 border-stone-200 cursor-pointer hover:scale-105 transition"
               onClick={() => navigate("/profile")}
             />
 
             {/* 3 DOT MENU */}
             <div className="relative">
               <FiMoreVertical
-                className="cursor-pointer text-xl text-stone-600"
+                className="cursor-pointer text-xl text-stone-600 hover:text-black transition"
                 onClick={() => setOpenMenu(!openMenu)}
               />
 
               {openMenu && (
-                <div className="absolute right-0 mt-2 w-32 bg-white text-stone-800 rounded-xl border border-stone-100 shadow-sm overflow-hidden z-50">
+                <div className="absolute right-0 mt-2 w-36 bg-white text-stone-800 rounded-xl border border-stone-200 shadow-lg overflow-hidden z-50">
                   <button
                     onClick={() => {
                       navigate("/profile");
                       setOpenMenu(false);
                     }}
-                    className="block w-full px-4 py-2 text-sm hover:bg-stone-50 text-left"
+                    className="block w-full px-4 py-2 text-sm hover:bg-stone-100 text-left"
                   >
                     Profile
                   </button>
 
                   <button
                     onClick={handleLogout}
-                    className="block w-full px-4 py-2 text-sm hover:bg-stone-50 text-left text-red-600"
+                    className="block w-full px-4 py-2 text-sm hover:bg-red-50 text-left text-red-600"
                   >
                     Logout
                   </button>
