@@ -109,7 +109,7 @@ const Adopt = () => {
       </div>
 
       {/* ── Grid ── */}
-      <div className="max-w-7xl mx-auto px-6 lg:px-10 py-4">
+      <div className="max-w-7xl mx-auto px-6 lg:px-10 py-6">
         {filteredPets.length === 0 ? (
           <div className="text-center py-40 bg-stone-50/50  border border-dashed border-stone-200">
             <p className="text-5xl mb-4">🐾</p>
