@@ -1,11 +1,12 @@
-import { Bell, Menu, User } from "lucide-react";
+import { Bell, ClipboardList, Menu, User } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const StaffNavbar = () => {
   const [open, setOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const navigate=useNavigate();
   
   const handleLogout = () => {
     localStorage.removeItem("staffToken");
@@ -72,6 +73,7 @@ const StaffNavbar = () => {
 
       {/* Right: Icons */}
       <div className="flex items-center gap-4">
+        <ClipboardList onClick={()=>navigate("/staff/adoptions")} className="cursor-pointer text-gray-600 hover:text-teal-600" />
         <Bell className="cursor-pointer text-gray-600 hover:text-teal-600" />
 
         {/* Profile Dropdown */}

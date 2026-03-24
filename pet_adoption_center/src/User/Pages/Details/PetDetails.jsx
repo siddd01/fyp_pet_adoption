@@ -46,7 +46,7 @@ const PetDetails = () => {
 
       {/* Navbar */}
       <nav className="bg-white border-b border-slate-200 sticky top-0 z-20">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <button
             onClick={() => navigate("/adopt")}
             className="flex items-center gap-2 text-slate-500 hover:text-slate-900"
@@ -75,7 +75,7 @@ const PetDetails = () => {
       </nav>
 
       {/* Page */}
-      <div className="max-w-6xl mx-auto px-6 py-10 grid lg:grid-cols-3 gap-10">
+      <div className="max-w-7xl mx-auto px-6 py-10 grid lg:grid-cols-3 gap-10">
 
         {/* LEFT */}
         <div className="lg:col-span-2 space-y-6">
