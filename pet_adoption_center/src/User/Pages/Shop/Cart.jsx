@@ -56,7 +56,7 @@ const Cart = () => {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="w-5xl mx-auto px-6 py-8">
         <div className="grid lg:grid-cols-3 gap-6">
 
           {/* Cart Items */}

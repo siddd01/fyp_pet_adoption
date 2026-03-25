@@ -28,11 +28,19 @@ export const updateAdoptionStatus = async (req, res) => {
   }
 };
 
-
-;export const getAllAdoptions = async (req, res) => {
+export const getAllAdoptions = async (req, res) => {
   try {
+    // Join with pets table to get pet details
     const [rows] = await db.execute(`
-      SELECT * FROM adoption_applications ORDER BY created_at DESC
+      SELECT 
+        aa.*, 
+        p.name AS pet_name, 
+        p.image_url AS pet_image,
+        p.species,
+        p.breed
+      FROM adoption_applications aa
+      JOIN pets p ON aa.pet_id = p.id
+      ORDER BY aa.created_at DESC
     `);
 
     res.status(200).json({
@@ -41,9 +49,7 @@ export const updateAdoptionStatus = async (req, res) => {
     });
   } catch (error) {
     console.error("❌ Fetch error:", error);
-    res.status(500).json({
-      message: "Server error",
-    });
+    res.status(500).json({ message: "Server error" });
   }
 };
 

@@ -41,9 +41,8 @@ const Shop = () => {
   return (
     <div className="min-h-screen bg-white">
       {/* ── Hero & Search Section ── */}
-      <div className="bg-gradient-to-b from-stone-100 to-white pt-24 pb-4 border-b border-stone-100">
+      <div className="bg-linear-to-b from-stone-100 to-white pt-24 pb-4 border-b border-stone-100">
         <div className="max-w-7xl mx-auto px-6 lg:px-12">
-          
           <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-12 gap-8">
             <div className="space-y-4">
               <div className="flex items-center gap-3">
@@ -59,7 +58,7 @@ const Shop = () => {
                 Pet Store
               </h1>
             </div>
-            
+
             <div className="max-w-xs border-l border-stone-200 pl-6">
               <p className="text-stone-600 text-sm leading-relaxed font-light">
                 Premium essentials for your companions. Every purchase directly supports animal welfare at Sano Ghar.
@@ -73,8 +72,7 @@ const Shop = () => {
               <div className="relative flex-grow">
                 <svg
                   className="absolute left-5 top-1/2 -translate-y-1/2 text-stone-400"
-                  width="20" height="20" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" strokeWidth="2"
+                  width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
                 >
                   <circle cx="11" cy="11" r="8" />
                   <path d="m21 21-4.35-4.35" />
@@ -110,9 +108,9 @@ const Shop = () => {
       </div>
 
       {/* ── Products Grid ── */}
-      <div className="max-w-7xl mx-auto px-6 lg:px-12 py-6">
+      <div className="max-w-7xl mx-auto px-6 lg:px-10 py-6">
         {filteredProducts.length === 0 ? (
-          <div className="text-center py-40 bg-stone-50/50 rounded-[3rem] border border-dashed border-stone-200">
+          <div className="text-center py-40 bg-stone-50/50 border border-dashed border-stone-200">
             <p className="text-5xl mb-4">🛒</p>
             <p className="text-stone-400 text-sm font-light">No items found in this collection.</p>
           </div>
@@ -121,64 +119,71 @@ const Shop = () => {
             {filteredProducts.map((product) => (
               <div
                 key={product.id}
-                className="group bg-white rounded-3xl overflow-hidden border border-stone-100 hover:border-stone-200 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_30px_60px_-15px_rgba(0,0,0,0.1)] transition-all duration-500 hover:-translate-y-2 flex flex-col"
+                onClick={() => navigate(`/shop/${product.id}`)}
+                className="group bg-white rounded-3xl overflow-hidden cursor-pointer border border-stone-100 hover:border-stone-200 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_30px_60px_-15px_rgba(0,0,0,0.1)] transition-all duration-500 hover:-translate-y-2 flex flex-col"
               >
-                {/* Image Section */}
-                <div 
-                  className="relative overflow-hidden bg-stone-100 aspect-square cursor-pointer"
-                  onClick={() => navigate(`/shop/${product.id}`)}
-                >
+                {/* ── Image Section (Matches Adopt Card) ── */}
+                <div className="relative overflow-hidden bg-stone-100 aspect-4/3">
                   <img
                     src={product.image_url || product.image || "/placeholder-product.jpg"}
                     alt={product.name}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
                   />
-                  
-                  {/* Subtle Top Overlay for category tag */}
-                  <div className="absolute inset-0 bg-linear-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  
-                  <span className="absolute top-4 left-4 bg-white/90 backdrop-blur-md text-stone-800 text-[9px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full shadow-sm">
+
+                  {/* Elegant Gradient Overlay */}
+                  <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/20 to-transparent" />
+
+                  {/* Category Pill */}
+                  <span className="absolute top-4 right-4 bg-white/90 backdrop-blur-md text-stone-800 text-[9px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full shadow-sm">
                     {product.category}
                   </span>
 
-                  <div className="absolute bottom-4 right-4 bg-stone-900 text-white text-sm font-bold px-4 py-2 rounded-xl shadow-lg transform translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
-                    ${product.price}
+                  {/* Floating Identity */}
+                  <div className="absolute bottom-4 left-5 right-5">
+                    <h3 className="text-white font-semibold text-xl tracking-tight leading-tight">
+                      {product.name}
+                    </h3>
+                    <p className="text-white/70 text-xs mt-1 font-light tracking-wide">
+                      Premium Quality
+                    </p>
                   </div>
                 </div>
 
-                {/* Content Section */}
-                <div className="p-6 flex-1 flex flex-col gap-3">
-                  <h3 
-                    className="text-stone-900 font-semibold text-lg tracking-tight leading-tight cursor-pointer hover:text-stone-600 transition-colors"
-                    onClick={() => navigate(`/shop/${product.id}`)}
-                  >
-                    {product.name}
-                  </h3>
+                {/* ── Info Section ── */}
+                <div className="p-6 flex-1 flex flex-col gap-4">
+                  {/* Price Chip */}
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] uppercase tracking-wider bg-stone-900 text-white px-3 py-1 rounded-lg font-bold">
+                      ${product.price}
+                    </span>
+                    <span className="text-[10px] uppercase tracking-wider text-stone-400 font-medium">
+                      In Stock
+                    </span>
+                  </div>
 
+                  {/* Description */}
                   {product.description && (
-                    <p className="text-xs text-stone-500 line-clamp-2 leading-relaxed font-light flex-1">
+                    <p className="text-sm text-stone-500 line-clamp-2 leading-relaxed font-light italic flex-1">
                       {product.description}
                     </p>
                   )}
 
-                  {/* Buttons */}
-                  <div className="mt-4 flex gap-2">
-                    <button
-                      onClick={() => addToCart(product.id, 1, product.price)}
-                      className="flex-1 bg-stone-50 hover:bg-stone-100 text-stone-700 py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest border border-stone-200 transition-all active:scale-95"
+                  {/* Action Button (Matches Adopt Card) */}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      addToCart(product.id, 1, product.price);
+                    }}
+                    className="mt-auto w-full bg-stone-900 hover:bg-stone-800 text-white py-3.5 rounded-2xl text-[10px] font-bold uppercase tracking-[0.2em] transition-all duration-300 flex items-center justify-center gap-2 group/btn"
+                  >
+                    Add to Cart
+                    <svg 
+                      className="transform group-hover/btn:translate-x-1 transition-transform" 
+                      width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"
                     >
-                      Add to Cart
-                    </button>
-                    <button
-                      onClick={() => {
-                        addToCart(product.id, 1, product.price);
-                        navigate("/cart");
-                      }}
-                      className="flex-1 bg-stone-900 hover:bg-stone-800 text-white py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all shadow-md active:scale-95"
-                    >
-                      Buy Now
-                    </button>
-                  </div>
+                      <path d="M5 12h14M12 5l7 7-7 7" />
+                    </svg>
+                  </button>
                 </div>
               </div>
             ))}

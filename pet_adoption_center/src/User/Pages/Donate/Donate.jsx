@@ -23,7 +23,7 @@ const Donate = () => {
       </div>
 
       {/* Content */}
-      <div className="max-w-5xl mx-auto px-6 py-10">
+      <div className="max-w-6xl mx-auto px-6 py-10">
         <div className="bg-white rounded-2xl border border-stone-100 shadow-sm grid md:grid-cols-2 overflow-hidden">
 
           {/* LEFT SIDE */}
