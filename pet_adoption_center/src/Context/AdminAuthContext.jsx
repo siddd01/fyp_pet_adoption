@@ -131,8 +131,8 @@ const deletePet = async (id) => {
         adminLogout,
         fetchAdminProfile,
         AdminProfileLoading,
-            addPet,
-    deletePet,
+        addPet,
+        deletePet,
       }}
     >
       {children}

@@ -1,11 +1,13 @@
-import express from "express";
-import { createAdoptionApplication, getAllAdoptions, getUserNotifications, updateAdoptionStatus } from "../controllers/adoptionController.js";
+    import express from "express";
+import { createAdoptionApplication, getAllAdoptions, getUserNotifications, updateAdoptionApplication, updateAdoptionStatus } from "../controllers/adoptionController.js";
 import { authMiddleware, verifyToken } from "../middleware/authMiddleware.js";
-const router = express.Router();
+    const router = express.Router();
 
-router.post("/apply", authMiddleware, createAdoptionApplication);
-router.get("/", authMiddleware, getAllAdoptions);
-router.put("/:id/status", authMiddleware, updateAdoptionStatus);
-router.get("/notifications", verifyToken, getUserNotifications);
+    router.post("/apply", authMiddleware, createAdoptionApplication);
+    router.get("/", authMiddleware, getAllAdoptions);
+    router.put("/:id/status", authMiddleware, updateAdoptionStatus);
+    router.put("/:id", authMiddleware, updateAdoptionApplication);
+    router.get("/notifications", verifyToken, getUserNotifications);
+    
 
-export default router;
+    export default router;

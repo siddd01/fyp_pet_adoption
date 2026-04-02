@@ -148,7 +148,9 @@ const App = () => {
           <Route index element={<Dashboard />} />
           <Route path="adopt" element={<Adopt />} />
           <Route path="adopt/:id" element={<PetDetails />} />
-          <Route path="adopt-form/:id" element={<AdoptionForm />} />
+          /* App.js or wherever your Routes are defined */
+<Route path="adopt-form/:id" element={<AdoptionForm />} />
+<Route path="adopt-form/edit/:id" element={<AdoptionForm />} />
           <Route path="shop" element={<Shop />} />
           <Route path="/notifications" element={<Notifications />} />
           <Route path="shop/:id" element={<ProductDetails />} />

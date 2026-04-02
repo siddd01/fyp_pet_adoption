@@ -169,3 +169,31 @@ export const getUserNotifications = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+export const updateAdoptionApplication = async (req, res) => {
+  try {
+    const { id } = req.params; // Application ID
+    const userId = req.user.id;
+    const { job, phone, experience_with_pets, reason_for_adoption } = req.body;
+
+    // Check if application exists and belongs to user and is still PENDING
+    const [rows] = await db.execute(
+      "SELECT status FROM adoption_applications WHERE id = ? AND user_id = ?",
+      [id, userId]
+    );
+
+    if (rows.length === 0) return res.status(404).json({ message: "Application not found" });
+    if (rows[0].status !== 'pending') return res.status(400).json({ message: "Cannot edit a processed application" });
+
+    await db.execute(
+      `UPDATE adoption_applications 
+       SET job = ?, phone = ?, experience_with_pets = ?, reason_for_adoption = ? 
+       WHERE id = ? AND user_id = ?`,
+      [job, phone, experience_with_pets, reason_for_adoption, id, userId]
+    );
+
+    res.json({ success: true, message: "Application updated successfully" });
+  } catch (error) {
+    console.error("❌ Update error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
