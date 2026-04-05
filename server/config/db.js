@@ -1,14 +1,17 @@
+import dotenv from "dotenv";
 import mysql from "mysql2/promise";
 
+dotenv.config();
+
 const db = mysql.createPool({
-    host: "localhost",
-    user: "root",
-    password: "",
-    database: "pet_adoption_center",
+    host: process.env.DB_HOST || "localhost",
+    user: process.env.DB_USER || "root",
+    password: process.env.DB_PASSWORD || "",
+    database: process.env.DB_NAME || "pet_adoption_center",
+    port: process.env.DB_PORT || 3307, // This ensures it uses 3307
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0
 });
-
 
 export default db;

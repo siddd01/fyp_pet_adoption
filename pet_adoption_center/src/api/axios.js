@@ -15,7 +15,7 @@ api.interceptors.request.use(
     if (url.includes("/admin")) {
       token = localStorage.getItem("adminToken");
     } else if (url.includes("/staff")) {
-      token = localStorage.getItem("staffToken"); 
+      token = localStorage.getItem("staffToken");
     } else {
       token = localStorage.getItem("token");
     }

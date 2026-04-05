@@ -56,3 +56,56 @@ export const getProductById = async (req, res) => {
     res.status(500).json({ error: "Failed to fetch product" });
   }
 };
+// Add these to your productController.js
+
+export const updateProduct = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, description, category, price, stock, quantity } = req.body;
+
+    // 1. Get existing product to keep the old image if no new one is uploaded
+    const [existing] = await db.execute("SELECT image_url FROM products WHERE id = ?", [id]);
+    if (existing.length === 0) return res.status(404).json({ error: "Product not found" });
+
+    // 2. Determine which image path to use
+    // If req.file exists, use new path. Otherwise, keep the old path from the database.
+    const imageUrl = req.file ? req.file.path : existing[0].image_url;
+
+    const sql = `
+      UPDATE products 
+      SET name = ?, description = ?, category = ?, price = ?, stock = ?, quantity = ?, image_url = ?
+      WHERE id = ?
+    `;
+
+    await db.execute(sql, [
+      name,
+      description,
+      category,
+      price,
+      stock || 0,
+      quantity || 0,
+      imageUrl,
+      id
+    ]);
+
+    res.json({ message: "Product updated successfully", image_url: imageUrl });
+  } catch (error) {
+    console.error("Update error:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const deleteProduct = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const [result] = await db.execute("DELETE FROM products WHERE id = ?", [id]);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: "Product not found" });
+    }
+
+    res.json({ message: "Product deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
