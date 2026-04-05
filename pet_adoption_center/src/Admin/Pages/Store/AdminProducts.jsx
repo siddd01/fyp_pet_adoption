@@ -64,7 +64,7 @@ const AdminProducts = () => {
               </div>
               <div className="h-8 w-[1px] bg-stone-700"></div>
               <button 
-                onClick={() => navigate("/admin/products/add")} 
+                onClick={() => navigate("/admin/store/add-product")} 
                 className="text-[10px] font-bold uppercase tracking-widest hover:text-stone-300 transition-colors"
               >
                 + New Entry
