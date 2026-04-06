@@ -1,6 +1,4 @@
-
 import axios from "axios";
-
 const api = axios.create({
   baseURL: "http://localhost:3000/api",
 });
@@ -9,7 +7,6 @@ api.interceptors.request.use(
   (config) => {
     // Don't override if caller already set Authorization
     if (config.headers.Authorization) return config;
-
     const url = config.url || "";
     let token = null;
     if (url.includes("/admin")) {

@@ -6,13 +6,15 @@ export const handleCheckout = async (req, res) => {
     const { cartItems, totalAmount, shippingInfo } = req.body;
     const userId = req.user.id;
 
+    const donationAmount = (Number(totalAmount) * 0.02).toFixed(2);
+
     try {
         // 1. Start a Transaction in your DB
         // 2. Insert into 'orders' table (Status: pending)
         const [orderResult] = await db.execute(
-            `INSERT INTO orders (user_id, total_amount, full_name, email, phone, shipping_address) 
-             VALUES (?, ?, ?, ?, ?, ?)`,
-            [userId, totalAmount, shippingInfo.full_name, shippingInfo.email, shippingInfo.phone, shippingInfo.address]
+            `INSERT INTO orders (user_id, total_amount, charity_amount, full_name, email, phone, shipping_address) 
+             VALUES (?, ?, ?, ?, ?, ?, ?)`,
+            [userId, totalAmount, donationAmount, shippingInfo.full_name, shippingInfo.email, shippingInfo.phone, shippingInfo.address]
         );
         
         const orderId = orderResult.insertId;

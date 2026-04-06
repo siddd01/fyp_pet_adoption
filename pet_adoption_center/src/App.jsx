@@ -25,6 +25,9 @@ import Shop from "./User/Pages/Shop/Shop";
 import Profile from "./User/Profile/Profile";
 
 // Admin Pages
+import AdminCharityAction from "./Admin/Pages/Charity/AdminCharityAction.jsx";
+import AdminCharityDashboard from "./Admin/Pages/Charity/AdminCharityDashboard.jsx";
+import AdminCharityHistory from "./Admin/Pages/Charity/AdminCharityHistory.jsx";
 import AdminDashboard from "./Admin/Pages/Home/AdminDashboard.jsx";
 import AdminHome from "./Admin/Pages/Home/AdminHome.jsx";
 import AdminLogin from "./Admin/Pages/Login/AdminLogin.jsx";
@@ -108,6 +111,9 @@ const App = () => {
           <Route path="staff-delete" element={<AdminDeleteStaff />} />
           <Route path="store/add-product" element={<AdminAddProduct />} />
           <Route path="store/handle-product" element={<AdminProducts />} />
+          <Route path="charity/post" element={<AdminCharityAction />} />
+          <Route path="charity/stats" element={<AdminCharityDashboard />} />
+          <Route path="charity/history" element={<AdminCharityHistory />} />
           <Route path="products/edit/:id" element={<AdminEditProduct />} />
           <Route path="pet/delete-pets" element={<AdminDeletePets />} />
           <Route path="pet/add-pets" element={<AdminAddPets />} />

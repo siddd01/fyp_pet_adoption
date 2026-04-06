@@ -3,6 +3,7 @@ import {
   HeartHandshake,
   PawPrint,
   ShoppingBag,
+  TrendingUp,
   Users,
 } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -95,20 +96,40 @@ const AdminDashboard = () => {
       ],
     },
     {
-      section: "Community",
-      items: [
-        {
-          title: "Charity & Donations",
-          desc: "Track campaigns and post charity updates",
-          icon: <HeartHandshake size={22} />,
-          link: "/admin/charity",
-          bg: "bg-rose-50",
-          iconColor: "bg-rose-100 text-rose-600",
-          badge: "Charity",
-          badgeColor: "bg-rose-100 text-rose-700",
-        },
-      ],
+  section: "Community & Impact",
+  items: [
+    {
+      title: "Charity Analytics",
+      desc: "Monitor live collections from donations and store sales",
+      icon: <TrendingUp size={22} />,
+      link: "/admin/charity/stats",
+      bg: "bg-emerald-50",
+      iconColor: "bg-emerald-100 text-emerald-600",
+      badge: "Finance",
+      badgeColor: "bg-emerald-100 text-emerald-700",
     },
+    {
+      title: "Publish Impact Post",
+      desc: "Log new spending and upload proof of impact for users",
+      icon: <HeartHandshake size={22} />,
+      link: "/admin/charity/post",
+      bg: "bg-rose-50",
+      iconColor: "bg-rose-100 text-rose-600",
+      badge: "Action",
+      badgeColor: "bg-rose-100 text-rose-700",
+    },
+    {
+      title: "Spending History",
+      desc: "View all past expenditures and published reports",
+      icon: <ClipboardList size={22} />,
+      link: "/admin/charity/history",
+      bg: "bg-amber-50",
+      iconColor: "bg-amber-100 text-amber-600",
+      badge: "Audit",
+      badgeColor: "bg-amber-100 text-amber-700",
+    },
+  ],
+},
   ];
 
   const allCards = groups.flatMap((g) => g.items);

@@ -25,6 +25,7 @@ const Cart = () => {
     return (
       <div className="min-h-screen bg-stone-50 flex items-center justify-center">
         <div className="text-center">
+          
           <ShoppingCart className="w-16 h-16 text-stone-200 mx-auto mb-5" />
           <p className="text-xs tracking-[0.25em] uppercase text-stone-400 mb-2">
             Your cart
@@ -44,19 +45,38 @@ const Cart = () => {
     <div className="min-h-screen bg-stone-50">
       {/* Header */}
       <div className="bg-white border-b border-stone-100">
-        <div className="max-w-7xl mx-auto px-6 py-10">
-          <p className="text-xs font-semibold tracking-widest text-stone-400 uppercase mb-2">
-            Sano Ghar
-          </p>
-          <h1 className="text-4xl font-serif text-stone-900 mb-2">
-            Shopping Cart
-          </h1>
-          <p className="text-stone-500 text-sm">
-            {cartItems.length} {cartItems.length === 1 ? "item" : "items"} in
-            your cart
-          </p>
-        </div>
+  <div className="max-w-7xl mx-auto px-6 pt-12 pb-10">
+    {/* Breadcrumb style label */}
+    <p className="text-[10px] font-black tracking-[0.3em] text-stone-300 uppercase mb-4">
+      Sano Ghar / Boutique
+    </p>
+
+    <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+      <div>
+        <h1 className="text-5xl font-serif text-stone-900 tracking-tight mb-3">
+          Shopping Cart
+        </h1>
+        <p className="text-stone-400 text-sm font-medium">
+          You have {cartItems.length} {cartItems.length === 1 ? "item" : "items"} curated for your pet
+        </p>
       </div>
+
+      {/* Improved Charity Section */}
+      <div className="flex flex-col items-start md:items-end max-w-xs">
+        <div className="flex items-center gap-2 mb-2">
+          <div className="h-px w-8 bg-emerald-200 hidden md:block"></div>
+          <span className="text-[11px] font-bold tracking-widest text-emerald-600 uppercase">
+            Impact Matters
+          </span>
+        </div>
+        <p className="text-stone-500 text-xs italic leading-relaxed md:text-right">
+          "2% of this purchase goes directly to the rescue and rehabilitation of 
+          animals waiting for their forever homes."
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
 
       <div className="w-5xl mx-auto px-6 py-8">
         <div className="grid lg:grid-cols-3 gap-6">
