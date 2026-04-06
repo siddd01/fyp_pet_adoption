@@ -55,6 +55,7 @@ import StaffDashboard from "./Staff/Pages/Home/StaffDashboard.jsx";
 import StaffHome from "./Staff/Pages/Home/StaffHome.jsx";
 import Signup from "./User/Pages/Login/Signup.jsx";
 import Notifications from "./User/Pages/Notifications/Notifications.jsx";
+import Checkout from "./User/Pages/Shop/Checkout.jsx";
 
 // -------- User Protected Route --------
 const PrivateRoute = ({ children }) => {
@@ -134,6 +135,7 @@ const App = () => {
           <Route path="store/products" element={<StaffProducts />} />
           <Route path="store/products/edit/:id" element={<StaffEditProduct />} />
           <Route path="profile" element={<StaffProfile />} />
+   
         </Route>
 
         {/* -------- User Routes -------- */}
@@ -158,6 +160,7 @@ const App = () => {
           <Route path="donate" element={<Donate />} />
           <Route path="profile" element={<Profile />} />
           <Route path="cart" element={<Cart />} />
+          <Route path="checkout" element={<Checkout />} />
         </Route>
 
         {/* -------- Fallback -------- */}
