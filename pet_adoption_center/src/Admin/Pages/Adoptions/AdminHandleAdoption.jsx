@@ -124,10 +124,10 @@ const AdminHandleAdoption = () => {
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-3">
                         {/* Using pet_image from the backend JOIN */}
-                        <img 
-                            src={app.pet_image || "/default-pet.png"} 
+                        <img
+                            src={app.pet_image || "/default-pet.png"}
                             className="w-10 h-10 rounded-full object-cover border border-gray-200"
-                            alt="" 
+                            alt=""
                         />
                         <span className="text-sm font-medium text-stone-800">{app.pet_name}</span>
                       </div>

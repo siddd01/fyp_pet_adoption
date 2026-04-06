@@ -40,13 +40,13 @@ const Adopt = () => {
   return (
     <div className="min-h-screen bg-white">
       {/* ── Hero & Search Section ── */}
-      <div className="bg-gradient-to-b from-stone-100 to-white pt-24 pb-4 border-b border-stone-100">
+      <div className="bg-linear-to-b from-stone-100 to-white pt-24 pb-4 border-b border-stone-100">
         <div className="max-w-7xl mx-auto px-6 lg:px-12">
           
           <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-12 gap-8">
             <div className="space-y-4">
               <div className="flex items-center gap-3">
-                <span className="h-[1px] w-10 bg-stone-400"></span>
+                <span className="h-px w-10 bg-stone-400"></span>
                 <p className="text-stone-500 text-[10px] font-bold tracking-[0.4em] uppercase">
                   Find your companion
                 </p>

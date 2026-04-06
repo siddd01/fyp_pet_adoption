@@ -7,7 +7,6 @@ const Shop = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [category, setCategory] = useState("All");
-
   const { products, productLoading } = useContext(ProductContext);
   const { addToCart } = useContext(CartContext);
 
@@ -46,7 +45,7 @@ const Shop = () => {
           <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-12 gap-8">
             <div className="space-y-4">
               <div className="flex items-center gap-3">
-                <span className="h-[1px] w-10 bg-stone-400"></span>
+                <span className="h-px w-10 bg-stone-400"></span>
                 <p className="text-stone-500 text-[10px] font-bold tracking-[0.4em] uppercase">
                   Sano Ghar Official
                 </p>
@@ -69,7 +68,7 @@ const Shop = () => {
           {/* Floating Search & Filter Bar */}
           <div className="bg-white p-3 rounded-3xl shadow-[0_20px_50px_-20px_rgba(0,0,0,0.1)] border border-stone-200/60">
             <div className="flex flex-col lg:flex-row gap-3">
-              <div className="relative flex-grow">
+              <div className="relative grow">
                 <svg
                   className="absolute left-5 top-1/2 -translate-y-1/2 text-stone-400"
                   width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"

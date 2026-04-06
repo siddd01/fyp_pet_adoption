@@ -135,7 +135,7 @@ const StaffProfile = () => {
 
   if (profileLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-blue-50 via-white to-purple-50">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mx-auto mb-4"></div>
           <p className="text-gray-600 text-lg">Loading your profile...</p>
@@ -146,7 +146,7 @@ const StaffProfile = () => {
 
   if (!staff) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-blue-50 via-white to-purple-50">
         <div className="text-center">
           <p className="text-red-600 text-lg">Failed to load profile</p>
           {error && <p className="text-gray-600 mt-2">{error}</p>}
@@ -156,11 +156,11 @@ const StaffProfile = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-12 px-4">
+    <div className="min-h-screen bg-linear-to-br from-blue-50 via-white to-purple-50 py-12 px-4">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden mb-8 transition-all hover:shadow-2xl">
-          <div className="h-36 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-500 relative">
+          <div className="h-36 bg-linear-to-r from-blue-600 via-purple-600 to-pink-500 relative">
             <div className="absolute inset-0 bg-black opacity-10"></div>
           </div>
 
@@ -180,7 +180,7 @@ const StaffProfile = () => {
                 </div>
 
                 <div className="text-center md:text-left mb-4 md:mb-0">
-                  <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                  <h1 className="text-4xl font-bold bg-linear-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                     {staff.first_name} {staff.last_name}
                   </h1>
                   <p className="flex items-center justify-center md:justify-start gap-2 text-gray-600 mt-2">

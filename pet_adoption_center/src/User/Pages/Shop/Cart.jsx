@@ -1,8 +1,10 @@
 import { Minus, Plus, ShoppingCart, Trash2 } from "lucide-react";
 import { useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import { CartContext } from "../../../Context/CartContext";
 
 const Cart = () => {
+  const navigate = useNavigate();
   const { cartItems, cartLoading, totalAmount, updateQuantity, removeItem } =
     useContext(CartContext);
 
@@ -162,7 +164,8 @@ const Cart = () => {
                   </div>
                 </div>
 
-                <button className="w-full bg-stone-900 hover:bg-stone-700 text-white font-semibold py-3 rounded-xl px-2">
+                <button onClick={() => navigate("/checkout")}
+                className="w-full bg-stone-900 hover:bg-stone-700 text-white font-semibold py-3 rounded-xl px-2">
                   Proceed to Checkout
                 </button>
 

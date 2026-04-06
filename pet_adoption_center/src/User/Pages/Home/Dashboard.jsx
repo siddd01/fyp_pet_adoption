@@ -147,7 +147,7 @@ const Dashboard = () => {
 
           {/* RIGHT IMAGE */}
           <div className="relative hidden lg:block">
-            <div className="absolute -inset-4 bg-gradient-to-br from-stone-200 via-stone-100 to-stone-300 rounded-3xl blur-2xl opacity-60" />
+            <div className="absolute -inset-4 bg-linear-to-br from-stone-200 via-stone-100 to-stone-300 rounded-3xl blur-2xl opacity-60" />
 
             <img
               src="https://images.unsplash.com/photo-1548199973-03cce0bbc87b"

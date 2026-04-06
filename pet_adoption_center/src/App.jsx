@@ -56,6 +56,7 @@ import StaffHome from "./Staff/Pages/Home/StaffHome.jsx";
 import Signup from "./User/Pages/Login/Signup.jsx";
 import Notifications from "./User/Pages/Notifications/Notifications.jsx";
 import Checkout from "./User/Pages/Shop/Checkout.jsx";
+import PaymentVerify from "./User/Payment/PaymentVerify.jsx";
 
 // -------- User Protected Route --------
 const PrivateRoute = ({ children }) => {
@@ -151,8 +152,8 @@ const App = () => {
           <Route path="adopt" element={<Adopt />} />
           <Route path="adopt/:id" element={<PetDetails />} />
           /* App.js or wherever your Routes are defined */
-<Route path="adopt-form/:id" element={<AdoptionForm />} />
-<Route path="adopt-form/edit/:id" element={<AdoptionForm />} />
+          <Route path="adopt-form/:id" element={<AdoptionForm />} />
+          <Route path="adopt-form/edit/:id" element={<AdoptionForm />} />
           <Route path="shop" element={<Shop />} />
           <Route path="/notifications" element={<Notifications />} />
           <Route path="shop/:id" element={<ProductDetails />} />
@@ -161,10 +162,11 @@ const App = () => {
           <Route path="profile" element={<Profile />} />
           <Route path="cart" element={<Cart />} />
           <Route path="checkout" element={<Checkout />} />
+          <Route path="/payment/verify" element={<PaymentVerify />} />
         </Route>
 
         {/* -------- Fallback -------- */}
-        <Route path="*" element={<Navigate to="/" />} />
+        {/* <Route path="*" element={<Navigate to="/" />} /> */}
       </Routes>
     </BrowserRouter>
   );
