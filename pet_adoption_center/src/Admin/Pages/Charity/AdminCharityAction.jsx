@@ -15,7 +15,7 @@ const AdminCharityAction = () => {
   };
 
   return (
-    <div className="max-w-2xl bg-white border border-stone-100 rounded-[2rem] p-10 shadow-sm">
+    <div className="max-w-2xl bg-white border border-stone-100 rounded-4xl p-10 shadow-sm">
       <h2 className="text-2xl font-serif mb-6 text-stone-900">Log New Expenditure</h2>
       <form onSubmit={handleSubmit} className="space-y-5">
         <input 
