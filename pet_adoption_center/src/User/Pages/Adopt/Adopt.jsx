@@ -69,7 +69,7 @@ const Adopt = () => {
           {/* Floating Search Bar */}
           <div className="bg-white p-3 rounded-3xl shadow-[0_20px_50px_-20px_rgba(0,0,0,0.1)] border border-stone-200/60">
             <div className="flex flex-col lg:flex-row gap-3">
-              <div className="relative flex-grow">
+              <div className="relative grow">
                 <svg
                   className="absolute left-5 top-1/2 -translate-y-1/2 text-stone-400"
                   width="20" height="20" viewBox="0 0 24 24" fill="none"
@@ -109,7 +109,7 @@ const Adopt = () => {
       </div>
 
       {/* ── Grid ── */}
-      <div className="max-w-7xl mx-auto px-6 lg:px-10 py-6">
+      <div className="min-w-7xl mx-auto px-6 lg:px-10 py-6">
         {filteredPets.length === 0 ? (
           <div className="text-center py-40 bg-stone-50/50  border border-dashed border-stone-200">
             <p className="text-5xl mb-4">🐾</p>

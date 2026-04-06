@@ -41,6 +41,8 @@ export const Checkout = () => {
               <div className="grid grid-cols-2 gap-4">
                 <input type="text" placeholder="First Name" className="w-full bg-white border border-stone-200 rounded-xl px-4 py-3.5 text-sm focus:border-stone-400 outline-none transition-all" />
                 <input type="text" placeholder="Last Name" className="w-full bg-white border border-stone-200 rounded-xl px-4 py-3.5 text-sm focus:border-stone-400 outline-none transition-all" />
+                <input type="number" placeholder="Contact Number" className="w-full bg-white border border-stone-200 rounded-xl px-4 py-3.5 text-sm focus:border-stone-400 outline-none transition-all" />
+                <input type="number" placeholder="Alternative Number" className="w-full bg-white border border-stone-200 rounded-xl px-4 py-3.5 text-sm focus:border-stone-400 outline-none transition-all" />
                 <input type="email" placeholder="Email Address" className="col-span-2 w-full bg-white border border-stone-200 rounded-xl px-4 py-3.5 text-sm focus:border-stone-400 outline-none transition-all" />
                 <input type="text" placeholder="Shipping Address" className="col-span-2 w-full bg-white border border-stone-200 rounded-xl px-4 py-3.5 text-sm focus:border-stone-400 outline-none transition-all" />
               </div>
@@ -76,10 +78,10 @@ export const Checkout = () => {
                 <h3 className="font-serif text-xl text-stone-900">Order Summary</h3>
               </div>
               
-              <div className="space-y-5 mb-8 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+              <div className="space-y-5 mb-8 max-h-75 overflow-y-auto pr-2 custom-scrollbar">
                 {cartItems.map((item) => (
-                  <div key={item.id} className="flex gap-4 items-center">
-                    <div className="relative flex-shrink-0">
+                  <div key={item.id} className="flex gap-4 items-center p-2">
+                    <div className="relative shrink-0">
                       <img src={item.image_url} alt={item.name} className="w-16 h-16 object-cover rounded-2xl border border-stone-50" />
                       <div className="absolute -top-2 -right-2 bg-stone-900 text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full ring-4 ring-white">
                         {item.quantity}
