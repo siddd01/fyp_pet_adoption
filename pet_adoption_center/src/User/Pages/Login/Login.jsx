@@ -34,7 +34,7 @@ const Login = () => {
 };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100">
+    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-blue-50 to-blue-100">
       
       <form
         onSubmit={handleSubmit}
@@ -43,9 +43,9 @@ const Login = () => {
         <h2 className="text-3xl font-bold text-center text-blue-600 mb-2">
           Welcome Back 🐾
         </h2>
-        <p className="text-center text-gray-500 mb-6">
+        <div className="text-center text-gray-500 mb-6">
           Login to continue
-        </p>
+        </div>
 
         {/* Email */}
         <div className="mb-4">
