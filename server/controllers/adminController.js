@@ -49,3 +49,4 @@ console.log("👉 bcrypt result:", isMatch);
     return res.status(500).json({ message: "Internal server error during verification" });
   }
 };
+

@@ -7,4 +7,5 @@ const router = express.Router();
 // 🔒 Protected route
 router.get("/profile", adminAuth, getAdminProfile);
 router.post("/confirm-password", adminAuth, confirmAdminPassword);
+
 export default router;

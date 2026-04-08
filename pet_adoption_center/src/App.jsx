@@ -38,7 +38,6 @@ import AdminStaffRegister from "./Admin/Pages/Staff/AdminStaffRegister.jsx";
 // Staff
 import StaffHandleAdoption from "./Staff/Pages/Adoptions/StaffHandleAdoption.jsx";
 import StaffLogin from "./Staff/Pages/Login/StaffLogin.jsx";
-import StaffAddPets from "./Staff/Pages/Pets/StaffAddPets.jsx";
 import StaffDeletePets from "./Staff/Pages/Pets/StaffDeletePets.jsx";
 import StaffViewPets from "./Staff/Pages/Pets/StaffViewPets.jsx";
 import StaffProfile from "./Staff/Pages/Profile/StaffProfile.jsx";
@@ -48,8 +47,8 @@ import StaffProducts from "./Staff/Pages/Store/StaffProducts.jsx";
 
 // Admin Guard
 import AdminHandleAdoption from "./Admin/Pages/Adoptions/AdminHandleAdoption.jsx";
-import AdminAddPets from "./Admin/Pages/Pets/AdminAddPets.jsx";
 import AdminDeletePets from "./Admin/Pages/Pets/AdminDeletePets.jsx";
+import PetManagement from "./Admin/Pages/Pets/PetManagment.jsx";
 import StaffManagement from "./Admin/Pages/Staff/StaffManagement.jsx";
 import AdminAddProduct from "./Admin/Pages/Store/AdminAddProduct.jsx";
 import AdminEditProduct from "./Admin/Pages/Store/AdminEditProduct.jsx";
@@ -118,7 +117,7 @@ const App = () => {
           <Route path="charity/history" element={<AdminCharityHistory />} />
           <Route path="products/edit/:id" element={<AdminEditProduct />} />
           <Route path="pet/delete-pets" element={<AdminDeletePets />} />
-          <Route path="pet/add-pets" element={<AdminAddPets />} />
+          <Route path="pets" element={<PetManagement />} />
           <Route path="pet/handle-adoptions" element={<AdminHandleAdoption />} />
 
 
@@ -136,7 +135,7 @@ const App = () => {
         >
           <Route index element={<StaffDashboard />} />
           <Route path="dashboard" element={<StaffDashboard />} />
-          <Route path="pets/add" element={<StaffAddPets />} />
+          <Route path="pets" element={<PetManagement />} />
           <Route path="pets/view" element={<StaffViewPets />} />
           <Route path="pets/delete" element={<StaffDeletePets />} />
           <Route path="adoptions" element={<StaffHandleAdoption />} />

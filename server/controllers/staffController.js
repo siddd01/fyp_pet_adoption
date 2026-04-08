@@ -5,30 +5,6 @@ import db from "../config/db.js";
 // Signup Staff
 // controllers/staffController.js
 
-export const staffSignup = async (req, res) => {
-  const { first_name, last_name, email, password, phone_number, date_of_birth } = req.body;
-
-  try {
-    console.log("Requesting staff role:", req.staff.role);
-    const [existing] = await db.query("SELECT staff_id FROM staff WHERE email = ?", [email]);
-    if (existing.length) return res.status(400).json({ message: "Email already exists" });
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const [result] = await db.query(
-      `INSERT INTO staff (first_name, last_name, email, password, phone_number, role, date_of_birth)
-       VALUES (?, ?, ?, ?, ?, 'STAFF', ?)`,
-      [first_name, last_name, email, hashedPassword, phone_number, date_of_birth]
-    );
-
-    res.status(201).json({ message: "Staff created successfully", staff_id: result.insertId });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Staff signup failed" });
-  }
-};
-
-
 // Staff Login
 export const staffLogin = async (req, res) => {
   const { email, password } = req.body;
@@ -105,14 +81,16 @@ const [adminRows] = await db.query(
 
 export const getAllStaff = async (req, res) => {
   try {
-    const [rows] = await db.query(
-      `SELECT staff_id, first_name, last_name, email, phone_number, date_of_birth, role, profile_image, status
-       FROM staff`
-    );
-    res.json(rows);
+    const [rows] = await db.query(`SELECT * FROM staff`);
+    
+    console.log("--- DEBUG STAFF LIST ---");
+    console.log(rows); // This should look like [{staff_id: 1, ...}, {...}]
+    
+    // If 'rows' is undefined or not an array, res.json() sends nothing.
+    return res.status(200).json(rows || []); 
   } catch (error) {
-    console.error("Error fetching staff list:", error);
-    res.status(500).json({ message: "Failed to fetch staff list" });
+    console.error("Error:", error.message);
+    res.status(500).json({ message: "Failed to fetch staff" });
   }
 }
 // Get Staff Profile
@@ -210,3 +188,75 @@ export const updateStaffProfile = async (req, res) => {
     });
   }
 };
+
+  export const adminUpdateStaff = async (req, res) => {
+    const { staff_id } = req.params;
+    const { first_name, last_name, email, phone_number, date_of_birth, status } = req.body;
+
+    try {
+      // 1. Check if the staff exists
+      const [existing] = await db.query("SELECT * FROM staff WHERE staff_id = ?", [staff_id]);
+      if (!existing.length) {
+        return res.status(404).json({ message: "Staff member not found" });
+      }
+
+      // 2. Perform the update
+      // Note: We use COALESCE or simple logic to handle optional fields
+      const query = `
+        UPDATE staff 
+        SET first_name = ?, 
+            last_name = ?, 
+            email = ?, 
+            phone_number = ?, 
+            date_of_birth = ?, 
+            status = ?
+        WHERE staff_id = ?
+      `;
+
+      const values = [
+        first_name,
+        last_name,
+        email,
+        phone_number || null,
+        date_of_birth || null,
+        status || 'ACTIVE',
+        staff_id
+      ];
+
+      await db.query(query, values);
+
+      res.json({ message: "Staff updated successfully" });
+    } catch (error) {
+      console.error("Update Error:", error);
+      // This will catch if phone_number or date_of_birth columns are missing in DB
+      res.status(500).json({ 
+        message: "Server error during update", 
+        error: error.message 
+      });
+    }
+  };
+
+  export const staffSignup = async (req, res) => {
+    const { first_name, last_name, email, password, phone_number, date_of_birth } = req.body;
+
+    try {
+      // FIX: Change req.staff to req.admin (or just remove the log)
+      console.log("Admin creating staff:", req.admin?.admin_id);
+
+      const [existing] = await db.query("SELECT staff_id FROM staff WHERE email = ?", [email]);
+      if (existing.length) return res.status(400).json({ message: "Email already exists" });
+
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      const [result] = await db.query(
+        `INSERT INTO staff (first_name, last_name, email, password, phone_number, role, date_of_birth, status)
+        VALUES (?, ?, ?, ?, ?, 'STAFF', ?, 'ACTIVE')`,
+        [first_name, last_name, email, hashedPassword, phone_number, date_of_birth]
+      );
+
+      res.status(201).json({ message: "Staff created successfully", staff_id: result.insertId });
+    } catch (error) {
+      console.error("Signup Error:", error);
+      res.status(500).json({ message: "Staff signup failed", error: error.message });
+    }
+  };

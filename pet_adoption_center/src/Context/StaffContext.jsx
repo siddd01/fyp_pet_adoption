@@ -136,6 +136,18 @@ export const StaffProvider = ({ children }) => {
       throw new Error(errorMessage);
     }
   }, []);
+  // Add this inside your StaffProvider
+const adminUpdateAnyStaff = async (staffId, updatedData) => {
+  try {
+    const adminToken = localStorage.getItem("adminToken");
+    const res = await api.put(`/staff/admin-update/${staffId}`, updatedData, {
+      headers: { Authorization: `Bearer ${adminToken}` }
+    });
+    return res.data;
+  } catch (error) {
+    throw error.response?.data?.message || "Failed to update staff member";
+  }
+};
 
   return (
     <StaffContext.Provider
@@ -150,6 +162,7 @@ export const StaffProvider = ({ children }) => {
         deletePet,
         fetchStaffProfile,
         updateStaffProfile,
+        adminUpdateAnyStaff,
       }}
     >
       {children}
