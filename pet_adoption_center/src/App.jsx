@@ -50,6 +50,7 @@ import StaffProducts from "./Staff/Pages/Store/StaffProducts.jsx";
 import AdminHandleAdoption from "./Admin/Pages/Adoptions/AdminHandleAdoption.jsx";
 import AdminAddPets from "./Admin/Pages/Pets/AdminAddPets.jsx";
 import AdminDeletePets from "./Admin/Pages/Pets/AdminDeletePets.jsx";
+import StaffManagement from "./Admin/Pages/Staff/StaffManagement.jsx";
 import AdminAddProduct from "./Admin/Pages/Store/AdminAddProduct.jsx";
 import AdminEditProduct from "./Admin/Pages/Store/AdminEditProduct.jsx";
 import AdminProducts from "./Admin/Pages/Store/AdminProducts.jsx";
@@ -107,6 +108,7 @@ const App = () => {
         >
           <Route index element={<AdminDashboard />} />
           <Route path="dashboard" element={<AdminDashboard />} />
+          <Route path="staff-manage" element={<StaffManagement />} />
           <Route path="staff-add" element={<AdminStaffRegister />} />
           <Route path="staff-delete" element={<AdminDeleteStaff />} />
           <Route path="store/add-product" element={<AdminAddProduct />} />

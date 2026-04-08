@@ -64,27 +64,57 @@ export const staffLogin = async (req, res) => {
     res.status(500).json({ message: "Login failed" });
   }
 };
+
+
 export const deleteStaff = async (req, res) => {
   const { staff_id } = req.params;
+  const { adminPassword } = req.body;
 
   try {
-    // Only ADMIN can delete
-    if (req.staff.role !== "ADMIN") {
-      return res.status(403).json({ message: "Access denied" });
+const [adminRows] = await db.query(
+      "SELECT password FROM admins WHERE admin_id = ?", 
+      [req.admin.admin_id]
+    );
+
+    if (adminRows.length === 0) {
+      return res.status(404).json({ message: "Admin not found" });
+    }
+    console.log("Admin found:", adminRows[0]);
+
+    const isMatch = await bcrypt.compare(adminPassword, adminRows[0].password);
+
+    if (!isMatch) {
+      return res.status(401).json({ message: "Incorrect password" });
     }
 
-    const [result] = await db.query("DELETE FROM staff WHERE staff_id = ?", [staff_id]);
+    const [result] = await db.query(
+      "DELETE FROM staff WHERE staff_id = ?",
+      [staff_id]
+    );
 
-    if (result.affectedRows === 0) 
+    if (result.affectedRows === 0) {
       return res.status(404).json({ message: "Staff not found" });
+    }
 
-    res.json({ message: "Staff deleted successfully" });
+    res.json({ message: "Deleted successfully" });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Failed to delete staff" });
+    console.error("Delete Error:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
+export const getAllStaff = async (req, res) => {
+  try {
+    const [rows] = await db.query(
+      `SELECT staff_id, first_name, last_name, email, phone_number, date_of_birth, role, profile_image, status
+       FROM staff`
+    );
+    res.json(rows);
+  } catch (error) {
+    console.error("Error fetching staff list:", error);
+    res.status(500).json({ message: "Failed to fetch staff list" });
+  }
+}
 // Get Staff Profile
 export const getStaffProfile = async (req, res) => {
   try {
