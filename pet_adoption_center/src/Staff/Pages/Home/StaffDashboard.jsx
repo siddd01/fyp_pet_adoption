@@ -1,179 +1,174 @@
 import {
   ClipboardList,
+  LogOut,
+  Menu,
   PawPrint,
   ShoppingBag,
-  Trash2,
+  UserCircle,
+  X
 } from "lucide-react";
-import { useContext } from "react";
-import { Link } from "react-router-dom";
+import { useContext, useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { StaffContext } from "../../../Context/StaffContext";
 
 const StaffDashboard = () => {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { staff } = useContext(StaffContext);
+  const location = useLocation();
 
   const groups = [
     {
-      section: "Pets",
+      section: "Management Hubs",
       items: [
-        {
-          title: "Add Pet",
-          desc: "Register a new pet to the adoption listings",
-          icon: <PawPrint size={22} />,
-          link: "/staff/pets/add",
-          iconColor: "bg-emerald-100 text-emerald-600",
-          badge: "Pets",
-          badgeColor: "bg-emerald-100 text-emerald-700",
-        },
-        {
-          title: "View Pets",
-          desc: "Browse and manage all listed pets",
-          icon: <PawPrint size={22} />,
-          link: "/staff/pets/view",
-          iconColor: "bg-blue-100 text-blue-600",
-          badge: "Pets",
-          badgeColor: "bg-blue-100 text-blue-700",
-        },
-        {
-          title: "Delete Pet",
-          desc: "Remove a pet from the adoption listings",
-          icon: <Trash2 size={22} />,
-          link: "/staff/pets/delete",
-          iconColor: "bg-rose-100 text-rose-600",
-          badge: "Pets",
-          badgeColor: "bg-rose-100 text-rose-700",
-        },
-        {
-          title: "Adoption Requests",
-          desc: "Review and approve or reject adoption applications",
-          icon: <ClipboardList size={22} />,
-          link: "/staff/adoptions",
-          iconColor: "bg-amber-100 text-amber-600",
-          badge: "Adoptions",
-          badgeColor: "bg-amber-100 text-amber-700",
-        },
+        { title: "Pet Registry", icon: <PawPrint size={20} />, link: "/staff/pets" },
+        { title: "Store Inventory", icon: <ShoppingBag size={20} />, link: "/staff/store" },
       ],
     },
     {
-      section: "Store",
+      section: "Administration",
       items: [
-        {
-          title: "Store Management",
-          desc: "View and manage existing store products",
-          icon: <ShoppingBag size={22} />,
-          link: "/staff/store/products",
-          iconColor: "bg-violet-100 text-violet-600",
-          badge: "Store",
-          badgeColor: "bg-violet-100 text-violet-700",
-        },
-        {
-          title: "Add Product",
-          desc: "List a new product in the store",
-          icon: <ShoppingBag size={22} />,
-          link: "/staff/store/add-product",
-          iconColor: "bg-indigo-100 text-indigo-600",
-          badge: "Store",
-          badgeColor: "bg-indigo-100 text-indigo-700",
-        },
+        { title: "Adoption Requests", icon: <ClipboardList size={20} />, link: "/staff/adoptions" },
+        { title: "My Profile", icon: <UserCircle size={20} />, link: "/staff/profile" },
       ],
     },
   ];
 
-  const allCards = groups.flatMap((g) => g.items);
-
   const stats = [
-    { label: "Total Modules", value: allCards.length, color: "text-stone-800" },
-    { label: "Pet Actions", value: 4, color: "text-emerald-600" },
-    { label: "Store Actions", value: 2, color: "text-violet-600" },
-    { label: "Adoptions", value: 1, color: "text-amber-600" },
+    { label: "Capacity", value: "85%", color: "text-emerald-600" },
+    { label: "Inventory", value: "24", color: "text-violet-600" },
+    { label: "Queue", value: "3", color: "text-amber-600" },
   ];
 
   return (
-    <div className="min-h-screen bg-stone-50 px-10 py-12">
-      <div className="max-w-6xl mx-auto">
-
-        {/* Header */}
-        <div className="flex items-end justify-between mb-10">
-          <div>
-            <p className="text-xs font-semibold tracking-widest text-gray-400 uppercase mb-1.5">
-              Control Center
-            </p>
-            <h1 className="text-4xl font-serif text-stone-900 leading-tight">
-              Staff Dashboard
-            </h1>
-            {staff && (
-              <p className="text-sm text-gray-400 mt-2">
-                Welcome back,{" "}
-                <span className="font-semibold text-stone-700">
-                  {staff.first_name} {staff.last_name}
-                </span>
-              </p>
-            )}
+    <div className="flex min-h-screen bg-[#fbfaf8]">
+      {/* Sidebar */}
+      <aside className={`
+        fixed inset-y-0 left-0 z-50 w-72 bg-white border-r border-stone-200 transform transition-transform duration-300 ease-in-out
+        ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"} 
+        lg:translate-x-0 lg:static lg:inset-0
+      `}>
+        <div className="flex flex-col h-full p-6">
+          {/* Logo Area */}
+          <div className="mb-10 px-2">
+            <h1 className="text-3xl font-serif text-stone-900">Workspace</h1>
+            <p className="text-xs font-bold text-stone-400 tracking-widest mt-1 uppercase">Staff Portal</p>
           </div>
-          <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-lg px-4 py-2 text-sm text-gray-500 shadow-sm">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            System Active
-          </div>
-        </div>
 
-        {/* Stats Row */}
-        <div className="grid grid-cols-4 gap-4 mb-10">
-          {stats.map(({ label, value, color }) => (
-            <div key={label} className="bg-white rounded-xl border border-gray-200 shadow-sm px-5 py-4">
-              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">{label}</p>
-              <p className={`text-3xl font-bold ${color}`}>{value}</p>
-            </div>
-          ))}
-        </div>
-
-        {/* Grouped Sections */}
-        <div className="space-y-10">
-          {groups.map(({ section, items }) => (
-            <div key={section}>
-              <div className="flex items-center gap-3 mb-4">
-                <span className="text-xs font-bold tracking-widest text-gray-400 uppercase">
-                  {section}
-                </span>
-                <div className="flex-1 h-px bg-gray-200" />
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {items.map((card, i) => (
-                  <Link
-                    key={i}
-                    to={card.link}
-                    className="group bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 overflow-hidden"
-                  >
-                    <div className={`h-1 w-full ${card.iconColor.split(" ")[0].replace("100", "400")}`} />
-                    <div className="p-5">
-                      <div className="flex items-start justify-between mb-4">
-                        <div className={`w-10 h-10 flex items-center justify-center rounded-xl ${card.iconColor}`}>
-                          {card.icon}
-                        </div>
-                        <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${card.badgeColor}`}>
-                          {card.badge}
+          {/* Navigation */}
+          <nav className="flex-1 space-y-8 overflow-y-auto">
+            {groups.map((group) => (
+              <div key={group.section}>
+                <h2 className="px-2 text-[10px] font-bold tracking-[0.2em] text-stone-400 uppercase mb-3">
+                  {group.section}
+                </h2>
+                <div className="space-y-1">
+                  {group.items.map((item) => {
+                    const isActive = location.pathname === item.link;
+                    return (
+                      <Link
+                        key={item.title}
+                        to={item.link}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group ${
+                          isActive 
+                            ? "bg-stone-900 text-white shadow-md shadow-stone-200" 
+                            : "text-stone-500 hover:bg-stone-100 hover:text-stone-900"
+                        }`}
+                      >
+                        <span className={`${isActive ? "text-white" : "text-stone-400 group-hover:text-stone-900"}`}>
+                          {item.icon}
                         </span>
-                      </div>
-                      <h2 className="text-sm font-semibold text-stone-800 mb-1 group-hover:text-stone-900">
-                        {card.title}
-                      </h2>
-                      <p className="text-xs text-gray-400 leading-relaxed">
-                        {card.desc}
-                      </p>
-                      <div className="mt-4 flex items-center gap-1 text-xs font-semibold text-gray-400 group-hover:text-stone-700 transition-colors">
-                        Open
-                        <svg className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                          <path d="M9 18l6-6-6-6" />
-                        </svg>
-                      </div>
-                    </div>
-                  </Link>
-                ))}
+                        <span className="text-sm font-semibold">{item.title}</span>
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </nav>
+
+          {/* User Section */}
+          <div className="mt-auto pt-6 border-t border-stone-100">
+            <div className="flex items-center gap-3 px-2 mb-4">
+              <div className="w-10 h-10 rounded-full bg-stone-100 border border-stone-200 flex items-center justify-center text-stone-600 font-serif">
+                {staff?.first_name?.charAt(0) || "S"}
+              </div>
+              <div>
+                <p className="text-sm font-bold text-stone-800">{staff?.first_name} {staff?.last_name}</p>
+                <p className="text-xs text-stone-400 font-medium tracking-wide">Operations Staff</p>
               </div>
             </div>
-          ))}
+            <button className="flex items-center gap-3 w-full px-3 py-2 text-sm font-semibold text-rose-500 hover:bg-rose-50 rounded-xl transition-colors">
+              <LogOut size={18} />
+              Logout
+            </button>
+          </div>
         </div>
+      </aside>
 
-      </div>
+      {/* Main Content Area */}
+      <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
+        {/* Top Header */}
+        <header className="h-16 lg:h-20 bg-white/80 backdrop-blur-md border-b border-stone-200 flex items-center justify-between px-6 lg:px-10 sticky top-0 z-40">
+          <button 
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="lg:hidden p-2 text-stone-600"
+          >
+            {isMobileMenuOpen ? <X /> : <Menu />}
+          </button>
+
+          <div className="hidden md:flex gap-8">
+            {stats.map((stat) => (
+              <div key={stat.label} className="flex flex-col">
+                <span className="text-[10px] font-bold text-stone-400 uppercase tracking-tighter">{stat.label}</span>
+                <span className={`text-xl font-serif ${stat.color}`}>{stat.value}</span>
+              </div>
+            ))}
+          </div>
+
+          <div className="flex items-center gap-2 bg-stone-50 border border-stone-200 rounded-full px-3 py-1.5 text-[10px] font-bold text-stone-600">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            OPERATIONAL
+          </div>
+        </header>
+
+        {/* Content Body */}
+        <div className="p-6 lg:p-10 overflow-y-auto">
+          <div className="max-w-5xl">
+            <header className="mb-10">
+              <h2 className="text-4xl font-serif text-stone-900 mb-2">Staff Overview</h2>
+              <p className="text-stone-500 italic">Shelter operations and task management hub.</p>
+            </header>
+
+            {/* Quick Action Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Link to="/staff/pets" className="group bg-white p-8 rounded-[2rem] border border-stone-200 hover:border-emerald-200 transition-all shadow-sm hover:shadow-md">
+                <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                  <PawPrint />
+                </div>
+                <h3 className="text-xl font-bold text-stone-800 mb-1">Pet Registry</h3>
+                <p className="text-stone-400 text-sm">Update inventory and listing details.</p>
+              </Link>
+
+              <Link to="/staff/adoptions" className="group bg-white p-8 rounded-[2rem] border border-stone-200 hover:border-amber-200 transition-all shadow-sm hover:shadow-md">
+                <div className="w-12 h-12 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                  <ClipboardList />
+                </div>
+                <h3 className="text-xl font-bold text-stone-800 mb-1">Adoption Hub</h3>
+                <p className="text-stone-400 text-sm">Review applications and pending statuses.</p>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      {/* Mobile Overlay */}
+      {isMobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-stone-900/20 backdrop-blur-sm z-40 lg:hidden"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
     </div>
   );
 };

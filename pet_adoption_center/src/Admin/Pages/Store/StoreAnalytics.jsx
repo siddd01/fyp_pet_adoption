@@ -1,7 +1,7 @@
 import { ShoppingBag } from 'lucide-react';
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
-const StoreAnalytics = () => {
+export const StoreAnalytics = () => {
   // Mock data - replace with api.get("/store/analytics") later
   const salesData = [
     { day: 'Mon', revenue: 4000 },

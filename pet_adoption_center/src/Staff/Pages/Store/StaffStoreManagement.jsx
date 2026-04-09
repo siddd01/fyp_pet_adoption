@@ -2,7 +2,7 @@ import { useContext, useState } from "react";
 import api from "../../../api/axios";
 import { ProductContext } from "../../../Context/ProductContext";
 
-const StoreManagement = () => {
+const StaffStoreManagement = () => {
   const { products, productLoading, fetchProducts } = useContext(ProductContext);
 
   // --- UI State Management ---
@@ -22,7 +22,7 @@ const StoreManagement = () => {
   const [image, setImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
 
-  // --- Functions ---
+  // --- Logic Functions ---
   const handleEditClick = (product) => {
     setForm({
       name: product.name,
@@ -52,16 +52,17 @@ const StoreManagement = () => {
     if (file) setImagePreview(URL.createObjectURL(file));
   };
 
+  // Staff usually has delete permissions for inventory maintenance
   const handleDelete = async (id) => {
-    if (!window.confirm("Permanently remove this item?")) return;
+    if (!window.confirm("Are you sure you want to remove this item from the store?")) return;
     try {
-      const token = localStorage.getItem("adminToken") || localStorage.getItem("staffToken");
+      const token = localStorage.getItem("staffToken") || localStorage.getItem("adminToken");
       await api.delete(`/products/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       fetchProducts();
     } catch (err) {
-      alert("Delete failed: " + (err.response?.data?.error || err.message));
+      alert("Inventory update failed: " + (err.response?.data?.error || err.message));
     }
   };
 
@@ -73,22 +74,26 @@ const StoreManagement = () => {
     if (image) data.append("image", image);
 
     try {
-      const token = localStorage.getItem("adminToken") || localStorage.getItem("staffToken");
+      const token = localStorage.getItem("staffToken") || localStorage.getItem("adminToken");
       const url = editingId ? `/products/${editingId}` : "/products";
       const method = editingId ? "put" : "post";
-      await api[method](url, data, { headers: { Authorization: `Bearer ${token}` } });
+      
+      await api[method](url, data, { 
+        headers: { Authorization: `Bearer ${token}` } 
+      });
+      
       fetchProducts();
       setView("list");
     } catch (err) {
-      alert(err.response?.data?.error || "Transaction failed");
+      alert(err.response?.data?.error || "Failed to update inventory.");
     } finally {
       setLoading(false);
     }
   };
 
   if (productLoading) return (
-    <div className="min-h-screen bg-stone-50 flex items-center justify-center font-sans">
-      <p className="text-stone-400 text-xs font-bold uppercase tracking-widest animate-pulse">Accessing Inventory...</p>
+    <div className="min-h-screen bg-stone-50 flex items-center justify-center">
+      <p className="text-stone-400 text-[10px] font-bold uppercase tracking-widest animate-pulse">Syncing Store Data...</p>
     </div>
   );
 
@@ -101,10 +106,10 @@ const StoreManagement = () => {
             <div className="space-y-2">
               <div className="flex items-center gap-3">
                 <span className="h-px w-8 bg-stone-400"></span>
-                <p className="text-stone-500 text-[9px] font-bold tracking-[0.3em] uppercase">Inventory Control</p>
+                <p className="text-stone-500 text-[9px] font-bold tracking-[0.3em] uppercase">Staff Operations</p>
               </div>
               <h1 className="text-stone-900 text-4xl md:text-5xl font-medium tracking-tight" style={{ fontFamily: "Georgia, serif" }}>
-                {view === "list" ? "Store " : editingId ? "Edit " : "New "}<span className="italic text-stone-500">{view === "list" ? "Manager" : "Product"}</span>
+                Inventory <span className="italic text-stone-500">Log</span>
               </h1>
             </div>
 
@@ -112,7 +117,7 @@ const StoreManagement = () => {
               onClick={view === "list" ? handleAddNew : () => setView("list")} 
               className="bg-stone-900 text-white px-6 py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest shadow-lg hover:bg-stone-800 transition-all"
             >
-              {view === "list" ? "+ Add Product" : "← Cancel & Return"}
+              {view === "list" ? "+ New Item" : "← Back to Inventory"}
             </button>
           </div>
         </div>
@@ -120,7 +125,7 @@ const StoreManagement = () => {
 
       <div className="max-w-7xl mx-auto px-6 lg:px-10 py-10">
         {view === "list" ? (
-          /* ── GRID VIEW (Matching Shop Style) ── */
+          /* ── GRID VIEW (Compact Cards) ── */
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {products.map((product) => (
               <div key={product.id} className="group bg-white rounded-3xl overflow-hidden border border-stone-100 shadow-sm hover:shadow-xl transition-all duration-500 flex flex-col">
@@ -138,44 +143,43 @@ const StoreManagement = () => {
                     <span className="text-[9px] font-bold text-stone-400 uppercase tracking-widest">Stock: {product.stock}</span>
                   </div>
                   <div className="grid grid-cols-2 gap-2">
-                    <button onClick={() => handleEditClick(product)} className="bg-stone-900 text-white text-[9px] font-bold uppercase tracking-widest py-2.5 rounded-lg hover:bg-stone-700 transition-all">Edit</button>
-                    <button onClick={() => handleDelete(product.id)} className="bg-stone-50 text-stone-400 border border-stone-100 text-[9px] font-bold uppercase tracking-widest py-2.5 rounded-lg hover:text-red-600 hover:bg-red-50 transition-all">Delete</button>
+                    <button onClick={() => handleEditClick(product)} className="bg-stone-900 text-white text-[9px] font-bold uppercase tracking-widest py-2.5 rounded-lg hover:bg-stone-700 transition-all">Update</button>
+                    <button onClick={() => handleDelete(product.id)} className="bg-stone-50 text-stone-400 border border-stone-100 text-[9px] font-bold uppercase tracking-widest py-2.5 rounded-lg hover:text-red-600 hover:bg-red-50 transition-all">Remove</button>
                   </div>
                 </div>
               </div>
             ))}
           </div>
         ) : (
-          /* ── FORM VIEW (More Compact) ── */
-          <form onSubmit={handleSubmit} className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
-            {/* Left: Metadata */}
+          /* ── FORM VIEW (Refined Inputs) ── */
+          <form onSubmit={handleSubmit} className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-8">
             <div className="md:col-span-7 bg-white p-8 rounded-[2rem] border border-stone-100 shadow-sm space-y-6">
-              <h2 className="text-stone-900 font-bold text-sm uppercase tracking-widest mb-4">Product Details</h2>
+              <h2 className="text-stone-900 font-bold text-sm uppercase tracking-widest mb-4">Stock Specifications</h2>
               
               <div className="space-y-4">
                 <div>
-                  <label className="block text-[9px] font-bold text-stone-400 uppercase tracking-widest mb-2">Name</label>
-                  <input name="name" value={form.name} onChange={handleChange} required className="w-full px-4 py-3 bg-stone-50 border border-stone-100 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-stone-300 transition-all" />
+                  <label className="block text-[9px] font-bold text-stone-400 uppercase tracking-widest mb-2">Item Name</label>
+                  <input name="name" value={form.name} onChange={handleChange} required className="w-full px-4 py-3 bg-stone-50 border border-stone-100 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-stone-200" />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-[9px] font-bold text-stone-400 uppercase tracking-widest mb-2">Category</label>
+                    <label className="block text-[9px] font-bold text-stone-400 uppercase tracking-widest mb-2">Type</label>
                     <select name="category" value={form.category} onChange={handleChange} required className="w-full px-4 py-3 bg-stone-50 border border-stone-100 rounded-xl text-sm focus:outline-none">
-                      <option value="">Select</option>
+                      <option value="">Select Category</option>
                       <option value="Food">Nutrition</option>
                       <option value="Accessories">Essentials</option>
                       <option value="Health">Health</option>
                     </select>
                   </div>
                   <div>
-                    <label className="block text-[9px] font-bold text-stone-400 uppercase tracking-widest mb-2">Price ($)</label>
+                    <label className="block text-[9px] font-bold text-stone-400 uppercase tracking-widest mb-2">Price Point ($)</label>
                     <input name="price" type="number" step="0.01" value={form.price} onChange={handleChange} required className="w-full px-4 py-3 bg-stone-50 border border-stone-100 rounded-xl text-sm focus:outline-none" />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-[9px] font-bold text-stone-400 uppercase tracking-widest mb-2">Stock Level</label>
+                  <label className="block text-[9px] font-bold text-stone-400 uppercase tracking-widest mb-2">Quantity in Stock</label>
                   <input name="stock" type="number" value={form.stock} onChange={handleChange} required className="w-full px-4 py-3 bg-stone-50 border border-stone-100 rounded-xl text-sm focus:outline-none" />
                 </div>
 
@@ -186,7 +190,6 @@ const StoreManagement = () => {
               </div>
             </div>
 
-            {/* Right: Media & Action */}
             <div className="md:col-span-5 space-y-6">
               <div className="bg-white p-6 rounded-[2rem] border border-stone-100 shadow-sm overflow-hidden">
                 <div className="aspect-square bg-stone-50 rounded-2xl overflow-hidden mb-4 border border-stone-100">
@@ -194,7 +197,7 @@ const StoreManagement = () => {
                     <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
                   ) : (
                     <div className="w-full h-full flex flex-col items-center justify-center text-stone-300 text-[10px] font-bold uppercase tracking-widest">
-                      <span className="text-3xl mb-2">🖼️</span> No Asset
+                      <span className="text-3xl mb-2">📸</span> No Image
                     </div>
                   )}
                 </div>
@@ -206,7 +209,7 @@ const StoreManagement = () => {
                 disabled={loading} 
                 className="w-full bg-stone-900 text-white py-4 rounded-xl text-[10px] font-bold uppercase tracking-[0.2em] shadow-xl hover:bg-stone-800 transition-all flex items-center justify-center gap-2"
               >
-                {loading ? "Saving..." : editingId ? "Save Changes" : "Register Product"}
+                {loading ? "Processing..." : editingId ? "Update Item" : "Add to Inventory"}
                 {!loading && <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M5 12h14M12 5l7 7-7 7" /></svg>}
               </button>
             </div>
@@ -217,4 +220,4 @@ const StoreManagement = () => {
   );
 };
 
-export default StoreManagement;
+export default StaffStoreManagement;

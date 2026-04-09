@@ -53,15 +53,18 @@ import StaffManagement from "./Admin/Pages/Staff/StaffManagement.jsx";
 import AdminAddProduct from "./Admin/Pages/Store/AdminAddProduct.jsx";
 import AdminEditProduct from "./Admin/Pages/Store/AdminEditProduct.jsx";
 import AdminProducts from "./Admin/Pages/Store/AdminProducts.jsx";
+import { StoreAnalytics } from "./Admin/Pages/Store/StoreAnalytics.jsx";
 import StoreManagement from "./Admin/Pages/Store/StoreManagment.jsx";
+import AdminProfile from "./Admin/Profile/AdminProfile.jsx";
 import AdminPrivateRoute from "./Admin/Routes/AdminPrivateRoute.jsx";
 import StaffDashboard from "./Staff/Pages/Home/StaffDashboard.jsx";
 import StaffHome from "./Staff/Pages/Home/StaffHome.jsx";
+import StaffPetManagement from "./Staff/Pages/Pets/StaffPetManagement.jsx";
+import StaffStoreManagement from "./Staff/Pages/Store/StaffStoreManagement.jsx";
 import Signup from "./User/Pages/Login/Signup.jsx";
 import Notifications from "./User/Pages/Notifications/Notifications.jsx";
 import Checkout from "./User/Pages/Shop/Checkout.jsx";
 import PaymentVerify from "./User/Payment/PaymentVerify.jsx";
-
 // -------- User Protected Route --------
 const PrivateRoute = ({ children }) => {
   const { user, loading } = useContext(AuthContext);
@@ -108,6 +111,8 @@ const App = () => {
         >
           <Route index element={<AdminDashboard />} />
           <Route path="dashboard" element={<AdminDashboard />} />
+          <Route path="profile" element={<AdminProfile/>} />
+
           <Route path="staff-manage" element={<StaffManagement />} />
           <Route path="staff-add" element={<AdminStaffRegister />} />
           <Route path="staff-delete" element={<AdminDeleteStaff />} />
@@ -120,6 +125,8 @@ const App = () => {
           <Route path="pet/delete-pets" element={<AdminDeletePets />} />
           <Route path="pets" element={<PetManagement />} />
           <Route path="store/products" element={<StoreManagement/>} />
+          <Route path="store/analytics" element={<StoreAnalytics/>} />
+
           <Route path="pet/handle-adoptions" element={<AdminHandleAdoption />} />
 
 
@@ -140,6 +147,9 @@ const App = () => {
           <Route path="pets" element={<PetManagement />} />
           <Route path="pets/view" element={<StaffViewPets />} />
           <Route path="pets/delete" element={<StaffDeletePets />} />
+          <Route path="pets" element={<StaffPetManagement/>} />
+
+          <Route path="store" element={<StaffStoreManagement/>} />
           <Route path="adoptions" element={<StaffHandleAdoption />} />
           <Route path="store/add-product" element={<StaffAddProduct />} />
           <Route path="store/products" element={<StaffProducts />} />

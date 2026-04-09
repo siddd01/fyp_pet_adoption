@@ -83,8 +83,7 @@ export const getAllStaff = async (req, res) => {
   try {
     const [rows] = await db.query(`SELECT * FROM staff`);
     
-    console.log("--- DEBUG STAFF LIST ---");
-    console.log(rows); // This should look like [{staff_id: 1, ...}, {...}]
+    
     
     // If 'rows' is undefined or not an array, res.json() sends nothing.
     return res.status(200).json(rows || []); 
@@ -129,8 +128,7 @@ export const updateStaffProfile = async (req, res) => {
 
     const { first_name, last_name, phone_number, date_of_birth } = req.body;
     
-    console.log("Request body:", { first_name, last_name, phone_number, date_of_birth });
-    console.log("File uploaded:", req.file ? "Yes" : "No");
+
 
     if (!first_name || !last_name) {
       return res.status(400).json({

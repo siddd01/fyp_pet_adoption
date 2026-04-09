@@ -11,18 +11,18 @@ export const AdminAuthProvider = ({ children }) => {
 
   // Check if user is already logged in on mount
   useEffect(() => {
-    // In browser console
-
-    const token = localStorage.getItem("adminToken");
-    const storedAdmin = localStorage.getItem("admin");
-    
-if (token && token !== "null" && storedAdmin) {
-
-      setAdmin(JSON.parse(storedAdmin));
-      setIsAuthenticated(true);
-    }
-    setLoading(false);
-  }, []);
+  const token = localStorage.getItem("adminToken");
+  const storedAdmin = localStorage.getItem("admin");
+  
+  if (token && token !== "null" && storedAdmin) {
+    setAdmin(JSON.parse(storedAdmin));
+    setIsAuthenticated(true);
+    setAdminProfileLoading(false); // Add this!
+  } else {
+    setAdminProfileLoading(false); // Stop loading even if no admin
+  }
+  setLoading(false);
+}, []);
 
   const adminLogin = async (email, password) => {
     try {
@@ -58,27 +58,20 @@ if (token && token !== "null" && storedAdmin) {
   };
 
   const fetchAdminProfile = async () => {
+  setAdminProfileLoading(true);
+  console.log("📡 API Call Started..."); // Log 1
   try {
     const token = localStorage.getItem("adminToken");
-
-    if (!token) throw "Not authenticated";
-
     const res = await api.get("/admin/profile", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+      headers: { Authorization: `Bearer ${token}` },
     });
-
+    console.log("✅ API Data Received:", res.data); // Log 2
     setAdmin(res.data);
-    localStorage.setItem("admin", JSON.stringify(res.data));
-
-    return res.data;
   } catch (error) {
-    console.error("Failed to fetch admin profile", error);
-    throw error.response?.data?.message || "Failed to load profile";
-  }
-  finally{
-    setAdminProfileLoading(false);  
+    console.error("❌ API Error:", error);
+  } finally {
+    console.log("🏁 Loading set to FALSE"); // Log 3
+    setAdminProfileLoading(false);
   }
 };
 
@@ -118,8 +111,24 @@ const deletePet = async (id) => {
     throw error.response?.data?.message || "Failed to delete pet";
   }
 };
+// Update Profile (Name & Images)
+const updateAdminProfile = async (formData) => {
+  const token = localStorage.getItem("adminToken");
+  const res = await api.put("/admin/update-profile", formData, {
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" }
+  });
+  setAdmin(res.data.admin);
+  localStorage.setItem("admin", JSON.stringify(res.data.admin));
+};
 
+const changeAdminPassword = async (data) => {
+  const token = localStorage.getItem("adminToken");
+  return await api.put("/admin/change-password", data, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+};
 
+// Change Password
 
   return (
     <AdminAuthContext.Provider
@@ -133,6 +142,9 @@ const deletePet = async (id) => {
         AdminProfileLoading,
         addPet,
         deletePet,
+        updateAdminProfile,
+        changeAdminPassword,
+        
       }}
     >
       {children}

@@ -1,4 +1,4 @@
-import { Bell, ClipboardList, Menu, User } from "lucide-react";
+import { ClipboardList, Menu, User } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -42,39 +42,12 @@ const StaffNavbar = () => {
         </Link>
       </div>
 
-      {/* Center: Menu (Desktop) */}
-      <ul className="hidden md:flex gap-6 font-medium text-gray-700">
-        <li>
-          <Link to="/staff/dashboard" className="hover:text-teal-600">
-            Dashboard
-          </Link>
-        </li>
-        <li>
-          <Link to="/staff/pets/add" className="hover:text-teal-600">
-            Add Pets
-          </Link>
-        </li>
-        <li>
-          <Link to="/staff/pets/view" className="hover:text-teal-600">
-            View Pets
-          </Link>
-        </li>
-        <li>
-          <Link to="/staff/adoptions" className="hover:text-teal-600">
-            Adoptions
-          </Link>
-        </li>
-        <li>
-          <Link to="/staff/store/products" className="hover:text-teal-600">
-            Store
-          </Link>
-        </li>
-      </ul>
+
 
       {/* Right: Icons */}
       <div className="flex items-center gap-4">
         <ClipboardList onClick={()=>navigate("/staff/adoptions")} className="cursor-pointer text-gray-600 hover:text-teal-600" />
-        <Bell className="cursor-pointer text-gray-600 hover:text-teal-600" />
+        
 
         {/* Profile Dropdown */}
         <div className="relative" ref={dropdownRef}>
@@ -103,26 +76,7 @@ const StaffNavbar = () => {
         </div>
       </div>
 
-      {/* Mobile Menu */}
-      {open && (
-        <ul className="absolute top-16 left-0 w-full bg-white shadow-md flex flex-col gap-3 p-4 md:hidden z-50">
-          <Link to="/staff/dashboard" onClick={() => setOpen(false)}>
-            Dashboard
-          </Link>
-          <Link to="/staff/pets/add" onClick={() => setOpen(false)}>
-            Add Pets
-          </Link>
-          <Link to="/staff/pets/view" onClick={() => setOpen(false)}>
-            View Pets
-          </Link>
-          <Link to="/staff/adoptions" onClick={() => setOpen(false)}>
-            Adoptions
-          </Link>
-          <Link to="/staff/store/products" onClick={() => setOpen(false)}>
-            Store
-          </Link>
-        </ul>
-      )}
+      
     </nav>
   );
 };

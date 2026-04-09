@@ -41,7 +41,7 @@ useEffect(() => {
         </Link>
       </div>
 
-      {/* Center: Menu (Desktop) */}
+      {/* Center: Menu (Desktop)
       <ul className="hidden md:flex gap-6 font-medium text-gray-700">
         <li>
           <Link to="/admin/dashboard" className="hover:text-teal-600">
@@ -60,7 +60,7 @@ useEffect(() => {
             Remove Staff
           </Link>
         </li>
-      </ul>
+      </ul> */}
 
       {/* Right: Icons */}
       <div className="flex items-center gap-4">

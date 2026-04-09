@@ -2,179 +2,189 @@ import {
   ClipboardList,
   HeartHandshake,
   LayoutDashboard,
+  LogOut,
+  Menu,
   PawPrint,
   ShoppingBag,
   TrendingUp,
-  Users
+  Users,
+  X
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 
 const AdminDashboard = () => {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const location = useLocation();
+
   const groups = [
     {
       section: "Human Resources",
       items: [
-        {
-          title: "Staff Management",
-          desc: "Directory of all staff. Add, edit, or revoke access in one place.",
-          icon: <Users size={22} />,
-          link: "/admin/staff-manage",
-          bg: "bg-blue-50",
-          iconColor: "bg-blue-100 text-blue-600",
-          badge: "Team",
-          badgeColor: "bg-blue-100 text-blue-600",
-        },
+        { title: "Staff Management", icon: <Users size={20} />, link: "/admin/staff-manage" },
       ],
     },
     {
       section: "Animal Welfare",
       items: [
-        {
-          title: "Pet Inventory",
-          desc: "Manage adoption listings, register new pets, and track deletions.",
-          icon: <PawPrint size={22} />,
-          link: "/admin/pets",
-          bg: "bg-emerald-50",
-          iconColor: "bg-emerald-100 text-emerald-600",
-          badge: "Live",
-          badgeColor: "bg-emerald-100 text-emerald-700",
-        },
-        {
-          title: "Adoption Requests",
-          desc: "Review and approve or reject pending applications.",
-          icon: <ClipboardList size={22} />,
-          link: "/admin/pet/handle-adoptions",
-          bg: "bg-amber-50",
-          iconColor: "bg-amber-100 text-amber-600",
-          badge: "Pending",
-          badgeColor: "bg-amber-100 text-amber-700",
-        },
+        { title: "Pet Inventory", icon: <PawPrint size={20} />, link: "/admin/pets" },
+        { title: "Adoption Requests", icon: <ClipboardList size={20} />, link: "/admin/pet/handle-adoptions" },
       ],
     },
     {
       section: "Commerce & Insights",
       items: [
-        {
-          title: "Store Products",
-          desc: "Add new inventory or restock existing store items.",
-          icon: <ShoppingBag size={22} />,
-          link: "/admin/store/products",
-          bg: "bg-violet-50",
-          iconColor: "bg-violet-100 text-violet-600",
-          badge: "Stock",
-          badgeColor: "bg-violet-100 text-violet-700",
-        },
-        {
-          title: "Sales Analytics",
-          desc: "View visual charts of store performance and revenue.",
-          icon: <LayoutDashboard size={22} />,
-          link: "/admin/store/analytics",
-          bg: "bg-indigo-50",
-          iconColor: "bg-indigo-100 text-indigo-600",
-          badge: "Data",
-          badgeColor: "bg-indigo-100 text-indigo-700",
-        },
+        { title: "Store Products", icon: <ShoppingBag size={20} />, link: "/admin/store/products" },
+        { title: "Sales Analytics", icon: <LayoutDashboard size={20} />, link: "/admin/store/analytics" },
       ],
     },
     {
       section: "Impact",
       items: [
-        {
-          title: "Charity Analytics",
-          desc: "Monitor live collections from donations and sales.",
-          icon: <TrendingUp size={22} />,
-          link: "/admin/charity/stats",
-          bg: "bg-emerald-50",
-          iconColor: "bg-emerald-100 text-emerald-600",
-          badge: "Finance",
-          badgeColor: "bg-emerald-100 text-emerald-700",
-        },
-        {
-          title: "Proof of Impact",
-          desc: "Log spending and upload impact posts for the community.",
-          icon: <HeartHandshake size={22} />,
-          link: "/admin/charity/post",
-          bg: "bg-rose-50",
-          iconColor: "bg-rose-100 text-rose-600",
-          badge: "Action",
-          badgeColor: "bg-rose-100 text-rose-700",
-        },
+        { title: "Charity Analytics", icon: <TrendingUp size={20} />, link: "/admin/charity/stats" },
+        { title: "Proof of Impact", icon: <HeartHandshake size={20} />, link: "/admin/charity/post" },
       ],
     },
   ];
 
   const stats = [
-    { label: "Active Staff", value: "12", color: "text-blue-600" },
-    { label: "Pets Listed", value: "48", color: "text-emerald-600" },
-    { label: "Monthly Revenue", value: "$4.2k", color: "text-indigo-600" },
+    { label: "Staff", value: "12", color: "text-blue-600" },
+    { label: "Pets", value: "48", color: "text-emerald-600" },
+    { label: "Revenue", value: "$4.2k", color: "text-indigo-600" },
   ];
 
   return (
-    <div className="min-h-screen bg-[#fbfaf8] px-10 py-12">
-      <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="flex items-end justify-between mb-12">
-          <div>
-            <h1 className="text-5xl font-serif text-stone-900 mb-2">Workspace</h1>
-            <p className="text-stone-500 font-medium italic">Welcome back, Admin</p>
+    <div className="flex min-h-screen bg-[#fbfaf8]">
+      {/* Sidebar */}
+      <aside className={`
+        fixed inset-y-0 left-0 z-50 w-72 bg-white border-r border-stone-200 transform transition-transform duration-300 ease-in-out
+        ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"} 
+        lg:translate-x-0 lg:static lg:inset-0
+      `}>
+        <div className="flex flex-col h-full p-6">
+          {/* Logo Area */}
+          <div className="mb-10 px-2">
+            <h1 className="text-3xl font-serif text-stone-900">Workspace</h1>
+            <p className="text-xs font-bold text-emerald-600 tracking-widest mt-1">ADMIN PORTAL</p>
           </div>
-          <div className="flex items-center gap-2 bg-white border border-stone-200 rounded-full px-4 py-2 text-xs font-bold text-stone-600 shadow-sm">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            SERVER ONLINE
-          </div>
-        </div>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          {stats.map(({ label, value, color }) => (
-            <div key={label} className="bg-white rounded-3xl border border-stone-200 p-6 shadow-sm">
-              <p className="text-[10px] font-bold text-stone-400 uppercase tracking-[0.2em] mb-1">{label}</p>
-              <p className={`text-4xl font-serif ${color}`}>{value}</p>
-            </div>
-          ))}
-        </div>
-
-        {/* Unified Sections */}
-        <div className="space-y-12">
-          {groups.map(({ section, items }) => (
-            <div key={section}>
-              <div className="flex items-center gap-4 mb-6">
-                <h2 className="text-xs font-bold tracking-[0.3em] text-stone-400 uppercase">
-                  {section}
+          {/* Navigation */}
+          <nav className="flex-1 space-y-8 overflow-y-auto custom-scrollbar">
+            {groups.map((group) => (
+              <div key={group.section}>
+                <h2 className="px-2 text-[10px] font-bold tracking-[0.2em] text-stone-400 uppercase mb-3">
+                  {group.section}
                 </h2>
-                <div className="flex-1 h-px bg-stone-200" />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
-                {items.map((card, i) => (
-                  <Link
-                    key={i}
-                    to={card.link}
-                    className="group flex items-center bg-white rounded-4xl border border-stone-200 p-6 hover:shadow-xl hover:shadow-stone-200/50 hover:-translate-y-1 transition-all duration-300"
-                  >
-                    <div className={`w-16 h-16 flex items-center justify-center rounded-2xl mr-6 transition-transform group-hover:scale-110 ${card.iconColor}`}>
-                      {card.icon}
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between mb-1">
-                        <h3 className="text-lg font-bold text-stone-800 tracking-tight">
-                          {card.title}
-                        </h3>
-                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${card.badgeColor}`}>
-                          {card.badge}
+                <div className="space-y-1">
+                  {group.items.map((item) => {
+                    const isActive = location.pathname === item.link;
+                    return (
+                      <Link
+                        key={item.title}
+                        to={item.link}
+                        className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group ${
+                          isActive 
+                            ? "bg-stone-900 text-white shadow-md shadow-stone-200" 
+                            : "text-stone-500 hover:bg-stone-100 hover:text-stone-900"
+                        }`}
+                      >
+                        <span className={`${isActive ? "text-white" : "text-stone-400 group-hover:text-stone-900"}`}>
+                          {item.icon}
                         </span>
-                      </div>
-                      <p className="text-sm text-stone-400 leading-snug max-w-62.5">
-                        {card.desc}
-                      </p>
-                    </div>
-                  </Link>
-                ))}
+                        <span className="text-sm font-semibold">{item.title}</span>
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </nav>
+
+          {/* User Section */}
+          <div className="mt-auto pt-6 border-t border-stone-100">
+            <div className="flex items-center gap-3 px-2 mb-4">
+              <div className="w-10 h-10 rounded-full bg-stone-100 border border-stone-200 flex items-center justify-center text-stone-600 font-serif">
+                A
+              </div>
+              <div>
+                <p className="text-sm font-bold text-stone-800">Admin User</p>
+                <p className="text-xs text-stone-400">Main Shelter</p>
               </div>
             </div>
-          ))}
+            <button className="flex items-center gap-3 w-full px-3 py-2 text-sm font-semibold text-rose-500 hover:bg-rose-50 rounded-xl transition-colors">
+              <LogOut size={18} />
+              Logout
+            </button>
+          </div>
         </div>
-      </div>
+      </aside>
+
+      {/* Main Content Area */}
+      <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
+        {/* Top Header (Mobile & Stats Desktop) */}
+        <header className="h-16 lg:h-20 bg-white/80 backdrop-blur-md border-b border-stone-200 flex items-center justify-between px-6 lg:px-10 sticky top-0 z-40">
+          <button 
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="lg:hidden p-2 text-stone-600"
+          >
+            {isMobileMenuOpen ? <X /> : <Menu />}
+          </button>
+
+          <div className="hidden md:flex gap-8">
+            {stats.map((stat) => (
+              <div key={stat.label} className="flex flex-col">
+                <span className="text-[10px] font-bold text-stone-400 uppercase tracking-tighter">{stat.label}</span>
+                <span className={`text-xl font-serif ${stat.color}`}>{stat.value}</span>
+              </div>
+            ))}
+          </div>
+
+          <div className="flex items-center gap-2 bg-stone-50 border border-stone-200 rounded-full px-3 py-1.5 text-[10px] font-bold text-stone-600">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            LIVE SYSTEM
+          </div>
+        </header>
+
+        {/* Content Body */}
+        <div className="p-6 lg:p-10 overflow-y-auto">
+          <div className="max-w-5xl">
+            <header className="mb-10">
+              <h2 className="text-4xl font-serif text-stone-900 mb-2">Dashboard Overview</h2>
+              <p className="text-stone-500 italic">Quick actions and system status for today.</p>
+            </header>
+
+            {/* Quick Action Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* This mimics your old cards but styled for the new layout */}
+              <Link to="/admin/pets" className="group bg-white p-8 rounded-[2rem] border border-stone-200 hover:border-emerald-200 transition-all">
+                <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                  <PawPrint />
+                </div>
+                <h3 className="text-xl font-bold text-stone-800 mb-1">Manage Animals</h3>
+                <p className="text-stone-400 text-sm">Update inventory and adoption status.</p>
+              </Link>
+
+              <Link to="/admin/pet/handle-adoptions" className="group bg-white p-8 rounded-[2rem] border border-stone-200 hover:border-amber-200 transition-all">
+                <div className="w-12 h-12 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                  <ClipboardList />
+                </div>
+                <h3 className="text-xl font-bold text-stone-800 mb-1">Adoption Queue</h3>
+                <p className="text-stone-400 text-sm">You have pending applications to review.</p>
+              </Link>
+            </div>
+            
+            {/* Additional content can go here */}
+          </div>
+        </div>
+      </main>
+
+      {/* Mobile Overlay */}
+      {isMobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-stone-900/20 backdrop-blur-sm z-40 lg:hidden"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
     </div>
   );
 };
