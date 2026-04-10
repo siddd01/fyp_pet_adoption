@@ -113,7 +113,7 @@ if (!formData.address || !formData.phone || !formData.email) {
                       <p className="text-xs text-stone-400">Wallet, eBanking, or ConnectIPS</p>
                     </div>
                   </div>
-               </div>
+                </div>
             </section>
           </div>
 

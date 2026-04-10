@@ -61,7 +61,7 @@ const Footer = () => {
             </p>
           </div>
           <p className="text-xs mt-2 text-stone-400">
-            20% of store profits are donated to animal charities.
+            2% of store revenue are donated to animal charities.
           </p>
         </div>
 

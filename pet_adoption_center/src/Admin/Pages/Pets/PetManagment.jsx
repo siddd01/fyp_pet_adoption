@@ -1,10 +1,10 @@
 import { useContext, useState } from "react";
-import { PetContext } from "../../../Context/PetContext";
-import { StaffContext } from "../../../Context/StaffContext";
 import api from "../../../api/axios";
+import { AdminAuthContext } from "../../../Context/AdminAuthContext";
+import { PetContext } from "../../../Context/PetContext";
 
 const PetManagement = () => {
-  const { addPet, deletePet } = useContext(StaffContext); // Use functions from StaffContext
+  const { addPet, deletePet } = useContext(AdminAuthContext); // Use functions from StaffContext
   const { pets, getAllPets, petLoading } = useContext(PetContext);
 
   const [isModalOpen, setIsModalOpen] = useState(false);

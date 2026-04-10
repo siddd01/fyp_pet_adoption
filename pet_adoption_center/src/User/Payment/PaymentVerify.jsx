@@ -51,6 +51,7 @@ const PaymentVerify = () => {
             <CheckCircle2 className="w-12 h-12 text-emerald-500 mx-auto mb-6" />
             <h2 className="font-serif text-2xl mb-2">Payment Successful</h2>
             <p className="text-stone-400 text-sm">Thank you for supporting Sano Ghar! Redirecting you home...</p>
+            navigate("/"); // Redirect immediately or after a delay
           </>
         )}
 

@@ -63,7 +63,7 @@ import StaffPetManagement from "./Staff/Pages/Pets/StaffPetManagement.jsx";
 import StaffStoreManagement from "./Staff/Pages/Store/StaffStoreManagement.jsx";
 import Signup from "./User/Pages/Login/Signup.jsx";
 import Notifications from "./User/Pages/Notifications/Notifications.jsx";
-import Checkout from "./User/Pages/Shop/Checkout.jsx";
+import Checkout from "./User/Pages/Shop/checkout.jsx";
 import PaymentVerify from "./User/Payment/PaymentVerify.jsx";
 // -------- User Protected Route --------
 const PrivateRoute = ({ children }) => {
