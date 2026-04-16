@@ -5,6 +5,7 @@ import adminRoutes from "./routes/adminRoutes.js";
 import adoptionRoutes from "./routes/adoptionRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import cartRoutes from "./routes/cartRoutes.js";
+import charityRoutes from "./routes/charityRoutes.js";
 import paymentRoutes from "./routes/paymentRoutes.js";
 import petRoutes from "./routes/petRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
@@ -29,6 +30,7 @@ app.use("/api/payment", paymentRoutes);
 app.use('/uploads', express.static('uploads'));
 
 app.use("/api/staff", staffRoutes);
+app.use("/api/charity", charityRoutes);
 // Health Check
 app.get("/", (req, res) => {
   res.json({ message: "Pet Adoption Center API is running!" });

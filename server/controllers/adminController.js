@@ -115,3 +115,71 @@ export const updateAdminProfile = async (req, res) => {
     res.status(500).json({ message: "Failed to update profile" });
   }
 };
+
+
+
+export const getCharityInflowStats = async (req, res) => {
+  try {
+    console.log("in get charity flow")
+    // 1. Get Direct Donations Total
+ const [directRes] = await db.execute(
+  "SELECT SUM(amount) as total FROM donations WHERE status = 'Completed'"
+);
+    const fromDirect = Number(directRes[0].total || 0);
+
+    // 2. Get Store 2% Contributions Total
+    const [storeRes] = await db.execute(
+      "SELECT SUM(charity_amount) as total FROM orders WHERE status = 'paid'"
+    );
+    const fromStore = Number(storeRes[0].total || 0);
+
+    // 3. Get monthly data for the Chart (Last 6 months)
+    // This query combines both orders and donations by month
+ const [chartRes] = await db.execute(`
+  SELECT month, SUM(amount) as amount FROM (
+    SELECT DATE_FORMAT(created_at, '%b') as month, amount
+    FROM donations WHERE status = 'Completed'
+    UNION ALL
+    SELECT DATE_FORMAT(created_at, '%b') as month, charity_amount as amount 
+    FROM orders WHERE status = 'Completed'
+  ) as combined 
+  GROUP BY month 
+  ORDER BY FIELD(month, 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec')
+`);
+
+    res.json({
+      total: fromDirect + fromStore,
+      fromDirect,
+      fromStore,
+      chart: chartRes // Array of { month: 'Jan', amount: 500 }
+    });
+  } catch (error) {
+    console.error("Admin Stats Error:", error);
+    res.status(500).json({ success: false, message: "Failed to fetch stats" });
+  }
+};
+export const getRecentDonations = async (req, res) => {
+  try {
+    console.log("in recent")
+    const query = `
+      SELECT 
+        d.id, 
+        d.donor_name, 
+        d.donor_email, 
+        d.amount, 
+        d.message, 
+        d.created_at,
+        u.profile_image 
+      FROM donations d
+      LEFT JOIN users u ON d.user_id = u.id
+      WHERE d.status = 'Completed'
+      ORDER BY d.created_at DESC
+    `;
+    
+    const [rows] = await db.execute(query);
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Error fetching donations" });
+  }
+};

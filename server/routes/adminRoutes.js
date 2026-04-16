@@ -2,7 +2,8 @@ import express from "express";
 import multer from "multer";
 import { CloudinaryStorage } from "multer-storage-cloudinary";
 import cloudinary from "../config/cloudinary.js"; // Path to your cloudinary file
-import { changeAdminPassword, confirmAdminPassword, getAdminProfile, updateAdminProfile } from "../controllers/adminController.js";
+import { changeAdminPassword, confirmAdminPassword, getAdminProfile, getCharityInflowStats, getRecentDonations, updateAdminProfile } from "../controllers/adminController.js";
+import { createCharityPost } from "../controllers/charityController.js";
 import adminAuth from "../middleware/adminAuthMiddleware.js";
 
 const router = express.Router();
@@ -24,6 +25,10 @@ router.post("/confirm-password", adminAuth, confirmAdminPassword);
 router.put("/change-password", adminAuth, changeAdminPassword);
 
 // 📸 The Edit Route (Accepts 1 profile image and 1 cover image)
+
+router.get('/inflow-stats',adminAuth, getCharityInflowStats);
+
+router.get('/recent-donations', adminAuth, getRecentDonations);
 router.put(
   "/update-profile",
   adminAuth, 

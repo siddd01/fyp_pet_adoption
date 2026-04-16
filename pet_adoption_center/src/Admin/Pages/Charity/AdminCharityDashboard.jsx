@@ -1,63 +1,97 @@
-import axios from 'axios';
-import { Loader2 } from 'lucide-react';
+import { Loader2, User } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis } from 'recharts';
+import api from "../../../api/axios";
 
 const AdminCharityDashboard = () => {
-  // 1. Keep the initial state robust
   const [data, setData] = useState({ total: 0, fromStore: 0, fromDirect: 0, chart: [] });
+  const [recentDonations, setRecentDonations] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchInflow = async () => {
-      try {
-        const res = await axios.get('/api/admin/charity/inflow-stats');
-        // 2. Add a check to ensure we only set data if the response is valid
-        if (res.data) {
-          setData(res.data);
-        }
-      } catch (err) {
-        console.error("Backend endpoint not found yet:", err);
-        // Fallback or handle error quietly so UI doesn't crash
-      } finally { 
-        setLoading(false); 
-      }
-    };
-    fetchInflow();
-  }, []);
+useEffect(() => {
+  const fetchStats = async () => {
+    setLoading(true); // Ensure loading starts
+    try {
+      // 1. Check if 'api' (axios instance) is working
+      console.log(object)
+      const statsRes = await api.get('/admin/inflow-stats');
+      console.log("Stats Received:", statsRes.data);
+      setData(statsRes.data);
+
+      const listRes = await api.get('/admin/recent-donations');
+      console.log("Donations Received:", listRes.data);
+      setRecentDonations(listRes.data || []);
+
+    } catch (err) {
+      // This is crucial: if an error happens, we MUST stop the loading
+      console.error("Dashboard Fetch Error:", err.response?.data || err.message);
+      
+      // Optional: Set default empty data so the page can still render
+      setData({ total: 0, fromStore: 0, fromDirect: 0, chart: [] });
+      setRecentDonations([]);
+    } finally {
+      setLoading(false); // This stops the "loadingggg" state
+    }
+  };
+  fetchStats();
+}, []);
 
   if (loading) return <div className="flex justify-center py-20"><Loader2 className="animate-spin text-stone-300" /></div>;
 
   return (
-    <div className="space-y-8">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-white p-8 rounded-3xl border border-stone-100 shadow-sm">
-          <p className="text-[10px] font-bold text-stone-400 uppercase tracking-[0.2em] mb-1">Total Collection</p>
-          
-          {/* 3. The CRITICAL Fix: use (data.total || 0).toLocaleString() */}
-          <h2 className="text-4xl font-serif text-stone-900">
-            NPR {(data?.total || 0).toLocaleString()}
-          </h2>
-          
-          <div className="mt-4 flex gap-4">
-            <span className="text-xs text-emerald-600 bg-emerald-50 px-2 py-1 rounded-lg font-medium">
-              Store (2%): NPR {data?.fromStore || 0}
-            </span>
-            <span className="text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded-lg font-medium">
-              Direct: NPR {data?.fromDirect || 0}
-            </span>
-          </div>
+    <div className="space-y-8 p-6">
+      {/* ... Keep your existing Metric Cards here ... */}
+
+      <div className="bg-white rounded-3xl border border-stone-100 overflow-hidden shadow-sm">
+        <div className="px-8 py-6 border-b border-stone-50">
+          <h3 className="font-serif text-xl text-stone-900">Donor Community</h3>
         </div>
-        
-        <div className="bg-white p-8 rounded-3xl border border-stone-100 shadow-sm h-50">
-           <ResponsiveContainer width="100%" height="100%">
-              {/* 4. Ensure chart data is always an array */}
-              <BarChart data={data?.chart || []}>
-                <XAxis dataKey="month" hide />
-                <Tooltip />
-                <Bar dataKey="amount" fill="#1c1917" radius={[4, 4, 0, 0]} />
-              </BarChart>
-           </ResponsiveContainer>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left">
+            <thead className="bg-stone-50 text-[10px] uppercase tracking-widest text-stone-400 font-bold">
+              <tr>
+                <th className="px-8 py-4">Donor</th>
+                <th className="px-8 py-4">Amount</th>
+                <th className="px-8 py-4">Message</th>
+                <th className="px-8 py-4">Date</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-stone-50">
+              {recentDonations.map((don) => (
+                <tr key={don.id} className="hover:bg-stone-50/50 transition-colors">
+                  <td className="px-8 py-4 flex items-center gap-4">
+                    {/* PHOTO LOGIC */}
+                    <div className="w-10 h-10 rounded-full bg-stone-100 overflow-hidden shrink-0 border border-stone-200">
+                      {don.profile_image ? (
+                        <img src={don.profile_image} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        <User className="w-full h-full p-2 text-stone-300" />
+                      )}
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-stone-900">{don.donor_name}</p>
+                      <p className="text-xs text-stone-400">{don.donor_email}</p>
+                    </div>
+                  </td>
+                  <td className="px-8 py-4">
+                    <span className="text-sm font-bold text-emerald-600">
+                      NPR {Number(don.amount).toLocaleString()}
+                    </span>
+                  </td>
+                  <td className="px-8 py-4 text-sm text-stone-500 italic max-w-xs">
+                    <p className="truncate">
+                      {don.message ? `"${don.message}"` : "—"}
+                    </p>
+                  </td>
+                  <td className="px-8 py-4 text-xs text-stone-400">
+                    {new Date(don.created_at).toLocaleDateString()}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {recentDonations.length === 0 && (
+            <div className="py-20 text-center text-stone-400 text-sm">No donations found yet.</div>
+          )}
         </div>
       </div>
     </div>

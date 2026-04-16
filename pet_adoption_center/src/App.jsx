@@ -61,6 +61,7 @@ import StaffDashboard from "./Staff/Pages/Home/StaffDashboard.jsx";
 import StaffHome from "./Staff/Pages/Home/StaffHome.jsx";
 import StaffPetManagement from "./Staff/Pages/Pets/StaffPetManagement.jsx";
 import StaffStoreManagement from "./Staff/Pages/Store/StaffStoreManagement.jsx";
+import DonationVerify from "./User/Pages/Donate/Donationverify.jsx";
 import Signup from "./User/Pages/Login/Signup.jsx";
 import Notifications from "./User/Pages/Notifications/Notifications.jsx";
 import Checkout from "./User/Pages/Shop/checkout.jsx";
@@ -182,6 +183,8 @@ const App = () => {
           <Route path="cart" element={<Cart />} />
           <Route path="checkout" element={<Checkout />} />
           <Route path="/payment/verify" element={<PaymentVerify />} />
+          <Route path="/donation/verify" element={<DonationVerify />} />
+
         </Route>
 
         {/* -------- Fallback -------- */}

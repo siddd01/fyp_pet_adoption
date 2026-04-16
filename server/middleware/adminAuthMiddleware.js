@@ -1,6 +1,13 @@
 import jwt from "jsonwebtoken";
 const adminAuth = (roles = []) => {
   return (req, res, next) => {
+    try {
+    // ... verify token logic
+    req.admin = decoded; 
+    next(); // <--- IF THIS LINE IS MISSING, IT WILL LOAD FOREVER
+  } catch (error) {
+    res.status(401).json({ message: "Invalid Token" });
+  }
     const authHeader = req.headers.authorization;
     
     console.log("Auth header received:", authHeader); // Debug

@@ -1,5 +1,6 @@
 import express from 'express';
 import { handleCheckout } from '../controllers/paymentController.js';
+import { verifyPayment } from '../controllers/verifyPayment.js';
 import { authMiddleware } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
@@ -8,6 +9,6 @@ const router = express.Router();
 router.post('/checkout', authMiddleware, handleCheckout);
 
 // // Verify Khalti Payment (after redirect)
-// router.post('/verify', authMiddleware, verifyPayment);
+router.post('/verify', verifyPayment);
 
 export default router;
