@@ -10,7 +10,7 @@ router.post("/donate", verifyToken, initiateDonation);  // POST /api/charity/don
 router.post("/verify", verifyDonation);                  // POST /api/charity/verify
 router.post(
   "/spend",
-  adminAuth,
+  adminAuth(),
   (req, res, next) => {
     upload.single("image")(req, res, function (err) {
       if (err) {

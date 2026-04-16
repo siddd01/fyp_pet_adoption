@@ -20,18 +20,18 @@ const storage = new CloudinaryStorage({
 const upload = multer({ storage });
 
 // 🔒 Routes
-router.get("/profile", adminAuth, getAdminProfile);
-router.post("/confirm-password", adminAuth, confirmAdminPassword);
-router.put("/change-password", adminAuth, changeAdminPassword);
+router.get("/profile", adminAuth(), getAdminProfile);
+router.post("/confirm-password", adminAuth(), confirmAdminPassword);
+router.put("/change-password", adminAuth(), changeAdminPassword);
 
 // 📸 The Edit Route (Accepts 1 profile image and 1 cover image)
 
-router.get('/inflow-stats',adminAuth, getCharityInflowStats);
+router.get('/inflow-stats',adminAuth(), getCharityInflowStats);
 
-router.get('/recent-donations', adminAuth, getRecentDonations);
+router.get('/recent-donations', adminAuth(), getRecentDonations);
 router.put(
   "/update-profile",
-  adminAuth, 
+  adminAuth(), 
   upload.fields([
     { name: "profile_image", maxCount: 1 },
     { name: "cover_image", maxCount: 1 }
