@@ -1,4 +1,4 @@
-import { Bell, Menu, User, X } from "lucide-react";
+import { Bell, Menu, User, X, CheckCheck, Clock } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../../api/axios.js";
@@ -16,7 +16,6 @@ const AdminNavbar = () => {
     window.location.href = "/admin/login";
   };
 
-  // Fetch notifications
   const fetchNotifications = async () => {
     try {
       const res = await api.get("/charity/admin/notifications");
@@ -28,7 +27,6 @@ const AdminNavbar = () => {
 
   useEffect(() => {
     fetchNotifications();
-    // Poll for new notifications every 30 seconds
     const interval = setInterval(fetchNotifications, 30000);
     return () => clearInterval(interval);
   }, []);
@@ -44,158 +42,147 @@ const AdminNavbar = () => {
     }
   };
 
-  const unreadCount = notifications.filter(n => !n.is_read).length;
-
-
-// close dropdown when clicking outside
-useEffect(() => {
-  const handleClickOutside = (e) => {
-    if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
-      setProfileOpen(false);
-    }
-    if (notificationRef.current && !notificationRef.current.contains(e.target)) {
-      setNotificationOpen(false);
+  const markAllAsRead = async () => {
+    try {
+      // Assuming you have an endpoint for this, or loop through unread
+      await api.put(`/charity/admin/notifications/read-all`);
+      setNotifications(prev => prev.map(n => ({ ...n, is_read: 1 })));
+    } catch (error) {
+      console.error(error);
     }
   };
 
-  document.addEventListener("mousedown", handleClickOutside);
-  return () => document.removeEventListener("mousedown", handleClickOutside);
-}, []);
+  const unreadCount = notifications.filter(n => !n.is_read).length;
 
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) setProfileOpen(false);
+      if (notificationRef.current && !notificationRef.current.contains(e.target)) setNotificationOpen(false);
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
-    <nav className="bg-white shadow-md px-6 py-3 flex items-center justify-between relative">
+    <nav className="bg-white border-b border-stone-200 px-6 py-3 flex items-center justify-between sticky top-0 z-[100]">
       
       {/* Left: Logo */}
-      <div className="flex items-center gap-2">
-        <button
-          className="md:hidden"
-          onClick={() => setOpen(!open)}
-        >
+      <div className="flex items-center gap-4">
+        <button className="md:hidden text-stone-600" onClick={() => setOpen(!open)}>
           <Menu size={22} />
         </button>
-        <Link to="/admin/dashboard" className="text-xl font-bold text-teal-600">
-          🐾 Pet Adoption Admin
+        <Link to="/admin/dashboard" className="text-xl font-serif font-black text-stone-900 tracking-tight">
+          SanoGhar <span className="text-emerald-600 italic">Admin</span>
         </Link>
       </div>
 
-      {/* Center: Menu (Desktop)
-      <ul className="hidden md:flex gap-6 font-medium text-gray-700">
-        <li>
-          <Link to="/admin/dashboard" className="hover:text-teal-600">
-            Dashboard
-          </Link>
-        </li>
-
-        <li>
-          <Link to="/admin/staff-add" className="hover:text-teal-600">
-            Add Staff
-          </Link>
-        </li>
-
-        <li>
-          <Link to="/admin/staff-delete" className="hover:text-teal-600">
-            Remove Staff
-          </Link>
-        </li>
-      </ul> */}
-
       {/* Right: Icons */}
-      <div className="flex items-center gap-4">
-        {/* Notifications */}
+      <div className="flex items-center gap-2">
+        
+        {/* Notifications Dropdown */}
         <div className="relative" ref={notificationRef}>
           <button
             onClick={() => setNotificationOpen(!notificationOpen)}
-            className="relative p-2 text-gray-600 hover:text-teal-600 transition-colors"
+            className={`relative p-2.5 rounded-full transition-all duration-200 ${
+              notificationOpen ? "bg-stone-100 text-stone-900" : "text-stone-500 hover:bg-stone-50"
+            }`}
           >
-            <Bell className="w-5 h-5" />
+            <Bell size={20} />
             {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+              <span className="absolute top-1 right-1 bg-rose-500 text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center border-2 border-white px-1">
                 {unreadCount}
               </span>
             )}
           </button>
           
           {notificationOpen && (
-            <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg border border-gray-200 shadow-lg z-50 max-h-96 overflow-y-auto">
-              <div className="p-4 border-b border-gray-100">
-                <h3 className="font-semibold text-gray-900">Notifications</h3>
+            <div className="absolute right-0 mt-3 w-[360px] bg-white rounded-2xl shadow-2xl border border-stone-200 z-[110] overflow-hidden flex flex-col animate-in fade-in slide-in-from-top-2 duration-200">
+              
+              {/* FB Style Header */}
+              <div className="p-4 border-b border-stone-100 flex items-center justify-between bg-white sticky top-0">
+                <h3 className="text-lg font-black text-stone-900">Notifications</h3>
+               
               </div>
-              {notifications.length === 0 ? (
-                <div className="p-4 text-center text-gray-500">No notifications</div>
-              ) : (
-                notifications.map((notification) => (
-                  <div
-                    key={notification.id}
-                    className={`p-4 border-b border-gray-50 hover:bg-gray-50 cursor-pointer ${
-                      !notification.is_read ? "bg-blue-50" : ""
-                    }`}
-                    onClick={() => handleMarkNotificationRead(notification.id)}
-                  >
-                    <div className="flex items-start gap-3">
-                      <div className={`w-2 h-2 rounded-full mt-2 ${
-                        notification.type === "like" ? "bg-rose-500" : "bg-emerald-500"
-                      }`} />
+
+              {/* Scrollable List Area */}
+              <div className="max-h-[420px] overflow-y-auto custom-scrollbar">
+                {notifications.length === 0 ? (
+                  <div className="py-12 flex flex-col items-center justify-center text-stone-400">
+                    <Bell size={40} className="mb-2 opacity-20" />
+                    <p className="text-sm font-medium">No updates yet</p>
+                  </div>
+                ) : (
+                  notifications.map((n) => (
+                    <div
+                      key={n.id}
+                      onClick={() => handleMarkNotificationRead(n.id)}
+                      className={`group p-4 flex gap-4 border-b border-stone-50 cursor-pointer transition-colors relative ${
+                        !n.is_read ? "bg-emerald-50/40 hover:bg-emerald-50" : "hover:bg-stone-50"
+                      }`}
+                    >
+                      {/* Icon part */}
+                      <div className="relative">
+                        <div className={`w-12 h-12 rounded-full flex items-center justify-center border ${
+                            n.type === 'like' ? 'bg-rose-50 border-rose-100 text-rose-500' : 'bg-emerald-50 border-emerald-100 text-emerald-600'
+                        }`}>
+                            <User size={20} />
+                        </div>
+                        {/* Status Dot */}
+                        {!n.is_read && (
+                          <div className="absolute -right-0.5 bottom-1 w-3.5 h-3.5 bg-blue-600 rounded-full border-2 border-white" />
+                        )}
+                      </div>
+
+                      {/* Content part */}
                       <div className="flex-1">
-                        <p className="text-sm text-gray-700">{notification.message}</p>
-                        <p className="text-xs text-gray-400 mt-1">
-                          {new Date(notification.created_at).toLocaleString()}
+                        <p className={`text-[13px] leading-snug ${!n.is_read ? "font-bold text-stone-900" : "text-stone-600"}`}>
+                          {n.message}
                         </p>
+                        <div className="flex items-center gap-1 mt-1 text-[11px] font-bold text-stone-400 uppercase tracking-tight">
+                          <Clock size={10} />
+                          {new Date(n.created_at).toLocaleDateString()}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))
-              )}
+                  ))
+                )}
+              </div>
+
+              {/* FB Style Footer */}
+              
             </div>
           )}
         </div>
 
         {/* Profile Dropdown */}
-   <div className="relative" ref={dropdownRef}>
-  <User
-    className="cursor-pointer text-gray-600 hover:text-teal-600"
-    onClick={() => setProfileOpen((prev) => !prev)}
-  />
+        <div className="relative" ref={dropdownRef}>
+          <button 
+            onClick={() => setProfileOpen(!profileOpen)}
+            className="w-10 h-10 rounded-full bg-stone-100 border border-stone-200 flex items-center justify-center text-stone-600 hover:bg-stone-200 transition-colors overflow-hidden"
+          >
+            <User size={20} />
+          </button>
 
-  {profileOpen && (
-    <div className="absolute right-0 mt-2 w-40 bg-white shadow-md rounded-md">
-      <Link
-        to="/admin/profile"
-        className="block px-4 py-2 hover:bg-gray-100"
-        onClick={() => setProfileOpen(false)}
-      >
-        Profile
-      </Link>
-
-      <button
-        onClick={handleLogout}
-        className="w-full text-left px-4 py-2 hover:bg-gray-100 text-red-500"
-      >
-        Logout
-      </button>
-    </div>
-  )}
-</div>
-
+          {profileOpen && (
+            <div className="absolute right-0 mt-3 w-48 bg-white shadow-2xl rounded-xl border border-stone-200 py-2 z-[110] animate-in fade-in slide-in-from-top-2 duration-200">
+              <Link
+                to="/admin/profile"
+                className="block px-4 py-2 text-sm font-bold text-stone-700 hover:bg-stone-50"
+                onClick={() => setProfileOpen(false)}
+              >
+                Profile Settings
+              </Link>
+              <div className="h-px bg-stone-100 my-1" />
+              <button
+                onClick={handleLogout}
+                className="w-full text-left px-4 py-2 text-sm font-bold text-rose-600 hover:bg-rose-50"
+              >
+                Sign Out
+              </button>
+            </div>
+          )}
+        </div>
       </div>
-
-      {/* Mobile Menu */}
-      {open && (
-        <ul className="absolute top-16 left-0 w-full bg-white shadow-md flex flex-col gap-3 p-4 md:hidden z-50">
-          <Link to="/admin/dashboard" onClick={() => setOpen(false)}>
-            Dashboard
-          </Link>
-          <Link to="/admin/community/posts" onClick={() => setOpen(false)}>
-            Post Management
-          </Link>
-          <Link to="/admin/staff/add" onClick={() => setOpen(false)}>
-            Add Staff
-          </Link>
-          <Link to="/admin/staff/delete" onClick={() => setOpen(false)}>
-            Remove Staff
-          </Link>
-        </ul>
-      )}
     </nav>
   );
 };

@@ -128,53 +128,8 @@ const PostManagement = () => {
           <p className="text-sm text-stone-500 mt-1">Manage community impact posts</p>
         </div>
         <div className="flex items-center gap-4">
-          {/* Notifications */}
-          <div className="relative">
-            <button
-              onClick={() => setShowNotifications(!showNotifications)}
-              className="relative p-2 bg-white rounded-lg border border-stone-200 hover:bg-stone-50 transition-colors"
-            >
-              <Bell className="w-5 h-5 text-stone-600" />
-              {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                  {unreadCount}
-                </span>
-              )}
-            </button>
-            
-            {showNotifications && (
-              <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg border border-stone-200 shadow-lg z-50 max-h-96 overflow-y-auto">
-                <div className="p-4 border-b border-stone-100">
-                  <h3 className="font-semibold text-stone-900">Notifications</h3>
-                </div>
-                {notifications.length === 0 ? (
-                  <div className="p-4 text-center text-stone-500">No notifications</div>
-                ) : (
-                  notifications.map((notification) => (
-                    <div
-                      key={notification.id}
-                      className={`p-4 border-b border-stone-50 hover:bg-stone-50 cursor-pointer ${
-                        !notification.is_read ? "bg-blue-50" : ""
-                      }`}
-                      onClick={() => handleMarkNotificationRead(notification.id)}
-                    >
-                      <div className="flex items-start gap-3">
-                        <div className={`w-2 h-2 rounded-full mt-2 ${
-                          notification.type === "like" ? "bg-rose-500" : "bg-emerald-500"
-                        }`} />
-                        <div className="flex-1">
-                          <p className="text-sm text-stone-700">{notification.message}</p>
-                          <p className="text-xs text-stone-400 mt-1">
-                            {new Date(notification.created_at).toLocaleString()}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            )}
-          </div>
+    
+ 
           
           {/* Create Post Button */}
           <button
