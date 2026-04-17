@@ -99,3 +99,26 @@ export const removeFromCart = async (req, res) => {
     res.status(500).json({ error: "Failed to remove item" });
   }
 };
+export const clearCart = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    console.log("Clearing cart for user ID:", userId);
+    
+    // First check if user has any cart items
+    const [existingItems] = await db.execute("SELECT COUNT(*) as count FROM cart_items WHERE user_id = ?", [userId]);
+    console.log("Items before deletion:", existingItems[0].count);
+    
+    // Delete the items
+    const result = await db.execute("DELETE FROM cart_items WHERE user_id = ?", [userId]);
+    console.log("Delete result:", result);
+    
+    // Verify deletion
+    const [remainingItems] = await db.execute("SELECT COUNT(*) as count FROM cart_items WHERE user_id = ?", [userId]);
+    console.log("Items after deletion:", remainingItems[0].count);
+
+    res.json({ success: true, message: "Cart cleared" });
+  } catch (error) {
+    console.error("Clear cart error:", error);
+    res.status(500).json({ success: false });
+  }
+};

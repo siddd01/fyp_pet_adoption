@@ -23,7 +23,7 @@ const Cart = () => {
 
   if (cartItems.length === 0) {
     return (
-      <div className="min-h-screen bg-stone-50 flex items-center justify-center">
+      <div className="min-h-screen min-w-5xl bg-stone-50 flex items-center justify-center">
         <div className="text-center">
           
           <ShoppingCart className="w-16 h-16 text-stone-200 mx-auto mb-5" />
@@ -45,7 +45,7 @@ const Cart = () => {
     <div className="min-h-screen bg-stone-50">
       {/* Header */}
       <div className="bg-white border-b border-stone-100">
-  <div className="max-w-7xl mx-auto px-6 pt-12 pb-10">
+  <div className="min-w-7xl mx-auto px-6 pt-12 pb-10">
     {/* Breadcrumb style label */}
     <p className="text-[10px] font-black tracking-[0.3em] text-stone-300 uppercase mb-4">
       Sano Ghar / Boutique
@@ -78,7 +78,7 @@ const Cart = () => {
   </div>
 </div>
 
-      <div className="w-5xl mx-auto px-6 py-8">
+      <div className="w-6xl mx-auto px-6 py-8">
         <div className="grid lg:grid-cols-3 gap-6">
 
           {/* Cart Items */}

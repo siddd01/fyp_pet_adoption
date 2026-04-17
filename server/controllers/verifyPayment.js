@@ -1,40 +1,55 @@
 import axios from "axios";
 import db from "../config/db.js";
 
-const KHALTI_BASE_URL = process.env.KHALTI_BASE_URL || "https://khalti.com";
-const khaltiHeaders = {
-  Authorization: `Key ${process.env.KHALTI_SECRET_KEY}`,
-  "Content-Type": "application/json",
-};
-
 export const verifyPayment = async (req, res) => {
   const { pidx } = req.body;
 
+  if (!pidx) {
+    return res.status(400).json({
+      success: false,
+      message: "Missing pidx",
+    });
+  }
+
   try {
-    // 1. Verify with Khalti
     const response = await axios.post(
-      `${KHALTI_BASE_URL}/api/v2/epayment/lookup/`,
+      "https://a.khalti.com/api/v2/epayment/lookup/",
       { pidx },
-      { headers: khaltiHeaders }
+      {
+        headers: {
+          Authorization: `Key ${process.env.KHALTI_SECRET_KEY}`, // ✅ IMPORTANT
+          "Content-Type": "application/json",
+        },
+      }
     );
 
-    const paymentData = response.data;
+    const data = response.data;
+    console.log("Khalti Verify Response:", data);
 
-    if (paymentData.status === "Completed") {
-      // 2. Update order
+    // ✅ THIS IS THE MOST IMPORTANT FIX
+    if (data.status === "Completed") {
       await db.execute(
-        "UPDATE orders SET status = 'paid' WHERE pidx = ?",
-        [pidx]
+        "UPDATE orders SET status = ? WHERE pidx = ?",
+        ["paid", pidx]
       );
 
-      return res.json({ success: true });
+      return res.json({
+        success: true,
+        message: "Payment verified successfully",
+      });
     } else {
-      return res.json({ success: false });
+      return res.json({
+        success: false,
+        message: `Payment not completed. Status: ${data.status}`,
+      });
     }
-
   } catch (error) {
-    console.error("Verify Error:", error.response?.data || error.message);
-    res.status(500).json({
+    console.error(
+      "Verify Error:",
+      error.response?.data || error.message
+    );
+
+    return res.status(500).json({
       success: false,
       message: "Verification failed",
     });

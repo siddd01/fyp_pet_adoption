@@ -76,6 +76,33 @@ export const CartProvider = ({ children }) => {
     }
   };
 
+const clearCart = async () => {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    console.log("No token found");
+    return;
+  }
+
+  try {
+    console.log("Making API call to clear cart...");
+    const response = await api.delete("/cart/clear", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    console.log("Clear cart response:", response);
+    alert("Cart cleared successfully!");
+
+    // clear frontend state
+    setCartItems([]);
+
+    // optional but BEST (sync with DB)
+    await fetchCart();
+  } catch (error) {
+    console.error("Clear cart error:", error);
+    console.error("Error response:", error.response);
+    alert("Failed to clear cart: " + (error.response?.data?.message || error.message));
+  }
+};
+
   const totalAmount = cartItems.reduce(
     (sum, item) => sum + Number(item.total_price),
     0
@@ -95,6 +122,7 @@ export const CartProvider = ({ children }) => {
         addToCart,
         updateQuantity,
         removeItem,
+        clearCart,
       }}
     >
       {children}

@@ -1,12 +1,14 @@
 import axios from "axios";
 import { CheckCircle2, Loader2, XCircle } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { CartContext } from "../../Context/CartContext.jsx";
 
 const PaymentVerify = () => {
   const [searchParams] = useSearchParams();
   const [status, setStatus] = useState("verifying"); // verifying | success | error
   const navigate = useNavigate();
+  const { clearCart } = useContext(CartContext);
 
   const hasVerified = useRef(false); // prevent double API call
 
@@ -23,24 +25,33 @@ const PaymentVerify = () => {
       }
 
       try {
-        const { data } = await axios.post("/api/payment/verify/", { pidx });
+        const { data } = await axios.post(
+          "http://localhost:3000/api/payment/verify",
+          { pidx }
+        );
+
         console.log("Verification response:", data);
 
         if (data.success) {
+          await clearCart();
           setStatus("success");
+          
         } else {
+          console.error("Verification failed reason:", data.message);
           setStatus("error");
         }
       } catch (err) {
-        console.error("Verification failed:", err);
+        console.error(
+          "Verification failed:",
+          err.response?.data || err.message
+        );
         setStatus("error");
       }
     };
 
     verifyPayment();
-  }, [pidx]);
+  }, [pidx, clearCart]);
 
-  // ✅ Handle redirect separately (cleaner)
   useEffect(() => {
     if (status === "success") {
       const timer = setTimeout(() => {

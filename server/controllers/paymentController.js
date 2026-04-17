@@ -58,16 +58,21 @@ export const handleCheckout = async (req, res) => {
 
         // 4. Khalti Payment Initiation
         // Using the Live URL since you have a Live Key
-        const KHALTI_URL = "https://khalti.com/api/v2/epayment/initiate/";
         
-        const khaltiPayload = {
-            return_url: `${process.env.FRONTEND_URL}/payment/verify`,
-            website_url: process.env.FRONTEND_URL,
-            amount: Math.round(Number(totalAmount) * 100), // Convert Rs to Paisa
-            purchase_order_id: orderId.toString(),
-            purchase_order_name: `Order #${orderId}`,
-        };
-
+        const KHALTI_URL = "https://a.khalti.com/api/v2/epayment/initiate/";
+        
+       const khaltiPayload = {
+  return_url: `${process.env.FRONTEND_URL}/payment/verify`,
+  website_url: process.env.FRONTEND_URL,
+  amount: Math.round(Number(totalAmount) * 100),
+  purchase_order_id: orderId.toString(),
+  purchase_order_name: `Order #${orderId}`,
+  customer_info: {
+    name: shippingInfo?.full_name || "Guest User",
+    email: shippingInfo?.email || "test@test.com",
+    phone: shippingInfo?.phone || "9800000000",
+  },
+};
         console.log("Sending Khalti Request:", khaltiPayload);
         const khaltiResponse = await axios.post(KHALTI_URL, khaltiPayload, {
             headers: {
@@ -96,7 +101,8 @@ export const handleCheckout = async (req, res) => {
         // ROLLBACK: If anything failed, undo all database changes
         await connection.rollback();
         
-        console.error("Khalti Checkout Error:", error.response?.data || error.message);
+        console.error("Khalti Checkout Error FULL:", error);
+        console.error("Khalti Response:", error.response?.data);
 
         res.status(500).json({
             success: false,
