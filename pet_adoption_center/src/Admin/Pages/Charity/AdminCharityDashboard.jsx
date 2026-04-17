@@ -12,7 +12,7 @@ useEffect(() => {
     setLoading(true); // Ensure loading starts
     try {
       // 1. Check if 'api' (axios instance) is working
-      console.log(object)
+      console.log("Fetching charity stats...");
       const statsRes = await api.get('/admin/inflow-stats');
       console.log("Stats Received:", statsRes.data);
       setData(statsRes.data);
@@ -49,17 +49,18 @@ useEffect(() => {
           <table className="w-full text-left">
             <thead className="bg-stone-50 text-[10px] uppercase tracking-widest text-stone-400 font-bold">
               <tr>
-                <th className="px-8 py-4">Donor</th>
+                <th className="px-8 py-4">Donor Info</th>
                 <th className="px-8 py-4">Amount</th>
                 <th className="px-8 py-4">Message</th>
+                <th className="px-8 py-4">Contact</th>
                 <th className="px-8 py-4">Date</th>
+                <th className="px-8 py-4">Status</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-50">
               {recentDonations.map((don) => (
                 <tr key={don.id} className="hover:bg-stone-50/50 transition-colors">
                   <td className="px-8 py-4 flex items-center gap-4">
-                    {/* PHOTO LOGIC */}
                     <div className="w-10 h-10 rounded-full bg-stone-100 overflow-hidden shrink-0 border border-stone-200">
                       {don.profile_image ? (
                         <img src={don.profile_image} alt="" className="w-full h-full object-cover" />
@@ -70,6 +71,7 @@ useEffect(() => {
                     <div>
                       <p className="text-sm font-semibold text-stone-900">{don.donor_name}</p>
                       <p className="text-xs text-stone-400">{don.donor_email}</p>
+                      <p className="text-xs text-stone-300">ID: {don.user_id || 'Guest'}</p>
                     </div>
                   </td>
                   <td className="px-8 py-4">
@@ -79,11 +81,32 @@ useEffect(() => {
                   </td>
                   <td className="px-8 py-4 text-sm text-stone-500 italic max-w-xs">
                     <p className="truncate">
-                      {don.message ? `"${don.message}"` : "—"}
+                      {don.message ? `"${don.message}"` : "No message"}
                     </p>
                   </td>
+                  <td className="px-8 py-4">
+                    <div className="text-xs">
+                      <p className="text-stone-400">{don.donor_email}</p>
+                      <p className="text-stone-300">User ID: {don.user_id || 'Guest'}</p>
+                    </div>
+                  </td>
                   <td className="px-8 py-4 text-xs text-stone-400">
-                    {new Date(don.created_at).toLocaleDateString()}
+                    <div>
+                      <p>{new Date(don.created_at).toLocaleDateString()}</p>
+                      <p className="text-stone-300">{new Date(don.created_at).toLocaleTimeString()}</p>
+                    </div>
+                  </td>
+                  <td className="px-8 py-4">
+                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                      don.status === 'Completed' 
+                        ? 'bg-green-100 text-green-800' 
+                        : 'bg-yellow-100 text-yellow-800'
+                    }`}>
+                      {don.status}
+                    </span>
+                    {don.pidx && (
+                      <p className="text-xs text-stone-400 mt-1">PIDX: {don.pidx.slice(0, 8)}...</p>
+                    )}
                   </td>
                 </tr>
               ))}

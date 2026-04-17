@@ -169,7 +169,10 @@ export const getRecentDonations = async (req, res) => {
         d.amount, 
         d.message, 
         d.created_at,
-        u.profile_image 
+        d.status,
+        d.pidx,
+        d.user_id,
+        u.profile_image
       FROM donations d
       LEFT JOIN users u ON d.user_id = u.id
       WHERE d.status IN ('Completed', 'paid')

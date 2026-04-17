@@ -3,7 +3,6 @@ import multer from "multer";
 import { CloudinaryStorage } from "multer-storage-cloudinary";
 import cloudinary from "../config/cloudinary.js"; // Path to your cloudinary file
 import { changeAdminPassword, confirmAdminPassword, getAdminProfile, getCharityInflowStats, getRecentDonations, updateAdminProfile } from "../controllers/adminController.js";
-import { createCharityPost } from "../controllers/charityController.js";
 import adminAuth from "../middleware/adminAuthMiddleware.js";
 
 const router = express.Router();
