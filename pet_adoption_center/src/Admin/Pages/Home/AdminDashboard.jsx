@@ -8,7 +8,8 @@ import {
   ShoppingBag,
   TrendingUp,
   Users,
-  X
+  X,
+  AlertTriangle
 } from "lucide-react";
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
@@ -43,6 +44,13 @@ const AdminDashboard = () => {
       items: [
         { title: "Charity Analytics", icon: <TrendingUp size={20} />, link: "/admin/charity/stats" },
         { title: "Proof of Impact", icon: <HeartHandshake size={20} />, link: "/admin/charity/post" },
+      ],
+    },
+    {
+      section: "Reports",
+      items: [
+        { title: "Handle Reports", icon: <AlertTriangle size={20} />, link: "/admin/reports" },
+        { title: "Post Management", icon: <TrendingUp size={20} />, link: "/admin/community/posts" },
       ],
     },
   ];

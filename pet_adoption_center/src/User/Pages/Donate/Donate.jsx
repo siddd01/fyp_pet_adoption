@@ -1,6 +1,6 @@
-import axios from "axios";
 import { CheckCircle, ChevronRight, Heart, Loader2, Sparkles, Star } from "lucide-react";
 import { useState } from "react";
+import api from "../../../api/axios";
 
 const presetAmounts = [
   { value: 20,  desc: "Feed a rescue for a week" },
@@ -26,6 +26,10 @@ const Donate = () => {
 
   const handleDonation = async () => {
     const token = localStorage.getItem("token");
+    if (!token) {
+      setError("Please login first to make a donation.");
+      return;
+    }
     if (!amount || Number(amount) <= 0) {
       setError("Please enter a valid amount.");
       return;
@@ -34,20 +38,20 @@ const Donate = () => {
     setError("");
 
     try {
-      const { data } = await axios.post("/api/charity/donate", {
+      const { data } = await api.post("/charity/donate", {
         amount: Number(amount),
         message: message.trim(),
-      },{ 
-        headers: { 
+      },{
+        headers: {
           Authorization: `Bearer ${token}` // Add this!
-        } 
+        }
       }
     );
 
-      if (data.payment_url) {
+      if (data?.payment_url) {
         window.location.href = data.payment_url;
       } else {
-        setError("Could not start payment. Please try again.");
+        setError(data?.message || "Could not start payment. Please try again.");
       }
     } catch (err) {
       console.error("Donation error:", err);

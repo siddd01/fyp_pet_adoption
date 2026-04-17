@@ -1,3 +1,5 @@
+
+
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import api from "../../../api/axios";
@@ -28,7 +30,7 @@ const handleSubmit = async (e) => {
 
     // Redirect to dashboard on success
     setTimeout(() => {
-      navigate("/dashboard");
+      navigate("/");
     }, 1500);
 
   } catch (error) {

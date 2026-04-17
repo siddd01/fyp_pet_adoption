@@ -32,7 +32,7 @@ if (!formData.address || !formData.phone || !formData.email) {
     
     // 3. Khalti expects Paisa (Amount * 100)
     // Ensure totalAmount is handled as a number
-    const amountInPaisa = totalAmount;
+    const amountInPaisa = Math.round(Number(totalAmount) * 100);
 
     // Pass formData if your initiateKhaltiPayment function supports it
     initiateKhaltiPayment(totalAmount, cartItems, formData)

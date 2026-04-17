@@ -1,19 +1,21 @@
 import axios from "axios";
 import db from "../config/db.js";
 
+const KHALTI_BASE_URL = process.env.KHALTI_BASE_URL || "https://khalti.com";
+const khaltiHeaders = {
+  Authorization: `Key ${process.env.KHALTI_SECRET_KEY}`,
+  "Content-Type": "application/json",
+};
+
 export const verifyPayment = async (req, res) => {
   const { pidx } = req.body;
 
   try {
     // 1. Verify with Khalti
     const response = await axios.post(
-      "https://a.khalti.com/api/v2/epayment/lookup/",
+      `${KHALTI_BASE_URL}/api/v2/epayment/lookup/`,
       { pidx },
-      {
-        headers: {
-          Authorization: `Key ${process.env.KHALTI_SECRET_KEY}`,
-        },
-      }
+      { headers: khaltiHeaders }
     );
 
     const paymentData = response.data;

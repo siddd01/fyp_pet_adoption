@@ -10,6 +10,7 @@ import { StaffContext } from "./Context/StaffContext.jsx";
 import AboutUs from "./User/Pages/AboutUs/AboutUs";
 import Adopt from "./User/Pages/Adopt/Adopt";
 import AdoptionForm from "./User/Pages/Adopt/AdoptionForm.jsx";
+import CommunityPosts from "./User/Pages/Community/CommunityPosts.jsx";
 import PetDetails from "./User/Pages/Details/PetDetails";
 import ProductDetails from "./User/Pages/Details/ProductDetails";
 import Donate from "./User/Pages/Donate/Donate";
@@ -28,6 +29,7 @@ import Profile from "./User/Profile/Profile";
 import AdminCharityAction from "./Admin/Pages/Charity/AdminCharityAction.jsx";
 import AdminCharityDashboard from "./Admin/Pages/Charity/AdminCharityDashboard.jsx";
 import AdminCharityHistory from "./Admin/Pages/Charity/AdminCharityHistory.jsx";
+import PostManagement from "./Admin/Pages/Community/PostManagement.jsx";
 import AdminDashboard from "./Admin/Pages/Home/AdminDashboard.jsx";
 import AdminHome from "./Admin/Pages/Home/AdminHome.jsx";
 import AdminLogin from "./Admin/Pages/Login/AdminLogin.jsx";
@@ -64,8 +66,10 @@ import StaffStoreManagement from "./Staff/Pages/Store/StaffStoreManagement.jsx";
 import DonationVerify from "./User/Pages/Donate/Donationverify.jsx";
 import Signup from "./User/Pages/Login/Signup.jsx";
 import Notifications from "./User/Pages/Notifications/Notifications.jsx";
+import ReportIssue from "./User/Pages/Reports/ReportIssue.jsx";
 import Checkout from "./User/Pages/Shop/checkout.jsx";
 import PaymentVerify from "./User/Payment/PaymentVerify.jsx";
+import ReportManagement from "./Admin/Pages/Reports/ReportManagement.jsx";
 // -------- User Protected Route --------
 const PrivateRoute = ({ children }) => {
   const { user, loading } = useContext(AuthContext);
@@ -122,6 +126,8 @@ const App = () => {
           <Route path="charity/post" element={<AdminCharityAction />} />
           <Route path="charity/stats" element={<AdminCharityDashboard />} />
           <Route path="charity/history" element={<AdminCharityHistory />} />
+          <Route path="community/posts" element={<PostManagement />} />
+          <Route path="reports" element={<ReportManagement />} />
           <Route path="products/edit/:id" element={<AdminEditProduct />} />
           <Route path="pet/delete-pets" element={<AdminDeletePets />} />
           <Route path="pets" element={<PetManagement />} />
@@ -175,7 +181,9 @@ const App = () => {
           <Route path="adopt-form/:id" element={<AdoptionForm />} />
           <Route path="adopt-form/edit/:id" element={<AdoptionForm />} />
           <Route path="shop" element={<Shop />} />
+          <Route path="community" element={<CommunityPosts />} />
           <Route path="/notifications" element={<Notifications />} />
+          <Route path="report-issue" element={<ReportIssue />} />
           <Route path="shop/:id" element={<ProductDetails />} />
           <Route path="about" element={<AboutUs />} />
           <Route path="donate" element={<Donate />} />

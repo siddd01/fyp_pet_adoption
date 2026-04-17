@@ -13,6 +13,7 @@ export const verifyToken = (req, res, next) => {
     if (err) {
       return res.status(401).json({ message: "Unauthorized" });
     }
+    console.log("DECODED JWT CONTENT:", decoded);
 
     req.user = decoded; // { id, role_id, etc }
     next();

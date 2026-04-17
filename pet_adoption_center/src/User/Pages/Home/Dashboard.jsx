@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../../api/axios";
+import { AlertTriangle } from "lucide-react";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -96,7 +97,7 @@ const Dashboard = () => {
               </p>
             </div>
 
-            <div className="flex gap-3">
+            <div className="flex flex-wrap gap-3">
               <button
                 onClick={() => navigate("/adopt")}
                 className="px-7 py-3 bg-stone-900 hover:bg-stone-700 text-white text-sm font-semibold rounded-xl transition"
@@ -110,6 +111,16 @@ const Dashboard = () => {
               >
                 Shop Now →
               </button>
+
+              {isLoggedIn && (
+                <button
+                  onClick={() => navigate("/report-issue")}
+                  className="px-7 py-3 bg-red-50 border border-red-200 hover:bg-red-100 text-red-700 text-sm font-semibold rounded-xl transition flex items-center gap-2"
+                >
+                  <AlertTriangle className="w-4 h-4" />
+                  Report Issue
+                </button>
+              )}
 
               {!isLoggedIn && (
                 <button

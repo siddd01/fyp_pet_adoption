@@ -123,7 +123,7 @@ export const getCharityInflowStats = async (req, res) => {
     console.log("in get charity flow")
     // 1. Get Direct Donations Total
  const [directRes] = await db.execute(
-  "SELECT SUM(amount) as total FROM donations WHERE status = 'Completed'"
+  "SELECT SUM(amount) as total FROM donations WHERE status IN ('Completed', 'paid')"
 );
     const fromDirect = Number(directRes[0].total || 0);
 
@@ -138,10 +138,10 @@ export const getCharityInflowStats = async (req, res) => {
  const [chartRes] = await db.execute(`
   SELECT month, SUM(amount) as amount FROM (
     SELECT DATE_FORMAT(created_at, '%b') as month, amount
-    FROM donations WHERE status = 'Completed'
+    FROM donations WHERE status IN ('Completed', 'paid')
     UNION ALL
     SELECT DATE_FORMAT(created_at, '%b') as month, charity_amount as amount 
-    FROM orders WHERE status = 'Completed'
+    FROM orders WHERE status IN ('Completed', 'paid')
   ) as combined 
   GROUP BY month 
   ORDER BY FIELD(month, 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec')
@@ -172,7 +172,7 @@ export const getRecentDonations = async (req, res) => {
         u.profile_image 
       FROM donations d
       LEFT JOIN users u ON d.user_id = u.id
-      WHERE d.status = 'Completed'
+      WHERE d.status IN ('Completed', 'paid')
       ORDER BY d.created_at DESC
     `;
     

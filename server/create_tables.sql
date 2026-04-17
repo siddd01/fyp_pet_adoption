@@ -31,3 +31,26 @@ INSERT INTO products (name, description, category, price, stock, quantity, image
 ('Dog Leash', 'Strong and comfortable leash for daily walks', 'Accessories', 12.99, 8, 8, 'https://images.unsplash.com/photo-1601758228041-f3b2795255f1'),
 ('Cat Food Bowl', 'Stainless steel food bowl for cats', 'Accessories', 8.99, 15, 15, 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee'),
 ('Dog Toy Ball', 'Interactive rubber ball for dogs', 'Toys', 6.99, 20, 20, 'https://images.unsplash.com/photo-1605568427561-40dd23c2acea');
+
+-- Charity post likes table
+CREATE TABLE IF NOT EXISTS post_likes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    post_id INT NOT NULL,
+    user_id INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (post_id) REFERENCES charity_posts(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_post_user_like (post_id, user_id)
+);
+
+-- Charity post comments table
+CREATE TABLE IF NOT EXISTS post_comments (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    post_id INT NOT NULL,
+    user_id INT NOT NULL,
+    comment_text TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (post_id) REFERENCES charity_posts(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);

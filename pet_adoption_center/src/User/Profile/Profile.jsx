@@ -1,9 +1,11 @@
-import { Calendar, Check, Edit2, Mail, Shield, User, X } from "lucide-react";
+import { Calendar, Check, Edit2, Mail, Shield, User, X, AlertTriangle } from "lucide-react";
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../Context/AuthContext.jsx";
+import { useNavigate } from "react-router-dom";
 
 const Profile = () => {
   const { user, updateUser } = useContext(AuthContext);
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     first_name: "",
@@ -165,6 +167,43 @@ const Profile = () => {
             label="Member Since"
             value={formatDateForDisplay(user.created_at)}
           />
+        </div>
+
+        {/* Quick Actions */}
+        <div className="bg-white rounded-2xl border border-stone-100 shadow-sm p-6">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="flex-1 h-px bg-stone-100" />
+            <p className="text-xs tracking-[0.25em] uppercase text-stone-400">Quick Actions</p>
+            <div className="flex-1 h-px bg-stone-100" />
+          </div>
+          
+          <div className="grid sm:grid-cols-2 gap-4">
+            <button
+              onClick={() => navigate("/notifications")}
+              className="flex items-center gap-3 p-4 border border-stone-200 rounded-xl hover:border-stone-400 hover:bg-stone-50 transition-all"
+            >
+              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                <AlertTriangle className="w-5 h-5 text-blue-600" />
+              </div>
+              <div className="text-left">
+                <p className="font-medium text-stone-900">View Notifications</p>
+                <p className="text-xs text-stone-500">Check adoption & report updates</p>
+              </div>
+            </button>
+            
+            <button
+              onClick={() => navigate("/report-issue")}
+              className="flex items-center gap-3 p-4 border border-stone-200 rounded-xl hover:border-red-400 hover:bg-red-50 transition-all"
+            >
+              <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
+                <AlertTriangle className="w-5 h-5 text-red-600" />
+              </div>
+              <div className="text-left">
+                <p className="font-medium text-stone-900">Report an Issue</p>
+                <p className="text-xs text-stone-500">Report technical or other problems</p>
+              </div>
+            </button>
+          </div>
         </div>
 
         {/* Edit Form */}

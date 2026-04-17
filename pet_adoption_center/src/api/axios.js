@@ -13,7 +13,14 @@ api.interceptors.request.use(
       token = localStorage.getItem("adminToken");
     } else if (url.includes("/staff")) {
       token = localStorage.getItem("staffToken");
+    } else if (url.includes("/charity/posts") && !url.includes("/like") && !url.includes("/comments") && (config.method === 'put' || config.method === 'delete')) {
+      // For charity posts CRUD operations (PUT, DELETE), use admin token
+      token = localStorage.getItem("adminToken");
+    } else if (url.includes("/charity/posts") && !url.includes("/like") && !url.includes("/comments") && config.method === 'post' && !url.match(/\/posts\/\d+\/like/) && !url.match(/\/posts\/\d+\/comments/)) {
+      // For creating posts (POST /charity/posts), use admin token
+      token = localStorage.getItem("adminToken");
     } else {
+      // For everything else (including likes, comments, get posts), use user token
       token = localStorage.getItem("token");
     }
     if (token) {

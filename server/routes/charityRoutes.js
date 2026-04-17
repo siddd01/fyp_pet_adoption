@@ -1,5 +1,17 @@
 import express from "express";
-import { createCharityPost, initiateDonation, verifyDonation } from "../controllers/charityController.js";
+import {
+  createCharityPost,
+  createPostComment,
+  getCharityPosts,
+  getPostComments,
+  initiateDonation,
+  togglePostLike,
+  verifyDonation,
+  updateCharityPost,
+  deleteCharityPost,
+  getAdminNotifications,
+  markNotificationRead,
+} from "../controllers/charityController.js";
 import adminAuth from "../middleware/adminAuthMiddleware.js";
 import { verifyToken } from "../middleware/authMiddleware.js";
 import upload from "../middleware/uploadMiddleware.js";
@@ -22,4 +34,17 @@ router.post(
   },
   createCharityPost
 );
+
+router.get("/posts", verifyToken, getCharityPosts);
+router.post("/posts", adminAuth(), createCharityPost);  // Create post (alternative to /spend)
+router.put("/posts/:postId", adminAuth(), updateCharityPost);
+router.delete("/posts/:postId", adminAuth(), deleteCharityPost);
+router.post("/posts/:postId/like", verifyToken, togglePostLike);
+router.get("/posts/:postId/comments", verifyToken, getPostComments);
+router.post("/posts/:postId/comments", verifyToken, createPostComment);
+
+// Admin notification routes
+router.get("/admin/notifications", adminAuth(), getAdminNotifications);
+router.put("/admin/notifications/:notificationId/read", adminAuth(), markNotificationRead);
+
 export default router;

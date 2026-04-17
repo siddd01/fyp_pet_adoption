@@ -1,7 +1,7 @@
-import axios from "axios";
 import { Heart, Loader2, XCircle } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import api from "../../../api/axios";
 
 const DonationVerify = () => {
   const [searchParams] = useSearchParams();
@@ -25,7 +25,7 @@ const DonationVerify = () => {
 
       try {
         // We send the pidx to the backend to confirm with Khalti
-        const { data } = await axios.post("/api/charity/verify", { pidx });
+        const { data } = await api.post("/charity/verify", { pidx });
         
         if (data.success) {
           setStatus("success");
@@ -34,6 +34,7 @@ const DonationVerify = () => {
             navigate("/");
           }, 2000); 
         } else {
+          console.error("Donation verify backend response:", data);
           setStatus("error");
         }
       } catch (err) {
