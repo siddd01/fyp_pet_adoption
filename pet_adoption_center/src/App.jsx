@@ -68,7 +68,7 @@ import DonationVerify from "./User/Pages/Donate/Donationverify.jsx";
 import Signup from "./User/Pages/Login/Signup.jsx";
 import Notifications from "./User/Pages/Notifications/Notifications.jsx";
 import ReportIssue from "./User/Pages/Reports/ReportIssue.jsx";
-import Checkout from "./User/Pages/Shop/checkout.jsx";
+import Checkout from "./User/Pages/Shop/Checkout.jsx";
 import PaymentVerify from "./User/Payment/PaymentVerify.jsx";
 // -------- User Protected Route --------
 const PrivateRoute = ({ children }) => {
