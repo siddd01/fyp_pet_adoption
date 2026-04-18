@@ -49,16 +49,18 @@ import StaffProducts from "./Staff/Pages/Store/StaffProducts.jsx";
 
 // Admin Guard
 import AdminHandleAdoption from "./Admin/Pages/Adoptions/AdminHandleAdoption.jsx";
+import StoreAnalytics from "./Admin/Pages/Analytics/StoreAnalytics.jsx";
 import AdminDeletePets from "./Admin/Pages/Pets/AdminDeletePets.jsx";
 import PetManagement from "./Admin/Pages/Pets/PetManagment.jsx";
+import ReportManagement from "./Admin/Pages/Reports/ReportManagement.jsx";
 import StaffManagement from "./Admin/Pages/Staff/StaffManagement.jsx";
 import AdminAddProduct from "./Admin/Pages/Store/AdminAddProduct.jsx";
 import AdminEditProduct from "./Admin/Pages/Store/AdminEditProduct.jsx";
 import AdminProducts from "./Admin/Pages/Store/AdminProducts.jsx";
-import StoreAnalytics from "./Admin/Pages/Analytics/StoreAnalytics.jsx";
 import StoreManagement from "./Admin/Pages/Store/StoreManagment.jsx";
 import AdminProfile from "./Admin/Profile/AdminProfile.jsx";
 import AdminPrivateRoute from "./Admin/Routes/AdminPrivateRoute.jsx";
+import StaffCommunity from "./Staff/Pages/Community/StaffCommunity.jsx";
 import StaffDashboard from "./Staff/Pages/Home/StaffDashboard.jsx";
 import StaffHome from "./Staff/Pages/Home/StaffHome.jsx";
 import StaffPetManagement from "./Staff/Pages/Pets/StaffPetManagement.jsx";
@@ -69,7 +71,6 @@ import Notifications from "./User/Pages/Notifications/Notifications.jsx";
 import ReportIssue from "./User/Pages/Reports/ReportIssue.jsx";
 import Checkout from "./User/Pages/Shop/checkout.jsx";
 import PaymentVerify from "./User/Payment/PaymentVerify.jsx";
-import ReportManagement from "./Admin/Pages/Reports/ReportManagement.jsx";
 // -------- User Protected Route --------
 const PrivateRoute = ({ children }) => {
   const { user, loading } = useContext(AuthContext);
@@ -155,7 +156,7 @@ const App = () => {
           <Route path="pets/view" element={<StaffViewPets />} />
           <Route path="pets/delete" element={<StaffDeletePets />} />
           <Route path="pets" element={<StaffPetManagement/>} />
-
+          <Route path="community" element={<StaffCommunity/>} />
           <Route path="store" element={<StaffStoreManagement/>} />
           <Route path="adoptions" element={<StaffHandleAdoption />} />
           <Route path="store/add-product" element={<StaffAddProduct />} />

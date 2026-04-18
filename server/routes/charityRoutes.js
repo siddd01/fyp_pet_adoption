@@ -2,24 +2,27 @@ import express from "express";
 import {
   createCharityPost,
   createPostComment,
+  deleteCharityPost,
+  getAdminNotifications,
   getCharityPosts,
   getPostComments,
   initiateDonation,
-  togglePostLike,
-  verifyDonation,
-  updateCharityPost,
-  deleteCharityPost,
-  getAdminNotifications,
   markNotificationRead,
+  togglePostLike,
+  updateCharityPost,
+  verifyDonation,
 } from "../controllers/charityController.js";
 import adminAuth from "../middleware/adminAuthMiddleware.js";
 import { verifyToken } from "../middleware/authMiddleware.js";
+import { verifyFlexibleToken } from "../middleware/flexibleAuthMiddleware.js";
 import upload from "../middleware/uploadMiddleware.js";
 
 const router = express.Router();
 
-router.post("/donate", verifyToken, initiateDonation);  // POST /api/charity/donate
-router.post("/verify", verifyDonation);                  // POST /api/charity/verify
+// --- Public/General Donation Routes ---
+router.post("/donate", verifyToken, initiateDonation);
+router.post("/verify", verifyDonation);
+
 router.post(
   "/spend",
   adminAuth(),
@@ -35,15 +38,15 @@ router.post(
   createCharityPost
 );
 
-router.get("/posts", verifyToken, getCharityPosts);
+router.get("/posts", verifyFlexibleToken, getCharityPosts);
 router.post("/posts", adminAuth(), createCharityPost);  // Create post (alternative to /spend)
 router.put("/posts/:postId", adminAuth(), updateCharityPost);
 router.delete("/posts/:postId", adminAuth(), deleteCharityPost);
-router.post("/posts/:postId/like", verifyToken, togglePostLike);
-router.get("/posts/:postId/comments", verifyToken, getPostComments);
-router.post("/posts/:postId/comments", verifyToken, createPostComment);
+router.post("/posts/:postId/like", verifyFlexibleToken, togglePostLike);
+router.get("/posts/:postId/comments", verifyFlexibleToken, getPostComments);
+router.post("/posts/:postId/comments", verifyFlexibleToken, createPostComment);
 
-// Admin notification routes
+// --- Admin Notifications ---
 router.get("/admin/notifications", adminAuth(), getAdminNotifications);
 router.put("/admin/notifications/:notificationId/read", adminAuth(), markNotificationRead);
 

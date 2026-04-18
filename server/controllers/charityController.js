@@ -65,15 +65,32 @@ const createAdminNotification = async (type, postId, userId) => {
     
     if (postDetails.length === 0) return;
     
-    // Get user details
-    const [userDetails] = await db.query(
+    // Try to get user details first, then staff details
+    let userDetails = null;
+    let userName = "";
+    
+    // Check if it's a user
+    const [userResult] = await db.query(
       "SELECT first_name, last_name FROM users WHERE id = ?",
       [userId]
     );
     
-    if (userDetails.length === 0) return;
+    if (userResult.length > 0) {
+      userName = `${userResult[0].first_name} ${userResult[0].last_name}`.trim();
+    } else {
+      // Check if it's a staff member
+      const [staffResult] = await db.query(
+        "SELECT first_name, last_name FROM staff WHERE staff_id = ?",
+        [userId]
+      );
+      
+      if (staffResult.length > 0) {
+        userName = `${staffResult[0].first_name} ${staffResult[0].last_name}`.trim();
+      } else {
+        return; // Neither user nor staff found
+      }
+    }
     
-    const userName = `${userDetails[0].first_name} ${userDetails[0].last_name}`.trim();
     const postTitle = postDetails[0].title;
     
     let message = "";
@@ -242,10 +259,11 @@ export const getCharityHistory = async (req, res) => {
     res.status(500).json({ success: false, message: "Failed to fetch history" });
   }
 };
+
 export const getCharityPosts = async (req, res) => {
   try {
     await ensureCommunityTables();
-    const userId = req.user?.id || null;
+    const userId = req.user?.id || req.staff?.id || null;
 
     const [rows] = await db.query(
       `SELECT
@@ -261,7 +279,8 @@ export const getCharityPosts = async (req, res) => {
           IFNULL((SELECT 1 FROM post_likes WHERE post_id = cp.id AND user_id = ? LIMIT 1), 0) AS liked_by_me
        FROM charity_posts cp
        LEFT JOIN admins a ON a.admin_id = cp.admin_id
-       ORDER BY cp.created_at DESC`
+       ORDER BY cp.created_at DESC`,
+      [userId]
     );
 
     res.json({ success: true, posts: rows });
@@ -274,7 +293,7 @@ export const getCharityPosts = async (req, res) => {
 export const togglePostLike = async (req, res) => {
   try {
     await ensureCommunityTables();
-    const userId = req.user?.id;
+    const userId = req.user?.id || req.staff?.id;
     const postId = Number(req.params.postId);
 
     if (!Number.isInteger(postId)) {
@@ -347,7 +366,7 @@ export const getPostComments = async (req, res) => {
 export const createPostComment = async (req, res) => {
   try {
     await ensureCommunityTables();
-    const userId = req.user?.id;
+    const userId = req.user?.id || req.staff?.id;
     const postId = Number(req.params.postId);
     const { comment_text } = req.body;
 

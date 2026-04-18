@@ -48,6 +48,11 @@ const StaffNavbar = () => {
       <div className="flex items-center gap-4">
         <ClipboardList onClick={()=>navigate("/staff/adoptions")} className="cursor-pointer text-gray-600 hover:text-teal-600" />
         
+        {/* Community Section */}
+        <Link to="/staff/community" className="cursor-pointer text-gray-600 hover:text-teal-600">
+          Community
+        </Link>
+        
 
         {/* Profile Dropdown */}
         <div className="relative" ref={dropdownRef}>

@@ -28,12 +28,12 @@ app.use("/api/user", userRoutes);
 app.use("/api/adoptions", adoptionRoutes);
 app.use("/api/admin/auth", adminAuthRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/charity", charityRoutes);
+app.use("/api/reports", reportRoutes);
+app.use("/api/staff", staffRoutes);
 app.use("/api/payment", paymentRoutes);
 app.use('/uploads', express.static('uploads'));
 
-app.use("/api/staff", staffRoutes);
-app.use("/api/charity", charityRoutes);
-app.use("/api/reports", reportRoutes);
 // Health Check
 app.get("/", (req, res) => {
   res.json({ message: "Pet Adoption Center API is running!" });

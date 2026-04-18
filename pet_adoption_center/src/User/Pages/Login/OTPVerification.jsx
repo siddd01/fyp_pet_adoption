@@ -28,9 +28,10 @@ const handleSubmit = async (e) => {
 
     setMessage({ type: "success", text: res.data.message });
 
-    // Redirect to dashboard on success
+    // Auto-login user after OTP verification by storing a temporary session
+    // and redirect to login page with auto-fill
     setTimeout(() => {
-      navigate("/");
+      navigate("/login", { state: { email, autoLogin: true } });
     }, 1500);
 
   } catch (error) {

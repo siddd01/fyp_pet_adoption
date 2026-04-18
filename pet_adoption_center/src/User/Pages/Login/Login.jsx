@@ -1,6 +1,6 @@
 import { ArrowRight, Lock, Mail, PawPrint } from "lucide-react";
-import { useContext, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useContext, useEffect, useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import api from "../../../api/axios";
 import { AuthContext } from "../../../Context/AuthContext.jsx";
 
@@ -9,7 +9,15 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const { fetchUser } = useContext(AuthContext);
+
+  // Auto-fill email and show message if coming from OTP verification
+  useEffect(() => {
+    if (location.state?.email && location.state?.autoLogin) {
+      setEmail(location.state.email);
+    }
+  }, [location.state]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -43,6 +51,11 @@ const Login = () => {
           <p className="text-stone-400 text-[10px] font-bold uppercase tracking-[0.3em]">
             Sano Ghar Portal
           </p>
+          {location.state?.autoLogin && (
+            <p className="text-emerald-600 text-xs mt-2 font-medium">
+              Email verified! Please login to continue
+            </p>
+          )}
         </header>
 
         <form onSubmit={handleSubmit} className="space-y-6">

@@ -30,7 +30,7 @@ const PostManagement = () => {
 
   const fetchNotifications = async () => {
     try {
-      const res = await api.get("/admin/notifications");
+      const res = await api.get("/charity/admin/notifications");
       setNotifications(res.data.notifications || []);
     } catch (error) {
       console.error("Failed to fetch notifications:", error);
