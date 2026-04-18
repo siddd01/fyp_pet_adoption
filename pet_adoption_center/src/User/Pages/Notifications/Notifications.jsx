@@ -70,6 +70,19 @@ const Notifications = () => {
     });
   };
 
+  const handleDelete = async (appId) => {
+    if (!window.confirm("Are you sure you want to delete this adoption request? This action cannot be undone.")) return;
+    
+    try {
+      await api.delete(`/adoptions/${appId}`);
+      setSelectedApp(null);
+      
+      fetchNotifications(); // Refresh notifications after deletion
+    } catch (error) {
+      console.error("Failed to delete application:", error);
+    }
+  };
+
   useEffect(() => {
     fetchNotifications();
     const interval = setInterval(fetchNotifications, 10000);
@@ -195,15 +208,22 @@ const Notifications = () => {
                         <Calendar size={12} />
                         <span className="text-[10px]">{new Date(item.created_at).toLocaleDateString()}</span>
                       </div>
-                      {item.status === "pending" ? (
-                        <button onClick={() => handleEdit(item)} className="bg-stone-900 text-white px-6 py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-stone-700 transition-colors shadow-lg shadow-stone-200">
-                          Edit
-                        </button>
-                      ) : (
-                        <button onClick={() => setSelectedApp(item)} className="text-stone-900 text-[10px] font-bold uppercase tracking-widest border-b border-stone-900/20 hover:border-stone-900 transition-all py-1">
-                          View Details
-                        </button>
-                      )}
+                      <div className="flex gap-2">
+                        {item.status === "pending" ? (
+                          <>
+                            <button onClick={() => handleEdit(item)} className="bg-stone-900 text-white px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-stone-700 transition-colors shadow-lg shadow-stone-200">
+                              Edit
+                            </button>
+                            <button onClick={() => handleDelete(item.id)} className="bg-red-600 text-white px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-red-700 transition-colors shadow-lg shadow-red-200">
+                              Delete
+                            </button>
+                          </>
+                        ) : (
+                          <button onClick={() => setSelectedApp(item)} className="text-stone-900 text-[10px] font-bold uppercase tracking-widest border-b border-stone-900/20 hover:border-stone-900 transition-all py-1">
+                            View Details
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>

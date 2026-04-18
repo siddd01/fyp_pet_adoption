@@ -209,9 +209,11 @@ export const updateAdoptionApplication = async (req, res) => {
 export const deleteApplication = async (req, res) => {
   try {
     const { id } = req.params;
+    const userId = req.user.id;
 
+    // Check if application exists and belongs to the user
     const [app] = await db.query(
-      "SELECT status FROM adoption_applications WHERE id = ?",
+      "SELECT status, user_id FROM adoption_applications WHERE id = ?",
       [id]
     );
 
@@ -219,10 +221,15 @@ export const deleteApplication = async (req, res) => {
       return res.status(404).json({ message: "Application not found" });
     }
 
-    // 🔴 ONLY allow if rejected
-    if (app[0].status !== "rejected") {
+    // Check if application belongs to the authenticated user
+    if (app[0].user_id !== userId) {
+      return res.status(403).json({ message: "You can only delete your own applications" });
+    }
+
+    // Only allow deletion of pending applications
+    if (app[0].status.toLowerCase() !== "pending") {
       return res.status(400).json({
-        message: "Only rejected applications can be deleted",
+        message: "Only pending applications can be deleted",
       });
     }
 
@@ -231,6 +238,7 @@ export const deleteApplication = async (req, res) => {
     res.status(200).json({ message: "Application deleted successfully" });
 
   } catch (error) {
+    console.error("Delete application error:", error);
     res.status(500).json({ message: "Delete failed" });
   }
 };

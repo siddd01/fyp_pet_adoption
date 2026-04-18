@@ -8,7 +8,6 @@ import { authMiddleware, verifyToken } from "../middleware/authMiddleware.js";
     router.put("/:id/status", authMiddleware, updateAdoptionStatus);
     router.put("/:id", authMiddleware, updateAdoptionApplication);
     router.get("/notifications", verifyToken, getUserNotifications);
-    
-router.delete("/adoptions/:id", deleteApplication);
+router.delete("/:id", authMiddleware, deleteApplication);
 
     export default router;
