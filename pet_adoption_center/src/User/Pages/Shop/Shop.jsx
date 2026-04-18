@@ -40,7 +40,7 @@ const Shop = () => {
   return (
     <div className="min-h-screen bg-white">
       {/* ── Hero & Search Section ── */}
-      <div className="bg-linear-to-b from-stone-100 to-white pt-24 pb-4 border-b border-stone-100">
+      <div className="bg-linear-to-b from-stone-100 to-white pt-20 pb-4 border-b border-stone-100">
         <div className="max-w-7xl mx-auto px-6 lg:px-12">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-12 gap-8">
             <div className="space-y-4">
@@ -161,13 +161,16 @@ const Shop = () => {
                   </div>
 
                   {/* Description */}
+{/* Description */}
+{/* Description */}
                   {product.description && (
-                    <p className="text-sm text-stone-500 line-clamp-2 leading-relaxed font-light italic flex-1">
+                    <p
+                     
+                      className="text-stone-700 text-sm line-clamp-2 leading-relaxed font-serif"
+                    >
                       {product.description}
                     </p>
-                  )}
-
-                  {/* Action Button (Matches Adopt Card) */}
+                  )}                         {/* Action Button (Matches Adopt Card) */}
                   <button
                     onClick={(e) => {
                       e.stopPropagation();

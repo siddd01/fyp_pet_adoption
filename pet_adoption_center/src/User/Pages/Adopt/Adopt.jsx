@@ -40,7 +40,7 @@ const Adopt = () => {
   return (
     <div className="min-h-screen bg-white">
       {/* ── Hero & Search Section ── */}
-      <div className="bg-linear-to-b from-stone-100 to-white pt-24 pb-4 border-b border-stone-100">
+      <div className="bg-linear-to-b from-stone-100 to-white pt-20 pb-4 border-b border-stone-100">
         <div className="max-w-7xl mx-auto px-6 lg:px-12">
           
           <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-12 gap-8">

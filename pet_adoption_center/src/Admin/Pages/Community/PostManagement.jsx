@@ -12,7 +12,7 @@ const PostManagement = () => {
   const [formData, setFormData] = useState({
     title: "",
     content: "",
-    amount_spent: "",
+    amount_spent: "", 
     image_url: ""
   });
   const navigate = useNavigate();

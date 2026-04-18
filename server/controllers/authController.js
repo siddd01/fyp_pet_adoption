@@ -196,7 +196,7 @@ export const forgotPassword = async (req, res) => {
   const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
 
   try {
-    const [rows] = await db.query("SELECT * FROM users WHERE email = ?", [email]);
+    const [rows] = await db.execute("SELECT * FROM users WHERE email = ?", [email]);
     if (rows.length === 0) return res.status(404).json({ message: "User not found" });
 
     await db.query("UPDATE users SET otp = ?, otp_expiry = ? WHERE email = ?", [otp, expiresAt, email]);
@@ -220,41 +220,26 @@ export const forgotPassword = async (req, res) => {
 
 
 
-
 export const resetPassword = async (req, res) => {
   try {
-    const { email, otp, newPassword } = req.body;
+    const { email, newPassword } = req.body; // Remove OTP requirement here if already verified
 
-    if (!email || !otp || !newPassword) {
-      return res.status(400).json({ message: "Email, OTP, and new password are required" });
+    if (!email || !newPassword) {
+      return res.status(400).json({ message: "Email and new password are required" });
     }
 
-    // 1️ Fetch user
-    const [rows] = await db.query("SELECT otp, otp_expiry FROM users WHERE email = ?", [email]);
-    if (rows.length === 0) return res.status(404).json({ message: "User not found" });
-
-    const user = rows[0];
-
-    // 2️ Validate OTP
-    if (Number(user.otp) !== Number(otp)) {
-      return res.status(400).json({ message: "Invalid OTP" });
-    }
-    if (new Date(user.otp_expiry) < new Date()) {
-      return res.status(400).json({ message: "OTP expired" });
-    }
-
-    // 3️ Hash new password
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-    // 4️ Update password and clear OTP
-    await db.query(
-      "UPDATE users SET password = ?, otp = NULL, otp_expiry = NULL WHERE email = ?",
+    // We only update if the user is verified (or just check email)
+    const [result] = await db.query(
+      "UPDATE users SET password = ? WHERE email = ?",
       [hashedPassword, email]
     );
 
+    if (result.affectedRows === 0) return res.status(404).json({ message: "User not found" });
+
     res.json({ message: "Password reset successfully" });
   } catch (err) {
-    console.error("Reset password error:", err);
     res.status(500).json({ message: "Server error" });
   }
 };

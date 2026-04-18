@@ -85,7 +85,7 @@ const PetDetails = () => {
             <img
               src={pet.image_url || "/placeholder-pet.jpg"}
               alt={pet.name}
-              className="w-full h-[400px] object-cover"
+              className="w-full h-100 object-cover"
             />
           </div>
 

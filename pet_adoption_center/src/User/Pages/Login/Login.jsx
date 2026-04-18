@@ -1,3 +1,4 @@
+import { ArrowRight, Lock, Mail, PawPrint } from "lucide-react";
 import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../../api/axios";
@@ -8,123 +9,126 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const { setUser, fetchUser } = useContext(AuthContext); // Get setUser and fetchUser from context
+  const { fetchUser } = useContext(AuthContext);
 
- const handleSubmit = async (e) => {
-  e.preventDefault();
-  setLoading(true);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
 
-  try {
-    const res = await api.post("/auth/login", { email, password });
-
-    // 1️⃣ Save JWT only
-    localStorage.setItem("token", res.data.token);
-
-    // 2️⃣ Fetch full user profile
-    await fetchUser();
-
-    // 3️⃣ Go home
-    navigate("/");
-  } catch (error) {
-    console.error("Login error:", error);
-    alert(error.response?.data?.message || "Invalid email or password");
-  } finally {
-    setLoading(false);
-  }
-};
+    try {
+      const res = await api.post("/auth/login", { email, password });
+      localStorage.setItem("token", res.data.token);
+      await fetchUser();
+      navigate("/");
+    } catch (error) {
+      console.error("Login error:", error);
+      alert(error.response?.data?.message || "Invalid email or password");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-blue-50 to-blue-100">
-      
-      <form
-        onSubmit={handleSubmit}
-        className="w-full max-w-md bg-white p-8 rounded-xl shadow-lg"
-      >
-        <h2 className="text-3xl font-bold text-center text-blue-600 mb-2">
-          Welcome Back 🐾
-        </h2>
-        <div className="text-center text-gray-500 mb-6">
-          Login to continue
-        </div>
-
-        {/* Email */}
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-600 mb-1">
-            Email
-          </label>
-          <input
-            type="email"
-            placeholder="example@email.com"
-            className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </div>
-
-        {/* Password */}
-        <div className="mb-2">
-          <label className="block text-sm font-medium text-gray-600 mb-1">
-            Password
-          </label>
-          <input
-            type="password"
-            placeholder="••••••••"
-            className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
-
-        {/* Forgot Password */}
-        <div className="text-right mb-4">
-          <span
-            onClick={() => navigate("/forgot-password")}
-            className="text-sm text-blue-600 cursor-pointer hover:underline"
-          >
-            Forgot password?
-          </span>
-        </div>
-
-        {/* Login Button */}
-        <button
-          disabled={loading}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-semibold transition disabled:opacity-50"
-        >
-          {loading ? "Logging in..." : "Login"}
-        </button>
-
-        {/* Signup Link */}
-        <p className="text-center text-sm text-gray-500 mt-4">
-          Don't have an account?{" "}
-          <span
-            onClick={() => navigate("/signup")}
-            className="text-blue-600 cursor-pointer hover:underline font-medium"
-          >
-            Sign up
-          </span>
-          <div>
-               <div className="flex items-center justify-center gap-4 text-lg font-medium">
-      <span
-        onClick={() => navigate("/admin/login")}
-        className="cursor-pointer text-blue-600 hover:underline"
-      >
-        Admin
-      </span>
-
-      <span className="text-gray-400">|</span>
-
-      <span
-        onClick={() => navigate("/staff/login")}
-        className="cursor-pointer text-blue-600 hover:underline"
-      >
-        Staff
-      </span>
-    </div>
+    <div className="min-h-screen flex items-center justify-center bg-stone-50 px-6">
+      <div className="w-full max-w-md bg-white p-10 rounded-[3rem] shadow-[0_20px_70px_-20px_rgba(0,0,0,0.08)] border border-stone-100">
+        
+        {/* Header Section */}
+        <header className="text-center mb-10">
+          <div className="inline-block p-4 bg-stone-50 rounded-full mb-4">
+            <PawPrint className="w-6 h-6 text-stone-800" />
           </div>
-        </p>
-      </form>
+          <h2 className="text-4xl text-stone-900 mb-2" style={{ fontFamily: "Georgia, serif" }}>
+            Welcome Back
+          </h2>
+          <p className="text-stone-400 text-[10px] font-bold uppercase tracking-[0.3em]">
+            Sano Ghar Portal
+          </p>
+        </header>
+
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Email Input */}
+          <div className="space-y-2">
+            <label className="text-[10px] uppercase tracking-widest font-bold text-stone-500 ml-2">
+              Email Address
+            </label>
+            <div className="relative">
+              <Mail className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-300" />
+              <input
+                type="email"
+                placeholder="example@email.com"
+                className="w-full pl-12 pr-6 py-4 bg-stone-50 border-none rounded-2xl text-stone-900 focus:ring-2 focus:ring-stone-200 transition-all placeholder:text-stone-200"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+          </div>
+
+          {/* Password Input */}
+          <div className="space-y-2">
+            <div className="flex justify-between items-center ml-2">
+              <label className="text-[10px] uppercase tracking-widest font-bold text-stone-500">
+                Password
+              </label>
+              <span
+                onClick={() => navigate("/forgot-password")}
+                className="text-[10px] font-bold text-stone-400 hover:text-stone-900 cursor-pointer transition-colors uppercase tracking-tighter"
+              >
+                Forgot?
+              </span>
+            </div>
+            <div className="relative">
+              <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-300" />
+              <input
+                type="password"
+                placeholder="••••••••"
+                className="w-full pl-12 pr-6 py-4 bg-stone-50 border-none rounded-2xl text-stone-900 focus:ring-2 focus:ring-stone-200 transition-all placeholder:text-stone-200"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+          </div>
+
+          {/* Login Button */}
+          <button
+            disabled={loading}
+            className="w-full bg-stone-900 hover:bg-stone-800 text-white py-5 rounded-2xl text-[10px] font-bold uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-2 disabled:opacity-50 shadow-lg shadow-stone-200"
+          >
+            {loading ? "Authenticating..." : "Login to Account"}
+            <ArrowRight className="w-4 h-4" />
+          </button>
+        </form>
+
+        {/* Footer Links */}
+        <div className="mt-10 pt-8 border-t border-stone-50 text-center space-y-6">
+          <p className="text-stone-400 text-xs tracking-tight">
+            Don't have an account?{" "}
+            <span
+              onClick={() => navigate("/signup")}
+              className="text-stone-900 cursor-pointer font-bold hover:underline"
+            >
+              Sign up
+            </span>
+          </p>
+
+          <div className="flex items-center justify-center gap-6">
+            <span
+              onClick={() => navigate("/admin/login")}
+              className="text-[10px] font-bold uppercase tracking-widest text-stone-400 hover:text-stone-900 cursor-pointer transition-colors"
+            >
+              Admin
+            </span>
+            <div className="h-1 w-1 bg-stone-200 rounded-full"></div>
+            <span
+              onClick={() => navigate("/staff/login")}
+              className="text-[10px] font-bold uppercase tracking-widest text-stone-400 hover:text-stone-900 cursor-pointer transition-colors"
+            >
+              Staff
+            </span>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

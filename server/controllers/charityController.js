@@ -229,7 +229,6 @@ export const createCharityPost = async (req, res) => {
     res.status(500).json({ message: "Failed to log expenditure" });
   }
 };
-
 export const getCharityHistory = async (req, res) => {
   try {
     const [rows] = await db.query(
@@ -237,13 +236,12 @@ export const getCharityHistory = async (req, res) => {
        FROM charity_posts 
        ORDER BY created_at DESC`
     );
-    res.json(rows);
+    // Ensure you return an object with a success key if your frontend expects it
+    res.json({ success: true, posts: rows }); 
   } catch (error) {
-    res.status(500).json({ message: "Failed to fetch history" });
+    res.status(500).json({ success: false, message: "Failed to fetch history" });
   }
 };
-
-// GET /api/charity/posts
 export const getCharityPosts = async (req, res) => {
   try {
     await ensureCommunityTables();
@@ -251,23 +249,19 @@ export const getCharityPosts = async (req, res) => {
 
     const [rows] = await db.query(
       `SELECT
-         cp.id,
-         cp.title,
-         cp.content,
-         cp.image_url,
-         cp.amount_spent,
-         cp.created_at,
-         a.full_name AS admin_name,
-         COUNT(DISTINCT pl.id) AS like_count,
-         COUNT(DISTINCT pc.id) AS comment_count,
-         MAX(CASE WHEN pl.user_id = ? THEN 1 ELSE 0 END) AS liked_by_me
+          cp.id,
+          cp.title,
+          cp.content,
+          cp.image_url,
+          cp.amount_spent,
+          cp.created_at,
+          a.full_name AS admin_name,
+          (SELECT COUNT(*) FROM post_likes WHERE post_id = cp.id) AS like_count,
+          (SELECT COUNT(*) FROM post_comments WHERE post_id = cp.id) AS comment_count,
+          IFNULL((SELECT 1 FROM post_likes WHERE post_id = cp.id AND user_id = ? LIMIT 1), 0) AS liked_by_me
        FROM charity_posts cp
        LEFT JOIN admins a ON a.admin_id = cp.admin_id
-       LEFT JOIN post_likes pl ON pl.post_id = cp.id
-       LEFT JOIN post_comments pc ON pc.post_id = cp.id
-       GROUP BY cp.id, cp.title, cp.content, cp.image_url, cp.amount_spent, cp.created_at, a.full_name
-       ORDER BY cp.created_at DESC`,
-      [userId]
+       ORDER BY cp.created_at DESC`
     );
 
     res.json({ success: true, posts: rows });
@@ -276,7 +270,6 @@ export const getCharityPosts = async (req, res) => {
     res.status(500).json({ success: false, message: "Failed to fetch posts" });
   }
 };
-
 // POST /api/charity/posts/:postId/like
 export const togglePostLike = async (req, res) => {
   try {
@@ -386,20 +379,19 @@ export const updateCharityPost = async (req, res) => {
   try {
     const postId = Number(req.params.postId);
     const { title, content, amount_spent, image_url } = req.body;
-    const adminId = req.admin.admin_id;
 
     if (!Number.isInteger(postId)) {
       return res.status(400).json({ success: false, message: "Invalid post id" });
     }
 
-    // Check if post exists and belongs to this admin
+    // Check if post exists
     const [existingPost] = await db.query(
-      "SELECT id FROM charity_posts WHERE id = ? AND admin_id = ?",
-      [postId, adminId]
+      "SELECT id FROM charity_posts WHERE id = ?",
+      [postId]
     );
 
     if (existingPost.length === 0) {
-      return res.status(404).json({ success: false, message: "Post not found or unauthorized" });
+      return res.status(404).json({ success: false, message: "Post not found" });
     }
 
     await db.query(
@@ -416,31 +408,29 @@ export const updateCharityPost = async (req, res) => {
 
 // DELETE /api/charity/posts/:postId - Delete post
 export const deleteCharityPost = async (req, res) => {
-  try {
-    const postId = Number(req.params.postId);
-    const adminId = req.admin.admin_id;
+try {
+const postId = Number(req.params.postId);
 
-    if (!Number.isInteger(postId)) {
-      return res.status(400).json({ success: false, message: "Invalid post id" });
-    }
+if (!Number.isInteger(postId)) {
+  return res.status(400).json({ success: false, message: "Invalid post id" });
+}
 
-    // Check if post exists and belongs to this admin
-    const [existingPost] = await db.query(
-      "SELECT id FROM charity_posts WHERE id = ? AND admin_id = ?",
-      [postId, adminId]
-    );
+// Check if post exists
+const [existingPost] = await db.query(
+  "SELECT id FROM charity_posts WHERE id = ?",
+  [postId]
+);
 
-    if (existingPost.length === 0) {
-      return res.status(404).json({ success: false, message: "Post not found or unauthorized" });
-    }
+if (existingPost.length === 0) {
+  return res.status(404).json({ success: false, message: "Post not found" });
+}
 
-    await db.query("DELETE FROM charity_posts WHERE id = ?", [postId]);
-
-    res.json({ success: true, message: "Post deleted successfully" });
-  } catch (error) {
-    console.error("Failed to delete post:", error);
-    res.status(500).json({ success: false, message: "Failed to delete post" });
-  }
+await db.query("DELETE FROM charity_posts WHERE id = ?", [postId]);
+res.json({ success: true, message: "Post deleted successfully" });
+} catch (error) {
+console.error("Failed to delete post:", error);
+res.status(500).json({ success: false, message: "Failed to delete post" });
+}
 };
 
 // GET /api/admin/notifications - Get admin notifications

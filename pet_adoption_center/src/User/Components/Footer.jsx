@@ -1,96 +1,111 @@
+import { AlertTriangle, Heart, ShieldCheck } from "lucide-react"; // Assuming Lucide for icons
 import {
+  FaEnvelope,
   FaFacebook,
   FaInstagram,
   FaMapMarkerAlt,
   FaPhoneAlt,
   FaTwitter,
 } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 const Footer = () => {
+  const navigate = useNavigate();
+
   return (
-    <footer className="bg-white border-t border-stone-100 px-6 py-8 text-stone-700">
-      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
-
-        {/* SOCIAL MEDIA */}
-        <div>
-          <h3 className="font-semibold text-lg mb-3 text-stone-900">
-            Find us on Social Media
-          </h3>
-          <div className="flex gap-4 text-xl">
-            <FaInstagram className="cursor-pointer hover:text-stone-900" />
-            <FaFacebook className="cursor-pointer hover:text-stone-900" />
-            <FaTwitter className="cursor-pointer hover:text-stone-900" />
-          </div>
-        </div>
-
-        {/* AFFILIATIONS */}
-        <div>
-          <h3 className="font-semibold text-lg mb-3 text-stone-900">
-            Affiliated With
-          </h3>
-          <div className="flex gap-4 items-center">
-            <img
-              src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRwgmuCZ4GkFsYzzOQKrN7GPCEsqdKJXXaHNA&s"
-              alt="WWF"
-              className="h-8"
-            />
-            <img
-              src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSQR5tArNmCxirNX0d9eJSZpwfJq7emt7U7Hg&s"
-              alt="HSI"
-              className="h-8"
-            />
-            <img
-              src="https://upload.wikimedia.org/wikipedia/commons/0/0b/Ifaw_logo.png"
-              alt="IFAW"
-              className="h-8"
-            />
-          </div>
-        </div>
-
-        {/* CHARITY TRANSPARENCY */}
-        <div>
-          <h3 className="font-semibold text-lg mb-3 text-stone-900">
-            Charity Transparency
-          </h3>
-          <div className="bg-stone-50 border border-stone-100 p-3 rounded-xl text-sm">
-            <p className="mb-1">
-              💖 <span className="font-semibold">Abcd Shrestha</span>
-            </p>
-            <p>
-              Donated <span className="font-semibold">Rs. 5,000</span> to support our furry friends.
-            </p>
-          </div>
-          <p className="text-xs mt-2 text-stone-400">
-            2% of store revenue are donated to animal charities.
+    <footer className="bg-white border-t border-stone-100 px-6 py-12 text-stone-700">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-10">
+        
+        {/* ABOUT SANO GHAR */}
+        <div className="space-y-4">
+          <h3 className="font-bold text-xl text-stone-900 tracking-tight">Sano Ghar</h3>
+          <p className="text-sm leading-relaxed text-stone-500">
+            Nepal's compassionate community for pet adoption. We bridge the gap 
+            between homeless animals and loving forever homes, one paw at a time.
           </p>
+          <div className="flex items-center gap-2 text-xs font-medium text-stone-400">
+            <ShieldCheck className="w-4 h-4 text-green-500" />
+            <span>Verified Non-Profit Organization</span>
+          </div>
+        </div>
+
+        {/* HELP & REPORT */}
+        <div>
+          <h3 className="font-semibold text-lg mb-4 text-stone-900">Community Support</h3>
+          <p className="text-sm text-stone-500 mb-5">
+            See an animal in distress or facing a technical problem? Let us know immediately.
+          </p>
+          <button
+            onClick={() => navigate("/report-issue")}
+            className="px-7 py-3 bg-red-50 border border-red-200 hover:bg-red-100 text-red-700 text-sm font-semibold rounded-xl transition flex items-center gap-2 shadow-sm"
+          >
+            <AlertTriangle className="w-4 h-4" />
+            Report Issue
+          </button>
         </div>
 
         {/* CONTACT & LOCATION */}
         <div>
-          <h3 className="font-semibold text-lg mb-3 text-stone-900">
-            Emergency & Location
-          </h3>
+          <h3 className="font-semibold text-lg mb-4 text-stone-900">Get in Touch</h3>
+          
+          <div className="flex items-center gap-3 mb-3 text-sm group">
+            <div className="p-2 bg-stone-50 rounded-lg group-hover:bg-stone-100 transition-colors">
+              <FaPhoneAlt className="text-stone-400" />
+            </div>
+            <p className="font-medium">+977 9717277812</p>
+          </div>
 
-          <div className="flex items-center gap-2 mb-3">
-            <FaPhoneAlt className="text-stone-600" />
-            <p>+977 9717277812</p>
+          <div className="flex items-center gap-3 mb-3 text-sm group">
+            <div className="p-2 bg-stone-50 rounded-lg group-hover:bg-stone-100 transition-colors">
+              <FaEnvelope className="text-stone-400" />
+            </div>
+            <p className="font-medium">contact@sanoghar.com</p>
           </div>
 
           <a
-            href="https://maps.google.com/?q=Herald College Kathmandu Naxal Nepal"
+            href="https://maps.app.goo.gl/XNur1DNsonDL9JjG9"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 hover:text-stone-900"
+            className="flex items-start gap-3 hover:text-stone-900 transition-colors text-sm group mt-4"
           >
-            <FaMapMarkerAlt className="text-stone-600" />
-            <p>Herald College Kathmandu, Naxal</p>
+            <div className="p-2 bg-stone-50 rounded-lg group-hover:bg-stone-100 transition-colors">
+              <FaMapMarkerAlt className="text-stone-400" />
+            </div>
+            <p className="leading-tight">
+              <span className="font-medium block">Headquarters</span>
+              Herald College Kathmandu, Naxal
+            </p>
           </a>
+        </div>
+
+        {/* SOCIALS & AFFILIATIONS */}
+        <div className="flex flex-col">
+          <h3 className="font-semibold text-lg mb-4 text-stone-900">Connect With Us</h3>
+          <div className="flex gap-4 text-xl mb-8">
+            <FaInstagram className="cursor-pointer hover:text-stone-900 transition-colors" />
+            <FaFacebook className="cursor-pointer hover:text-stone-900 transition-colors" />
+            <FaTwitter className="cursor-pointer hover:text-stone-900 transition-colors" />
+          </div>
+          
+          <div className="mt-auto">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-3">
+              Official Partners
+            </p>
+            <div className="flex gap-4 items-center opacity-60 grayscale">
+              <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRwgmuCZ4GkFsYzzOQKrN7GPCEsqdKJXXaHNA&s" alt="WWF" className="h-6" />
+              <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSQR5tArNmCxirNX0d9eJSZpwfJq7emt7U7Hg&s" alt="HSI" className="h-6" />
+              <img src="https://upload.wikimedia.org/wikipedia/commons/0/0b/Ifaw_logo.png" alt="IFAW" className="h-6" />
+            </div>
+          </div>
         </div>
       </div>
 
       {/* BOTTOM BAR */}
-      <div className="border-t border-stone-100 mt-8 pt-4 text-center text-sm text-stone-400">
-        © {new Date().getFullYear()} Sano Ghar Pet Adoption Center. All rights reserved.
+      <div className="border-t border-stone-100 max-w-7xl mx-auto mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-[13px] text-stone-400">
+        <p>© {new Date().getFullYear()} Sano Ghar Pet Adoption Center. All rights reserved.</p>
+        <p className="flex items-center gap-1">
+          Made with <Heart className="w-3 h-3 text-red-400 fill-red-400" /> for the animals of Nepal.
+        </p>
       </div>
     </footer>
   );
