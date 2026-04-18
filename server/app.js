@@ -11,6 +11,7 @@ import petRoutes from "./routes/petRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
 import reportRoutes from "./routes/reportRoutes.js";
 import staffRoutes from "./routes/staffRoutes.js";
+import staffPetRoutes from "./routes/staffPetRoutes.js"; // Added import statement
 import userRoutes from "./routes/userRoutes.js";
 const app = express();
 

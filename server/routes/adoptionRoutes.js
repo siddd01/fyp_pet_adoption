@@ -1,5 +1,5 @@
     import express from "express";
-import { createAdoptionApplication, getAllAdoptions, getUserNotifications, updateAdoptionApplication, updateAdoptionStatus } from "../controllers/adoptionController.js";
+import { createAdoptionApplication, deleteApplication, getAllAdoptions, getUserNotifications, updateAdoptionApplication, updateAdoptionStatus } from "../controllers/adoptionController.js";
 import { authMiddleware, verifyToken } from "../middleware/authMiddleware.js";
     const router = express.Router();
 
@@ -9,5 +9,6 @@ import { authMiddleware, verifyToken } from "../middleware/authMiddleware.js";
     router.put("/:id", authMiddleware, updateAdoptionApplication);
     router.get("/notifications", verifyToken, getUserNotifications);
     
+router.delete("/adoptions/:id", deleteApplication);
 
     export default router;

@@ -4,13 +4,16 @@ import db from "../config/db.js";
 export const getAllPets = async (req, res) => {
   try {
     const [pets] = await db.query(`
-      SELECT *
+      SELECT p.*,
+        EXISTS (
+          SELECT 1 FROM adoption_applications a
+          WHERE a.pet_id = p.id AND a.status = 'pending'
+        ) AS hasPendingApplications
       FROM pets p
       WHERE NOT EXISTS (
         SELECT 1
         FROM adoption_applications a
-        WHERE a.pet_id = p.id
-        AND a.status = 'approved'
+        WHERE a.pet_id = p.id AND a.status = 'approved'
       )
       ORDER BY p.created_at DESC
     `);
@@ -21,6 +24,7 @@ export const getAllPets = async (req, res) => {
     res.status(500).json({ message: "Failed to fetch pets" });
   }
 };
+
 export const addPet = async (req, res) => {
   try {
     // 1. Log the body to see what arrived
@@ -97,51 +101,29 @@ export const updatePet = async (req, res) => {
   }
 };
 
-// Delete Pet
 export const deletePet = async (req, res) => {
   try {
     const { id } = req.params;
-    
-    // First, get pet information and find users who have requested this pet
-    const [petInfo] = await db.query("SELECT name, breed, age FROM pets WHERE id = ?", [id]);
-    
-    if (petInfo.length === 0) {
-      return res.status(404).json({ message: "Pet not found" });
-    }
-    
-    const pet = petInfo[0];
-    
-    // Find all users who have adoption requests for this pet
-    const [adoptionRequests] = await db.query(`
-      SELECT DISTINCT u.id as user_id, u.email, u.full_name
-      FROM users u
-      JOIN adoption_requests a ON u.id = a.user_id
-      WHERE a.pet_id = ? AND a.status IN ('pending', 'under_review')
-    `, [id]);
-    
-    // Delete the pet
-    await db.query("DELETE FROM pets WHERE id = ?", [id]);
-    
-    // Send notifications to all users who requested this pet
-    if (adoptionRequests.length > 0) {
-      const notificationPromises = adoptionRequests.map(user => {
-        const message = `We regret to inform you that ${pet.name} (${pet.breed}, ${pet.age} years old) is no longer available for adoption. The administration has removed this pet from our system. We encourage you to browse other wonderful pets waiting for their forever homes.`;
-        
-        return db.query(`
-          INSERT INTO user_notifications (user_id, type, message, related_id, created_at)
-          VALUES (?, 'pet_deleted', ?, ?, NOW())
-        `, [user.user_id, message, id]);
+
+    // 🔴 BLOCK if pending exists
+    const [pending] = await db.query(
+      "SELECT id FROM adoption_applications WHERE pet_id = ? AND status = 'pending'",
+      [id]
+    );
+
+    if (pending.length > 0) {
+      return res.status(400).json({
+        message: "Cannot delete pet with pending applications",
       });
-      
-      await Promise.all(notificationPromises);
     }
-    
-    res.status(200).json({ 
-      message: "Pet deleted successfully",
-      notificationsSent: adoptionRequests.length
-    });
+
+    // ✅ SAFE DELETE
+    await db.query("DELETE FROM pets WHERE id = ?", [id]);
+
+    res.status(200).json({ message: "Pet deleted successfully" });
+
   } catch (error) {
-    console.error("Delete pet error:", error);
+    console.error(error);
     res.status(500).json({ message: "Failed to delete pet" });
   }
 };

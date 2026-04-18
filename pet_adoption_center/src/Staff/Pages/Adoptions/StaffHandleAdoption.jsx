@@ -84,6 +84,55 @@ const StaffHandleAdoption = () => {
           <div>
             <p className="text-xs font-semibold tracking-widest text-gray-400 uppercase mb-1.5">Staff Panel</p>
             <h1 className="text-4xl font-serif text-stone-900 leading-tight">Adoption Applications</h1>
+            <p className="text-sm text-stone-500 mt-2">Review and process adoption requests</p>
+          </div>
+        </div>
+
+        {/* Summary Cards */}
+        <div className="grid md:grid-cols-4 gap-4 mb-8">
+          <div className="bg-white rounded-2xl p-6 border border-stone-200">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center">
+                <span className="text-amber-600 font-semibold">⏳</span>
+              </div>
+              <div>
+                <p className="text-xs text-stone-500 uppercase tracking-wider">Pending</p>
+                <p className="text-2xl font-bold text-stone-900">{filterConfig.pending.count}</p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-white rounded-2xl p-6 border border-stone-200">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center">
+                <span className="text-emerald-600 font-semibold">✅</span>
+              </div>
+              <div>
+                <p className="text-xs text-stone-500 uppercase tracking-wider">Approved</p>
+                <p className="text-2xl font-bold text-stone-900">{filterConfig.approved.count}</p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-white rounded-2xl p-6 border border-stone-200">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-10 h-10 bg-rose-100 rounded-full flex items-center justify-center">
+                <span className="text-rose-600 font-semibold">❌</span>
+              </div>
+              <div>
+                <p className="text-xs text-stone-500 uppercase tracking-wider">Rejected</p>
+                <p className="text-2xl font-bold text-stone-900">{filterConfig.rejected.count}</p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-white rounded-2xl p-6 border border-stone-200">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                <span className="text-blue-600 font-semibold">📋</span>
+              </div>
+              <div>
+                <p className="text-xs text-stone-500 uppercase tracking-wider">Total</p>
+                <p className="text-2xl font-bold text-stone-900">{filterConfig.all.count}</p>
+              </div>
+            </div>
           </div>
         </div>
 

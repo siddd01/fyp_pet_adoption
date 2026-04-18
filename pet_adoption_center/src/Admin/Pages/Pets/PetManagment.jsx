@@ -104,7 +104,17 @@ const PetManagement = () => {
                 <td className="px-6 py-4 text-sm text-gray-500">{pet.health_status}</td>
                 <td className="px-6 py-4 text-right space-x-2">
                   <button onClick={() => handleEdit(pet)} className="text-indigo-600 hover:text-indigo-900">Edit</button>
-                  <button onClick={() => handleDelete(pet.id)} className="text-red-600 hover:text-red-900">Delete</button>
+                  <button
+                    onClick={() => handleDelete(pet.id)}
+                    disabled={pet.hasPendingApplications}
+                    className={`${
+                      pet.hasPendingApplications
+                        ? "text-gray-400 cursor-not-allowed"
+                        : "text-red-600 hover:text-red-900"
+                    }`}
+                  >
+                      Delete
+                        </button>
                 </td>
               </tr>
             ))}

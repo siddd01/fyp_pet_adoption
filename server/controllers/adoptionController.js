@@ -191,9 +191,46 @@ export const updateAdoptionApplication = async (req, res) => {
       [job, phone, experience_with_pets, reason_for_adoption, id, userId]
     );
 
+    // Create notification for user about status change
+    const notificationMessage = `Your adoption application for pet ID ${id} has been updated.`;
+    
+    await db.execute(
+      "INSERT INTO user_notifications (user_id, type, message, related_id, created_at) VALUES (?, 'adoption', ?, ?, NOW())",
+      [userId, notificationMessage, id]
+    );
+
     res.json({ success: true, message: "Application updated successfully" });
   } catch (error) {
     console.error("❌ Update error:", error);
     res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const deleteApplication = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const [app] = await db.query(
+      "SELECT status FROM adoption_applications WHERE id = ?",
+      [id]
+    );
+
+    if (!app.length) {
+      return res.status(404).json({ message: "Application not found" });
+    }
+
+    // 🔴 ONLY allow if rejected
+    if (app[0].status !== "rejected") {
+      return res.status(400).json({
+        message: "Only rejected applications can be deleted",
+      });
+    }
+
+    await db.query("DELETE FROM adoption_applications WHERE id = ?", [id]);
+
+    res.status(200).json({ message: "Application deleted successfully" });
+
+  } catch (error) {
+    res.status(500).json({ message: "Delete failed" });
   }
 };

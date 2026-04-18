@@ -66,12 +66,12 @@ export const StaffProvider = ({ children }) => {
     }
   };
 
-  // Delete pet (Staff)
+  // Delete pet (Staff) - Updated to use new controller
   const deletePet = async (id) => {
     try {
       const token = localStorage.getItem("staffToken");
 
-      const res = await api.delete(`/pets/${id}`, {
+      const res = await api.delete(`/staff/pets/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
