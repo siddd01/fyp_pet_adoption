@@ -28,9 +28,10 @@ export const verifyPayment = async (req, res) => {
 
     // ✅ THIS IS THE MOST IMPORTANT FIX
     if (data.status === "Completed") {
+      // Update order status to 'completed'
       await db.execute(
         "UPDATE orders SET status = ? WHERE pidx = ?",
-        ["paid", pidx]
+        ["completed", pidx]
       );
 
       return res.json({

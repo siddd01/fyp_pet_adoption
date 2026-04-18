@@ -110,34 +110,3 @@ export const adminLogin = async (req, res) => {
     res.status(500).json({ message: "Login failed" });
   }
 };
-// middleware/adminAuthMiddleware.js
-
-export const adminAuth = (req, res, next) => {
-  console.log("🛡️ ADMIN AUTH MIDDLEWARE HIT");
-
-  try {
-    const authHeader = req.headers.authorization;
-    console.log("Authorization Header:", authHeader);
-
-    const token = authHeader?.split(" ")[1];
-
-    if (!token) {
-      console.log("❌ No token provided");
-      return res.status(401).json({ message: "No token" });
-    }
-
-    console.log("🔑 Token:", token);
-
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log("✅ Decoded Token:", decoded);
-
-    req.admin = decoded;
-
-    console.log("➡️ Passing to next()");
-    next();
-
-  } catch (error) {
-    console.log("❌ Token verification failed:", error.message);
-    return res.status(401).json({ message: "Invalid token" });
-  }
-};

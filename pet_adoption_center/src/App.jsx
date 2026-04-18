@@ -55,7 +55,7 @@ import StaffManagement from "./Admin/Pages/Staff/StaffManagement.jsx";
 import AdminAddProduct from "./Admin/Pages/Store/AdminAddProduct.jsx";
 import AdminEditProduct from "./Admin/Pages/Store/AdminEditProduct.jsx";
 import AdminProducts from "./Admin/Pages/Store/AdminProducts.jsx";
-import { StoreAnalytics } from "./Admin/Pages/Store/StoreAnalytics.jsx";
+import StoreAnalytics from "./Admin/Pages/Analytics/StoreAnalytics.jsx";
 import StoreManagement from "./Admin/Pages/Store/StoreManagment.jsx";
 import AdminProfile from "./Admin/Profile/AdminProfile.jsx";
 import AdminPrivateRoute from "./Admin/Routes/AdminPrivateRoute.jsx";

@@ -102,7 +102,7 @@ const Cart = () => {
                           {item.name}
                         </h3>
                         <p className="text-xs text-stone-400">
-                          ${item.price} each
+                          {item.price} NPR each
                         </p>
                       </div>
 
@@ -143,7 +143,7 @@ const Cart = () => {
 
                       {/* Total */}
                       <p className="font-bold text-stone-900">
-                        ${Number(item.total_price).toFixed(2)}
+                        {Number(item.total_price).toFixed(2)} NPR
                       </p>
                     </div>
                   </div>
@@ -168,7 +168,7 @@ const Cart = () => {
                 <div className="space-y-3 mb-5">
                   <div className="flex justify-between text-sm text-stone-500">
                     <span>Subtotal</span>
-                    <span>${Number(totalAmount).toFixed(2)}</span>
+                    <span>{Number(totalAmount).toFixed(2)} NPR</span>
                   </div>
 
                   <div className="flex justify-between text-sm text-stone-500">
@@ -179,7 +179,7 @@ const Cart = () => {
                   <div className="border-t pt-3">
                     <div className="flex justify-between font-semibold">
                       <span>Total</span>
-                      <span>${Number(totalAmount).toFixed(2)}</span>
+                      <span>{Number(totalAmount).toFixed(2)} NPR</span>
                     </div>
                   </div>
                 </div>

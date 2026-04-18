@@ -126,7 +126,7 @@ if (!formData.address || !formData.phone || !formData.email) {
                 disabled={loading || cartItems.length === 0}
                 className="w-full bg-stone-900 hover:bg-stone-800 text-white font-bold py-4 rounded-2xl transition-all disabled:opacity-50 flex items-center justify-center gap-3"
               >
-                {loading ? "Connecting..." : `Pay $${Number(totalAmount).toFixed(2)} with Khalti`}
+                {loading ? "Connecting..." : `Pay ${Number(totalAmount).toFixed(2)} NPR with Khalti`}
               </button>
             </div>
           </div>

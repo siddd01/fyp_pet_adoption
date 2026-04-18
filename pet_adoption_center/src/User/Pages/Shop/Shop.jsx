@@ -153,7 +153,7 @@ const Shop = () => {
                   {/* Price Chip */}
                   <div className="flex items-center gap-2">
                     <span className="text-[10px] uppercase tracking-wider bg-stone-900 text-white px-3 py-1 rounded-lg font-bold">
-                      ${product.price}
+                      {product.price} NPR
                     </span>
                     <span className="text-[10px] uppercase tracking-wider text-stone-400 font-medium">
                       In Stock

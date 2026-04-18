@@ -123,13 +123,13 @@ export const getCharityInflowStats = async (req, res) => {
     console.log("in get charity flow")
     // 1. Get Direct Donations Total
  const [directRes] = await db.execute(
-  "SELECT SUM(amount) as total FROM donations WHERE status IN ('Completed', 'paid')"
+  "SELECT SUM(amount) as total FROM donations WHERE status IN ('Completed', 'completed')"
 );
     const fromDirect = Number(directRes[0].total || 0);
 
     // 2. Get Store 2% Contributions Total
     const [storeRes] = await db.execute(
-      "SELECT SUM(charity_amount) as total FROM orders WHERE status = 'paid'"
+      "SELECT SUM(charity_amount) as total FROM orders WHERE status = 'completed'"
     );
     const fromStore = Number(storeRes[0].total || 0);
 
@@ -138,10 +138,10 @@ export const getCharityInflowStats = async (req, res) => {
  const [chartRes] = await db.execute(`
   SELECT month, SUM(amount) as amount FROM (
     SELECT DATE_FORMAT(created_at, '%b') as month, amount
-    FROM donations WHERE status IN ('Completed', 'paid')
+    FROM donations WHERE status IN ('Completed', 'completed')
     UNION ALL
     SELECT DATE_FORMAT(created_at, '%b') as month, charity_amount as amount 
-    FROM orders WHERE status IN ('Completed', 'paid')
+    FROM orders WHERE status = 'completed'
   ) as combined 
   GROUP BY month 
   ORDER BY FIELD(month, 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec')
@@ -175,7 +175,7 @@ export const getRecentDonations = async (req, res) => {
         u.profile_image
       FROM donations d
       LEFT JOIN users u ON d.user_id = u.id
-      WHERE d.status IN ('Completed', 'paid')
+      WHERE d.status IN ('Completed', 'completed')
       ORDER BY d.created_at DESC
     `;
     
@@ -184,5 +184,191 @@ export const getRecentDonations = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Error fetching donations" });
+  }
+};
+
+export const getStoreAnalysis = async (req, res) => {
+  try {
+    // Get total sales from completed orders
+    const [salesRes] = await db.execute(
+      "SELECT SUM(total_amount) as total_sales, COUNT(*) as total_orders FROM orders WHERE status = 'completed'"
+    );
+    
+    // Get total charity amount from completed orders
+    const [charityRes] = await db.execute(
+      "SELECT SUM(charity_amount) as total_charity FROM orders WHERE status = 'completed' AND is_donated = 0"
+    );
+    
+    // Get already donated amount
+    const [donatedRes] = await db.execute(
+      "SELECT SUM(charity_amount) as total_donated FROM orders WHERE status = 'completed' AND is_donated = 1"
+    );
+    
+    const totalSales = Number(salesRes[0].total_sales || 0);
+    const totalOrders = Number(salesRes[0].total_orders || 0);
+    const totalCharity = Number(charityRes[0].total_charity || 0);
+    const totalDonated = Number(donatedRes[0].total_donated || 0);
+    
+    // Get direct donations total
+    const [directDonationsRes] = await db.execute(
+      "SELECT SUM(amount) as total FROM donations WHERE status IN ('Completed', 'completed')"
+    );
+    const directDonations = Number(directDonationsRes[0].total || 0);
+    
+    // Calculate total donations (store charity + direct donations)
+    const totalDonations = totalCharity + directDonations;
+    
+    // Get monthly sales data for the last 6 months
+    const [monthlySalesRes] = await db.execute(`
+      SELECT 
+        DATE_FORMAT(created_at, '%b') as month,
+        SUM(total_amount) as sales,
+        COUNT(*) as orders,
+        SUM(charity_amount) as charity
+      FROM orders 
+      WHERE status = 'completed' 
+        AND created_at >= DATE_SUB(CURRENT_DATE, INTERVAL 6 MONTH)
+      GROUP BY DATE_FORMAT(created_at, '%b')
+      ORDER BY FIELD(month, 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec')
+    `);
+    
+    // Get monthly donation trends
+    const [monthlyDonationsRes] = await db.execute(`
+      SELECT 
+        DATE_FORMAT(created_at, '%b') as month,
+        SUM(amount) as direct_donations
+      FROM donations 
+      WHERE status IN ('Completed', 'completed')
+        AND created_at >= DATE_SUB(CURRENT_DATE, INTERVAL 6 MONTH)
+      GROUP BY DATE_FORMAT(created_at, '%b')
+      ORDER BY FIELD(month, 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec')
+    `);
+    
+    // Get daily sales for the last 7 days
+    const [dailySalesRes] = await db.execute(`
+      SELECT 
+        DATE(created_at) as date,
+        SUM(total_amount) as sales,
+        COUNT(*) as orders
+      FROM orders 
+      WHERE status = 'completed' 
+        AND created_at >= DATE_SUB(CURRENT_DATE, INTERVAL 7 DAY)
+      GROUP BY DATE(created_at)
+      ORDER BY date ASC
+    `);
+    
+    res.json({
+      total_sales: totalSales,
+      total_orders: totalOrders,
+      charity_amount: totalCharity,
+      donated_amount: totalDonated,
+      pending_donation: totalCharity - totalDonated,
+      direct_donations: directDonations,
+      total_donations: totalDonations,
+      monthly_sales: monthlySalesRes,
+      monthly_donations: monthlyDonationsRes,
+      daily_sales: dailySalesRes
+    });
+  } catch (err) {
+    console.error("Store analysis error:", err);
+    res.status(500).json({ message: "Error fetching store analysis" });
+  }
+};
+
+export const donateStoreCharity = async (req, res) => {
+  try {
+    // Mark all undonated charity amounts as donated
+    const [result] = await db.execute(
+      "UPDATE orders SET is_donated = 1 WHERE status = 'completed' AND is_donated = 0"
+    );
+    
+    res.json({ 
+      success: true, 
+      message: `Marked ${result.affectedRows} orders as donated`,
+      affected_orders: result.affectedRows
+    });
+  } catch (err) {
+    console.error("Donate charity error:", err);
+    res.status(500).json({ message: "Error processing donation" });
+  }
+};
+
+export const getStoreAnalytics = async (req, res) => {
+  try {
+    // Get comprehensive store analytics
+    const [salesStats] = await db.execute(`
+      SELECT 
+        COUNT(*) as total_orders,
+        SUM(total_amount) as total_revenue,
+        AVG(total_amount) as avg_order_value,
+        SUM(charity_amount) as total_charity,
+        COUNT(CASE WHEN status = 'completed' THEN 1 END) as completed_orders,
+        COUNT(CASE WHEN created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY) THEN 1 END) as orders_last_30_days,
+        SUM(CASE WHEN created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY) THEN total_amount END) as revenue_last_30_days
+      FROM orders
+    `);
+
+    // Get monthly revenue trends
+    const [monthlyRevenue] = await db.execute(`
+      SELECT 
+        DATE_FORMAT(created_at, '%b %Y') as month,
+        SUM(total_amount) as revenue,
+        COUNT(*) as orders,
+        SUM(charity_amount) as charity
+      FROM orders 
+      WHERE status = 'completed' 
+        AND created_at >= DATE_SUB(NOW(), INTERVAL 12 MONTH)
+      GROUP BY DATE_FORMAT(created_at, '%b %Y')
+      ORDER BY created_at ASC
+    `);
+
+    // Get top selling products
+    const [topProducts] = await db.execute(`
+      SELECT 
+        p.name,
+        SUM(oi.quantity) as total_sold,
+        SUM(oi.quantity * oi.price_at_purchase) as total_revenue
+      FROM order_items oi
+      JOIN orders o ON oi.order_id = o.id
+      JOIN products p ON oi.product_id = p.id
+      WHERE o.status = 'completed'
+      GROUP BY oi.product_id, p.name
+      ORDER BY total_sold DESC
+      LIMIT 10
+    `);
+
+    // Get daily sales for last 7 days
+    const [dailySales] = await db.execute(`
+      SELECT 
+        DATE(created_at) as date,
+        SUM(total_amount) as revenue,
+        COUNT(*) as orders
+      FROM orders 
+      WHERE status = 'completed' 
+        AND created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+      GROUP BY DATE(created_at)
+      ORDER BY date ASC
+    `);
+
+    // Get payment status breakdown
+    const [paymentStatus] = await db.execute(`
+      SELECT 
+        status,
+        COUNT(*) as count,
+        SUM(total_amount) as total_amount
+      FROM orders
+      GROUP BY status
+    `);
+
+    res.json({
+      overview: salesStats[0],
+      monthly_trends: monthlyRevenue,
+      top_products: topProducts,
+      daily_sales: dailySales,
+      payment_breakdown: paymentStatus
+    });
+  } catch (error) {
+    console.error("Store analytics error:", error);
+    res.status(500).json({ message: "Error fetching store analytics" });
   }
 };
