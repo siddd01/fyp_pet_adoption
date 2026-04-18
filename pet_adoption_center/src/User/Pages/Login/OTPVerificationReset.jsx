@@ -58,7 +58,7 @@ const OTPVerificationReset = () => {
     setSuccessMsg("");
 
     try {
-      await api.post("/auth/verify-otp", { email, otp });
+      await api.post("/auth/verify-reset-otp", { email, otp });
       setIsOtpVerified(true);
     } catch (err) {
       setError(err.response?.data?.message || "Invalid or expired OTP");
@@ -80,7 +80,11 @@ const OTPVerificationReset = () => {
 
     setLoading(true);
     try {
-      await api.post("/auth/reset-password", { email, newPassword: password });
+      await api.post("/auth/reset-password", {
+        email,
+        otp,
+        newPassword: password,
+      });
       alert("Password updated successfully!");
       navigate("/login");
     } catch (err) {

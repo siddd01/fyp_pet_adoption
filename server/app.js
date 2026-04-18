@@ -11,14 +11,13 @@ import petRoutes from "./routes/petRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
 import reportRoutes from "./routes/reportRoutes.js";
 import staffRoutes from "./routes/staffRoutes.js";
-import staffPetRoutes from "./routes/staffPetRoutes.js"; // Added import statement
 import userRoutes from "./routes/userRoutes.js";
 const app = express();
 
 // Middlewares
 app.use(cors());
 app.use(express.json()); // Parse JSON body
-// application submit garyo pachi (by user) admin le tyo adoption lai delete garyo vani user lai notification jani banauna peryo
+
 // API Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/pets", petRoutes);

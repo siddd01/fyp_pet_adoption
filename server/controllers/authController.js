@@ -97,6 +97,40 @@ export const verifyOTP = async (req, res) => {
   }
 };
 
+export const verifyResetOTP = async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+
+    if (!email || !otp) {
+      return res.status(400).json({ message: "Email and OTP are required" });
+    }
+
+    const [rows] = await db.query(
+      "SELECT otp, otp_expiry FROM users WHERE email = ?",
+      [email]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const user = rows[0];
+
+    if (!user.otp || Number(user.otp) !== Number(otp)) {
+      return res.status(400).json({ message: "Invalid OTP" });
+    }
+
+    if (!user.otp_expiry || new Date(user.otp_expiry) < new Date()) {
+      return res.status(400).json({ message: "OTP expired" });
+    }
+
+    res.json({ message: "Reset OTP verified successfully" });
+  } catch (error) {
+    console.error("Verify reset OTP error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
 export const resendOTP = async (req, res) => {
   try {
     const { email } = req.body;
@@ -160,6 +194,10 @@ export const login = async (req, res) => {
 
     const user = rows[0];
 
+    if (!user.is_verified) {
+      return res.status(403).json({ message: "Please verify your email before logging in" });
+    }
+
     // If using bcrypt
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) return res.status(401).json({ message: "Invalid credentials" });
@@ -222,27 +260,56 @@ export const forgotPassword = async (req, res) => {
 
 export const resetPassword = async (req, res) => {
   try {
-    const { password } = req.body;
-    const { token } = req.params;
+    const { email, otp, password, newPassword } = req.body;
+    const nextPassword = newPassword || password;
 
-    if (!password) {
-      return res.status(400).json({ message: "New password is required" });
+    if (!email || !otp || !nextPassword) {
+      return res.status(400).json({ message: "Email, OTP, and new password are required" });
     }
 
-    // For now, we'll just accept any token and update password
-    // In a real implementation, you'd validate the token here
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Update password for all users (simplified for demo)
-    const [result] = await db.query(
-      "UPDATE users SET password = ? WHERE is_verified = 1",
-      [hashedPassword]
+    const [rows] = await db.query(
+      "SELECT id, otp, otp_expiry FROM users WHERE email = ?",
+      [email]
     );
 
-    if (result.affectedRows === 0) return res.status(404).json({ message: "No verified users found" });
+    if (rows.length === 0) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const user = rows[0];
+
+    if (!user.otp || Number(user.otp) !== Number(otp)) {
+      return res.status(400).json({ message: "Invalid OTP" });
+    }
+
+    if (!user.otp_expiry || new Date(user.otp_expiry) < new Date()) {
+      return res.status(400).json({ message: "OTP expired" });
+    }
+
+    if (String(nextPassword).length < 6) {
+      return res.status(400).json({ message: "Password must be at least 6 characters long" });
+    }
+
+    const hashedPassword = await bcrypt.hash(nextPassword, 10);
+
+    const [result] = await db.query(
+      "UPDATE users SET password = ?, otp = NULL, otp_expiry = NULL WHERE id = ?",
+      [hashedPassword, user.id]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "User not found" });
+    }
 
     res.json({ message: "Password reset successfully" });
   } catch (err) {
+    console.error("Reset password error:", err);
     res.status(500).json({ message: "Server error" });
   }
+};
+
+export const resetPasswordWithToken = async (req, res) => {
+  return res.status(410).json({
+    message: "This reset link flow is no longer supported. Please use the OTP reset flow.",
+  });
 };
