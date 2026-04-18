@@ -26,25 +26,25 @@ const Navbar = () => {
   ];
 
   return (
-    <nav className="h-16 bg-white border-b border-stone-200 px-6 flex items-center justify-between shadow-sm">
+    <nav className="h-16 bg-white border-b border-stone-200 px-4 sm:px-6 lg:px-10 flex items-center justify-between shadow-sm">
       
       {/* LEFT - LOGO */}
       <div
         onClick={() => navigate("/")}
-        className="flex items-center gap-2 cursor-pointer"
+        className="flex shrink-0 items-center gap-2 cursor-pointer"
       >
         <img
           src="https://static.vecteezy.com/system/resources/previews/005/096/209/non_2x/adopt-animal-care-and-rescue-logo-for-organization-medical-pet-or-brand-vector.jpg"
           alt="Logo"
-          className="h-9 w-9 rounded-lg"
+          className="h-8 w-8 rounded-lg sm:h-9 sm:w-9"
         />
-        <span className="font-bold text-xl text-stone-900 tracking-wide">
+        <span className="font-bold text-lg sm:text-xl text-stone-900 tracking-wide">
           Sano Ghar
         </span>
       </div>
 
       {/* CENTER - NAV LINKS */}
-      <div className="hidden md:flex gap-10 text-base font-bold absolute left-1/2 transform -translate-x-1/2">
+      <div className="hidden md:flex gap-6 lg:gap-10 text-sm lg:text-base font-bold absolute left-1/2 transform -translate-x-1/2">
 
         {navLinks.map((link) => {
           const isActive = location.pathname === link.path;
@@ -73,14 +73,14 @@ const Navbar = () => {
       </div>
 
       {/* RIGHT - ICONS + USER */}
-      <div className="relative flex items-center gap-3">
+      <div className="relative flex shrink-0 items-center gap-2 sm:gap-3">
         
         {/* Notification */}
         <button
           onClick={() => navigate("/notifications")}
           className="p-2 rounded-xl bg-stone-100 hover:bg-stone-200 transition shadow-sm"
         >
-          <Bell size={18} className="text-stone-700" />
+          <Bell size={17} className="text-stone-700 sm:w-[18px] sm:h-[18px]" />
         </button>
 
         {/* Cart */}
@@ -88,7 +88,7 @@ const Navbar = () => {
           onClick={() => navigate("/cart")}
           className="p-2 rounded-xl bg-stone-600 hover:bg-stone-700 transition shadow-md"
         >
-          <ShoppingCart size={18} className="text-white" />
+          <ShoppingCart size={17} className="text-white sm:w-[18px] sm:h-[18px]" />
         </button>
 
         {/* USER */}
@@ -97,14 +97,14 @@ const Navbar = () => {
             <img
               src={user.image || "/default-user.png"}
               alt="Profile"
-              className="h-9 w-9 rounded-full border-2 border-stone-200 cursor-pointer hover:scale-105 transition"
+              className="h-8 w-8 sm:h-9 sm:w-9 rounded-full border-2 border-stone-200 cursor-pointer hover:scale-105 transition"
               onClick={() => navigate("/profile")}
             />
 
             {/* 3 DOT MENU */}
             <div className="relative">
               <FiMoreVertical
-                className="cursor-pointer text-xl text-stone-600 hover:text-black transition"
+                className="cursor-pointer text-lg sm:text-xl text-stone-600 hover:text-black transition"
                 onClick={() => setOpenMenu(!openMenu)}
               />
 

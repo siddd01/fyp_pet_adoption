@@ -41,7 +41,7 @@ const Adopt = () => {
     <div className="min-h-screen bg-white">
       {/* ── Hero & Search Section ── */}
       <div className="bg-linear-to-b from-stone-100 to-white pt-20 pb-4 border-b border-stone-100">
-        <div className="max-w-7xl mx-auto px-6 lg:px-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12">
           
           <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-12 gap-8">
             <div className="space-y-4">
@@ -52,14 +52,14 @@ const Adopt = () => {
                 </p>
               </div>
               <h1
-                className="text-stone-900 text-5xl md:text-7xl font-medium tracking-tight"
+                className="text-stone-900 text-4xl md:text-6xl lg:text-7xl font-medium tracking-tight"
                 style={{ fontFamily: "Georgia, serif" }}
               >
                 Adopt a Pet
               </h1>
             </div>
             
-            <div className="max-w-xs border-l border-stone-200 pl-6">
+            <div className="max-w-xs md:max-w-sm border-l border-stone-200 pl-4 md:pl-6">
                <p className="text-stone-600 text-sm leading-relaxed font-light">
                 Every pet here is waiting for a forever home. Start your journey of friendship in our curated collection.
               </p>
@@ -109,14 +109,14 @@ const Adopt = () => {
       </div>
 
       {/* ── Grid ── */}
-      <div className="min-w-7xl mx-auto px-6 lg:px-10 py-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-6 md:py-8">
         {filteredPets.length === 0 ? (
           <div className="text-center py-40 bg-stone-50/50  border border-dashed border-stone-200">
             <p className="text-5xl mb-4">🐾</p>
             <p className="text-stone-400 text-sm font-light">No pets found matching your search.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6 md:gap-8">
             {filteredPets.map((pet) => (
               <div
                 key={pet.id}

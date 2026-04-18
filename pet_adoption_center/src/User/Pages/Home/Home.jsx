@@ -9,7 +9,7 @@ const HomeLayout = () => {
       <Navbar />
 
       {/* Main content */}
-      <main className="flex-1 flex justify-center items-center overflow-hidden">
+      <main className="flex-1 overflow-x-hidden">
         <Outlet />
       </main>
 

@@ -58,11 +58,11 @@ const Dashboard = () => {
     <div className="min-h-screen bg-stone-50">
 
       {/* Hero */}
-      <div className="max-w-7xl mx-auto px-6 py-16">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-12 md:py-16 lg:py-20">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-12 lg:gap-16 items-center">
 
           {/* LEFT */}
-          <div className="space-y-8">
+          <div className="space-y-6 md:space-y-8">
 
             {isLoggedIn && user ? (
               <div className="inline-flex items-center gap-2 bg-white border border-stone-200 rounded-full px-4 py-1.5 text-sm text-stone-600 shadow-sm">
@@ -85,29 +85,29 @@ const Dashboard = () => {
                 Sano Ghar
               </p>
 
-              <h1 className="text-5xl font-serif text-stone-900 leading-tight">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif text-stone-900 leading-tight">
                 Find Your{" "}
                 <span className="italic text-stone-500">Perfect Pet</span>{" "}
                 Today
               </h1>
 
-              <p className="text-stone-500 text-base leading-relaxed max-w-md">
+              <p className="text-stone-500 text-sm md:text-base leading-relaxed max-w-md">
                 Adopt loving pets, shop essentials, and support charity — all
                 in one trusted platform.
               </p>
             </div>
 
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3">
               <button
                 onClick={() => navigate("/adopt")}
-                className="px-7 py-3 bg-stone-900 hover:bg-stone-700 text-white text-sm font-semibold rounded-xl transition"
+                className="w-full sm:w-auto px-7 py-3 bg-stone-900 hover:bg-stone-700 text-white text-sm font-semibold rounded-xl transition"
               >
                 Adopt Now 🐾
               </button>
 
               <button
                 onClick={() => navigate("/shop")}
-                className="px-7 py-3 bg-white border border-stone-200 hover:border-stone-400 text-stone-700 text-sm font-semibold rounded-xl transition"
+                className="w-full sm:w-auto px-7 py-3 bg-white border border-stone-200 hover:border-stone-400 text-stone-700 text-sm font-semibold rounded-xl transition"
               >
                 Shop Now →
               </button>
@@ -115,7 +115,7 @@ const Dashboard = () => {
               {isLoggedIn && (
                 <button
                   onClick={() => navigate("/report-issue")}
-                  className="px-7 py-3 bg-red-50 border border-red-200 hover:bg-red-100 text-red-700 text-sm font-semibold rounded-xl transition flex items-center gap-2"
+                  className="w-full sm:w-auto px-7 py-3 bg-red-50 border border-red-200 hover:bg-red-100 text-red-700 text-sm font-semibold rounded-xl transition flex items-center justify-center gap-2"
                 >
                   <AlertTriangle className="w-4 h-4" />
                   Report Issue
@@ -125,14 +125,14 @@ const Dashboard = () => {
               {!isLoggedIn && (
                 <button
                   onClick={() => navigate("/login")}
-                  className="px-7 py-3 border border-stone-200 hover:border-stone-400 bg-white text-stone-700 text-sm font-semibold rounded-xl transition"
+                  className="w-full sm:w-auto px-7 py-3 border border-stone-200 hover:border-stone-400 bg-white text-stone-700 text-sm font-semibold rounded-xl transition"
                 >
                   Join Free
                 </button>
               )}
             </div>
 
-            <div className="flex items-center gap-4 pt-2">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-4 pt-2">
               <div className="flex -space-x-2.5">
                 {[1, 2, 3, 4, 5].map((i) => (
                   <img
@@ -196,7 +196,7 @@ const Dashboard = () => {
       </div>
 
       {/* Features */}
-      <div className="max-w-6xl mx-auto px-6 pb-16">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-10 pb-12 md:pb-16">
         <div className="flex items-center gap-3 mb-8">
           <div className="flex-1 h-px bg-stone-200" />
           <p className="text-xs tracking-[0.25em] uppercase text-stone-400">
@@ -205,7 +205,7 @@ const Dashboard = () => {
           <div className="flex-1 h-px bg-stone-200" />
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {features.map(({ emoji, label, sub, to }) => (
             <div
               key={label}
