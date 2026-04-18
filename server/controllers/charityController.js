@@ -263,7 +263,7 @@ export const getCharityHistory = async (req, res) => {
 export const getCharityPosts = async (req, res) => {
   try {
     await ensureCommunityTables();
-    const userId = req.user?.id || req.staff?.id || null;
+    const userId = req.user?.id || null;
 
     const [rows] = await db.query(
       `SELECT
@@ -293,8 +293,12 @@ export const getCharityPosts = async (req, res) => {
 export const togglePostLike = async (req, res) => {
   try {
     await ensureCommunityTables();
-    const userId = req.user?.id || req.staff?.id;
+    const userId = req.user?.id;
     const postId = Number(req.params.postId);
+
+    if (!userId) {
+      return res.status(403).json({ success: false, message: "Only users can like posts" });
+    }
 
     if (!Number.isInteger(postId)) {
       return res.status(400).json({ success: false, message: "Invalid post id" });
@@ -366,9 +370,13 @@ export const getPostComments = async (req, res) => {
 export const createPostComment = async (req, res) => {
   try {
     await ensureCommunityTables();
-    const userId = req.user?.id || req.staff?.id;
+    const userId = req.user?.id;
     const postId = Number(req.params.postId);
     const { comment_text } = req.body;
+
+    if (!userId) {
+      return res.status(403).json({ success: false, message: "Only users can comment on posts" });
+    }
 
     if (!Number.isInteger(postId)) {
       return res.status(400).json({ success: false, message: "Invalid post id" });

@@ -42,9 +42,9 @@ router.get("/posts", verifyFlexibleToken, getCharityPosts);
 router.post("/posts", adminAuth(), createCharityPost);  // Create post (alternative to /spend)
 router.put("/posts/:postId", adminAuth(), updateCharityPost);
 router.delete("/posts/:postId", adminAuth(), deleteCharityPost);
-router.post("/posts/:postId/like", verifyFlexibleToken, togglePostLike);
+router.post("/posts/:postId/like", verifyToken, togglePostLike);
 router.get("/posts/:postId/comments", verifyFlexibleToken, getPostComments);
-router.post("/posts/:postId/comments", verifyFlexibleToken, createPostComment);
+router.post("/posts/:postId/comments", verifyToken, createPostComment);
 
 // --- Admin Notifications ---
 router.get("/admin/notifications", adminAuth(), getAdminNotifications);

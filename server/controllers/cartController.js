@@ -70,12 +70,17 @@ export const getCartByUser = async (req, res) => {
 export const updateCartItem = async (req, res) => {
   const { id } = req.params;
   const { quantity } = req.body;
+  const userId = req.user.id;
 
   try {
-    await db.execute(
-      "UPDATE cart_items SET quantity = ? WHERE id = ?",
-      [quantity, id]
+    const [result] = await db.execute(
+      "UPDATE cart_items SET quantity = ? WHERE id = ? AND user_id = ?",
+      [quantity, id, userId]
     );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: "Cart item not found" });
+    }
 
     res.json({ message: "Cart updated" });
   } catch (error) {
@@ -90,9 +95,18 @@ export const updateCartItem = async (req, res) => {
  */
 export const removeFromCart = async (req, res) => {
   const { id } = req.params;
+  const userId = req.user.id;
 
   try {
-    await db.execute("DELETE FROM cart_items WHERE id = ?", [id]);
+    const [result] = await db.execute(
+      "DELETE FROM cart_items WHERE id = ? AND user_id = ?",
+      [id, userId]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: "Cart item not found" });
+    }
+
     res.json({ message: "Item removed from cart" });
   } catch (error) {
     console.error("Remove cart error:", error);

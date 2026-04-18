@@ -1,14 +1,14 @@
-import axios from "axios";
 import { CheckCircle2, Loader2, XCircle } from "lucide-react";
 import { useContext, useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import api from "../../api/axios";
 import { CartContext } from "../../Context/CartContext.jsx";
 
 const PaymentVerify = () => {
   const [searchParams] = useSearchParams();
   const [status, setStatus] = useState("verifying"); // verifying | success | error
   const navigate = useNavigate();
-  const { clearCart } = useContext(CartContext);
+  const { fetchCart } = useContext(CartContext);
 
   const hasVerified = useRef(false); // prevent double API call
 
@@ -25,15 +25,12 @@ const PaymentVerify = () => {
       }
 
       try {
-        const { data } = await axios.post(
-          "http://localhost:3000/api/payment/verify",
-          { pidx }
-        );
+        const { data } = await api.post("/payment/verify", { pidx });
 
         console.log("Verification response:", data);
 
         if (data.success) {
-          await clearCart();
+          await fetchCart();
           setStatus("success");
           
         } else {
@@ -50,7 +47,7 @@ const PaymentVerify = () => {
     };
 
     verifyPayment();
-  }, [pidx, clearCart]);
+  }, [pidx, fetchCart]);
 
   useEffect(() => {
     if (status === "success") {

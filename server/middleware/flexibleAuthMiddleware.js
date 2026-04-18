@@ -14,10 +14,13 @@ export const verifyFlexibleToken = (req, res, next) => {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
-    // Check if it's a user token or staff token
-    // Staff tokens have staff_id field, user tokens have id field
-    // Also check for role field or role_id === 3
-    if (decoded.staff_id || decoded.role === 'staff' || decoded.role_id === 3) {
+    // Staff tokens use staff_id and/or STAFF role. Customer/user tokens use id.
+    if (
+      decoded.staff_id ||
+      decoded.role === "STAFF" ||
+      decoded.role === "staff" ||
+      decoded.role_id === 2
+    ) {
       req.staff = decoded; // Staff token
       console.log("STAFF TOKEN DETECTED:", decoded);
     } else {

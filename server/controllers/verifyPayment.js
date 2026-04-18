@@ -12,12 +12,26 @@ export const verifyPayment = async (req, res) => {
   }
 
   try {
+    const [orders] = await db.execute(
+      "SELECT id, user_id FROM orders WHERE pidx = ? LIMIT 1",
+      [pidx]
+    );
+
+    if (orders.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found for this payment",
+      });
+    }
+
+    const order = orders[0];
+
     const response = await axios.post(
       "https://a.khalti.com/api/v2/epayment/lookup/",
       { pidx },
       {
         headers: {
-          Authorization: `Key ${process.env.KHALTI_SECRET_KEY}`, // ✅ IMPORTANT
+          Authorization: `Key ${process.env.KHALTI_SECRET_KEY}`,
           "Content-Type": "application/json",
         },
       }
@@ -26,29 +40,43 @@ export const verifyPayment = async (req, res) => {
     const data = response.data;
     console.log("Khalti Verify Response:", data);
 
-    // ✅ THIS IS THE MOST IMPORTANT FIX
     if (data.status === "Completed") {
-      // Update order status to 'completed'
-      await db.execute(
-        "UPDATE orders SET status = ? WHERE pidx = ?",
-        ["completed", pidx]
-      );
+      const connection = await db.getConnection();
+
+      try {
+        await connection.beginTransaction();
+
+        await connection.execute(
+          "UPDATE orders SET status = ? WHERE id = ?",
+          ["completed", order.id]
+        );
+
+        await connection.execute(
+          "DELETE FROM cart_items WHERE user_id = ?",
+          [order.user_id]
+        );
+
+        await connection.commit();
+      } catch (dbError) {
+        await connection.rollback();
+        throw dbError;
+      } finally {
+        connection.release();
+      }
 
       return res.json({
         success: true,
         message: "Payment verified successfully",
-      });
-    } else {
-      return res.json({
-        success: false,
-        message: `Payment not completed. Status: ${data.status}`,
+        cartCleared: true,
       });
     }
+
+    return res.json({
+      success: false,
+      message: `Payment not completed. Status: ${data.status}`,
+    });
   } catch (error) {
-    console.error(
-      "Verify Error:",
-      error.response?.data || error.message
-    );
+    console.error("Verify Error:", error.response?.data || error.message);
 
     return res.status(500).json({
       success: false,
