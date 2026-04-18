@@ -118,12 +118,12 @@ const Notifications = () => {
   return (
     <div className="min-h-screen bg-white">
       {/* ── HEADER SECTION ── */}
-      <div className="bg-gradient-to-b from-stone-100 to-white pt-24 pb-12 border-b border-stone-100">
+      <div className="bg-linear-to-b from-stone-100 to-white pt-24 pb-12 border-b border-stone-100">
         <div className="max-w-7xl mx-auto px-6 lg:px-12">
           <div className="flex flex-col gap-8">
             <div className="space-y-4">
               <div className="flex items-center gap-3">
-                <span className="h-[1px] w-10 bg-stone-400"></span>
+                <span className="h-px w-10 bg-stone-400"></span>
                 <p className="text-stone-500 text-[10px] font-bold tracking-[0.4em] uppercase">Status Board</p>
               </div>
               <h1 className="text-stone-900 text-5xl md:text-7xl font-medium tracking-tight" style={{ fontFamily: "Georgia, serif" }}>
@@ -182,7 +182,7 @@ const Notifications = () => {
             {filtered.map((item) => {
               const cfg = statusConfig[item.status] || statusConfig.pending;
               return (
-                <div key={item.id} className="group bg-white rounded-[2rem] border border-stone-100 shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 flex flex-col overflow-hidden">
+                <div key={item.id} className="group bg-white rounded-4xl border border-stone-100 shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 flex flex-col overflow-hidden">
                   <div className={`h-1.5 w-full ${cfg.dot}`} />
                   <div className="p-8 flex flex-col h-full">
                     <div className="flex justify-between items-start mb-6">

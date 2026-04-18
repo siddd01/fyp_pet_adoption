@@ -94,7 +94,7 @@ const CommunityPosts = () => {
       {/* 🖼️ Image Lightbox (Full Screen) */}
       {selectedImg && (
         <div 
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-stone-900/95 backdrop-blur-sm p-4 animate-in fade-in duration-300"
+          className="fixed inset-0 z-100 flex items-center justify-center bg-stone-900/95 backdrop-blur-sm p-4 animate-in fade-in duration-300"
           onClick={() => setSelectedImg(null)}
         >
           <button className="absolute top-8 right-8 text-white hover:rotate-90 transition-transform">
@@ -225,13 +225,13 @@ const CommunityPosts = () => {
                 {/* Comments Section */}
                 {openComments[post.id] && (
                   <div className="bg-stone-50 p-6 border-t border-stone-100 animate-in slide-in-from-top-2 duration-300">
-                    <div className="space-y-4 mb-6 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                    <div className="space-y-4 mb-6 max-h-75 overflow-y-auto pr-2 custom-scrollbar">
                       {(commentsByPost[post.id] || []).length === 0 && (
                         <p className="text-xs text-stone-400 italic text-center py-4">No comments yet. Start the conversation.</p>
                       )}
                       {(commentsByPost[post.id] || []).map((comment) => (
                         <div key={comment.id} className="flex gap-3">
-                          <div className="w-8 h-8 rounded-full bg-stone-200 flex-shrink-0 flex items-center justify-center text-stone-400">
+                          <div className="w-8 h-8 rounded-full bg-stone-200 shrink-0 flex items-center justify-center text-stone-400">
                             <User size={14} />
                           </div>
                           <div className="bg-white border border-stone-200 rounded-2xl px-4 py-2 shadow-sm max-w-[85%]">

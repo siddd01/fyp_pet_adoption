@@ -149,7 +149,7 @@ const StoreManagement = () => {
           /* ── FORM VIEW (More Compact) ── */
           <form onSubmit={handleSubmit} className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
             {/* Left: Metadata */}
-            <div className="md:col-span-7 bg-white p-8 rounded-[2rem] border border-stone-100 shadow-sm space-y-6">
+            <div className="md:col-span-7 bg-white p-8 rounded-4xl border border-stone-100 shadow-sm space-y-6">
               <h2 className="text-stone-900 font-bold text-sm uppercase tracking-widest mb-4">Product Details</h2>
               
               <div className="space-y-4">
@@ -188,7 +188,7 @@ const StoreManagement = () => {
 
             {/* Right: Media & Action */}
             <div className="md:col-span-5 space-y-6">
-              <div className="bg-white p-6 rounded-[2rem] border border-stone-100 shadow-sm overflow-hidden">
+              <div className="bg-white p-6 rounded-4xl border border-stone-100 shadow-sm overflow-hidden">
                 <div className="aspect-square bg-stone-50 rounded-2xl overflow-hidden mb-4 border border-stone-100">
                   {imagePreview ? (
                     <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />

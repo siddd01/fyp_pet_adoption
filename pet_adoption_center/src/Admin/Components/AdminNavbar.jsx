@@ -64,7 +64,7 @@ const AdminNavbar = () => {
   }, []);
 
   return (
-    <nav className="bg-white border-b border-stone-200 px-6 py-3 flex items-center justify-between sticky top-0 z-[100]">
+    <nav className="bg-white border-b border-stone-200 px-6 py-3 flex items-center justify-between sticky top-0 z-100">
       
       {/* Left: Logo */}
       <div className="flex items-center gap-4">
@@ -89,14 +89,14 @@ const AdminNavbar = () => {
           >
             <Bell size={20} />
             {unreadCount > 0 && (
-              <span className="absolute top-1 right-1 bg-rose-500 text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center border-2 border-white px-1">
+              <span className="absolute top-1 right-1 bg-rose-500 text-white text-[10px] font-bold rounded-full min-w-4.5 h-4.5 flex items-center justify-center border-2 border-white px-1">
                 {unreadCount}
               </span>
             )}
           </button>
           
           {notificationOpen && (
-            <div className="absolute right-0 mt-3 w-[360px] bg-white rounded-2xl shadow-2xl border border-stone-200 z-[110] overflow-hidden flex flex-col animate-in fade-in slide-in-from-top-2 duration-200">
+            <div className="absolute right-0 mt-3 w-90 bg-white rounded-2xl shadow-2xl border border-stone-200 z-110 overflow-hidden flex flex-col animate-in fade-in slide-in-from-top-2 duration-200">
               
               {/* FB Style Header */}
               <div className="p-4 border-b border-stone-100 flex items-center justify-between bg-white sticky top-0">
@@ -105,7 +105,7 @@ const AdminNavbar = () => {
               </div>
 
               {/* Scrollable List Area */}
-              <div className="max-h-[420px] overflow-y-auto custom-scrollbar">
+              <div className="max-h-105 overflow-y-auto custom-scrollbar">
                 {notifications.length === 0 ? (
                   <div className="py-12 flex flex-col items-center justify-center text-stone-400">
                     <Bell size={40} className="mb-2 opacity-20" />
@@ -164,7 +164,7 @@ const AdminNavbar = () => {
           </button>
 
           {profileOpen && (
-            <div className="absolute right-0 mt-3 w-48 bg-white shadow-2xl rounded-xl border border-stone-200 py-2 z-[110] animate-in fade-in slide-in-from-top-2 duration-200">
+            <div className="absolute right-0 mt-3 w-48 bg-white shadow-2xl rounded-xl border border-stone-200 py-2 z-110 animate-in fade-in slide-in-from-top-2 duration-200">
               <Link
                 to="/admin/profile"
                 className="block px-4 py-2 text-sm font-bold text-stone-700 hover:bg-stone-50"

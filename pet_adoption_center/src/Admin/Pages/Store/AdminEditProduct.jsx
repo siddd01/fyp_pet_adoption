@@ -86,7 +86,7 @@ const AdminEditProduct = () => {
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-8">
             <div className="space-y-4">
               <div className="flex items-center gap-3">
-                <span className="h-[1px] w-10 bg-stone-400"></span>
+                <span className="h-px w-10 bg-stone-400"></span>
                 <p className="text-stone-500 text-[10px] font-bold tracking-[0.4em] uppercase">
                   Administrator Console
                 </p>

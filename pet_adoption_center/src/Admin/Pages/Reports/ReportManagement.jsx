@@ -214,7 +214,7 @@ const ReportManagement = () => {
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-start gap-4 mb-4">
-                        <div className="w-10 h-10 bg-stone-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <div className="w-10 h-10 bg-stone-100 rounded-lg flex items-center justify-center shrink-0">
                           <User className="w-5 h-5 text-stone-600" />
                         </div>
                         <div className="flex-1">
