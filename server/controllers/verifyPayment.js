@@ -1,6 +1,24 @@
 import axios from "axios";
 import db from "../config/db.js";
 
+const mapKhaltiStatusToOrderStatus = (status) => {
+  const normalized = String(status || "").trim().toLowerCase();
+
+  if (normalized === "completed") return "completed";
+  if (normalized === "refunded") return "refunded";
+
+  if (
+    normalized.includes("expired") ||
+    normalized.includes("cancel") ||
+    normalized.includes("failed") ||
+    normalized.includes("rejected")
+  ) {
+    return "failed";
+  }
+
+  return "pending";
+};
+
 export const verifyPayment = async (req, res) => {
   const { pidx } = req.body;
 
@@ -13,7 +31,7 @@ export const verifyPayment = async (req, res) => {
 
   try {
     const [orders] = await db.execute(
-      "SELECT id, user_id FROM orders WHERE pidx = ? LIMIT 1",
+      "SELECT id, user_id, status FROM orders WHERE pidx = ? LIMIT 1",
       [pidx]
     );
 
@@ -39,16 +57,17 @@ export const verifyPayment = async (req, res) => {
 
     const data = response.data;
     console.log("Khalti Verify Response:", data);
+    const nextStatus = mapKhaltiStatusToOrderStatus(data.status);
 
-    if (data.status === "Completed") {
+    if (nextStatus === "completed") {
       const connection = await db.getConnection();
 
       try {
         await connection.beginTransaction();
 
         await connection.execute(
-          "UPDATE orders SET status = ? WHERE id = ?",
-          ["completed", order.id]
+          "UPDATE orders SET status = ?, transaction_id = COALESCE(?, transaction_id) WHERE id = ?",
+          [nextStatus, data.transaction_id || data.transactionId || null, order.id]
         );
 
         await connection.execute(
@@ -68,12 +87,25 @@ export const verifyPayment = async (req, res) => {
         success: true,
         message: "Payment verified successfully",
         cartCleared: true,
+        orderStatus: nextStatus,
       });
+    }
+
+    if (nextStatus !== order.status) {
+      await db.execute(
+        "UPDATE orders SET status = ?, transaction_id = COALESCE(?, transaction_id) WHERE id = ?",
+        [nextStatus, data.transaction_id || data.transactionId || null, order.id]
+      );
     }
 
     return res.json({
       success: false,
-      message: `Payment not completed. Status: ${data.status}`,
+      pending: nextStatus === "pending",
+      orderStatus: nextStatus,
+      message:
+        nextStatus === "pending"
+          ? `Payment is still processing. Current status: ${data.status}`
+          : `Payment not completed. Status: ${data.status}`,
     });
   } catch (error) {
     console.error("Verify Error:", error.response?.data || error.message);

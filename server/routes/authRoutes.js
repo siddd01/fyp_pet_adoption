@@ -4,7 +4,6 @@ import {
     login,
     resendOTP,
     resetPassword,
-    resetPasswordWithToken,
     signup,
     verifyOTP,
     verifyResetOTP,
@@ -24,7 +23,6 @@ router.post("/resend-otp", resendOTP);
 // Password reset routes
 router.post("/forgot-password", forgotPassword);
 router.post("/reset-password", resetPassword);
-router.post("/reset-password/:token", resetPasswordWithToken);
 
 
 export default router;

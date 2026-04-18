@@ -307,9 +307,3 @@ export const resetPassword = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
-
-export const resetPasswordWithToken = async (req, res) => {
-  return res.status(410).json({
-    message: "This reset link flow is no longer supported. Please use the OTP reset flow.",
-  });
-};

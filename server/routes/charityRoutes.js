@@ -2,6 +2,7 @@ import express from "express";
 import {
   createCharityPost,
   createPostComment,
+  deletePostComment,
   deleteCharityPost,
   getAdminNotifications,
   getCharityPosts,
@@ -9,6 +10,7 @@ import {
   initiateDonation,
   markNotificationRead,
   togglePostLike,
+  updatePostComment,
   updateCharityPost,
   verifyDonation,
 } from "../controllers/charityController.js";
@@ -45,6 +47,8 @@ router.delete("/posts/:postId", adminAuth(), deleteCharityPost);
 router.post("/posts/:postId/like", verifyToken, togglePostLike);
 router.get("/posts/:postId/comments", verifyFlexibleToken, getPostComments);
 router.post("/posts/:postId/comments", verifyToken, createPostComment);
+router.put("/posts/:postId/comments/:commentId", verifyToken, updatePostComment);
+router.delete("/posts/:postId/comments/:commentId", verifyToken, deletePostComment);
 
 // --- Admin Notifications ---
 router.get("/admin/notifications", adminAuth(), getAdminNotifications);

@@ -1,13 +1,16 @@
-import { Calendar, Heart, Info, Maximize2, MessageCircle, Send, User, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Calendar, Heart, Info, Maximize2, MessageCircle, Pencil, Send, Trash2, User, X } from "lucide-react";
+import { useContext, useEffect, useState } from "react";
 import api from "../../../api/axios";
+import { AuthContext } from "../../../Context/AuthContext";
 
 const CommunityPosts = () => {
+  const { user } = useContext(AuthContext);
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [commentInputs, setCommentInputs] = useState({});
   const [openComments, setOpenComments] = useState({});
   const [commentsByPost, setCommentsByPost] = useState({});
+  const [editingComments, setEditingComments] = useState({});
   
   // UI Enhancement States
   const [selectedImg, setSelectedImg] = useState(null);
@@ -74,6 +77,62 @@ const CommunityPosts = () => {
         console.error("Comment failed", error);
     }
   };
+
+  const handleStartEditComment = (comment) => {
+    setEditingComments((prev) => ({
+      ...prev,
+      [comment.id]: comment.comment_text,
+    }));
+  };
+
+  const handleCancelEditComment = (commentId) => {
+    setEditingComments((prev) => {
+      const next = { ...prev };
+      delete next[commentId];
+      return next;
+    });
+  };
+
+  const handleUpdateComment = async (postId, commentId) => {
+    const text = (editingComments[commentId] || "").trim();
+    if (!text) return;
+
+    try {
+      await api.put(`/charity/posts/${postId}/comments/${commentId}`, {
+        comment_text: text,
+      });
+      handleCancelEditComment(commentId);
+      await fetchComments(postId);
+    } catch (error) {
+      console.error("Comment update failed", error);
+    }
+  };
+
+  const handleDeleteComment = async (postId, commentId) => {
+    try {
+      await api.delete(`/charity/posts/${postId}/comments/${commentId}`);
+      handleCancelEditComment(commentId);
+      await fetchComments(postId);
+      setPosts((prev) =>
+        prev.map((post) =>
+          post.id === postId
+            ? { ...post, comment_count: Math.max(Number(post.comment_count || 0) - 1, 0) }
+            : post
+        )
+      );
+    } catch (error) {
+      console.error("Comment delete failed", error);
+    }
+  };
+
+  const formatCommentTime = (dateString) =>
+    new Date(dateString).toLocaleString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+    });
 
   const toggleDescription = (id) => {
     setExpandedDescriptions(prev => ({ ...prev, [id]: !prev[id] }));
@@ -235,8 +294,63 @@ const CommunityPosts = () => {
                             <User size={14} />
                           </div>
                           <div className="bg-white border border-stone-200 rounded-2xl px-4 py-2 shadow-sm max-w-[85%]">
-                            <p className="text-[11px] font-black text-stone-900 uppercase">{comment.first_name} {comment.last_name}</p>
-                            <p className="text-[13px] text-stone-700 mt-0.5 leading-snug">{comment.comment_text}</p>
+                            <div className="flex items-start justify-between gap-3">
+                              <div>
+                                <p className="text-[11px] font-black text-stone-900 uppercase">{comment.first_name} {comment.last_name}</p>
+                                <p className="text-[10px] text-stone-400 mt-0.5">
+                                  {formatCommentTime(comment.created_at)}
+                                  {comment.updated_at && comment.updated_at !== comment.created_at ? " • edited" : ""}
+                                </p>
+                              </div>
+                              {user?.id === comment.user_id && (
+                                <div className="flex items-center gap-1 text-stone-400">
+                                  <button
+                                    onClick={() => handleStartEditComment(comment)}
+                                    className="p-1 hover:text-stone-700 transition-colors"
+                                    aria-label="Edit comment"
+                                  >
+                                    <Pencil size={12} />
+                                  </button>
+                                  <button
+                                    onClick={() => handleDeleteComment(post.id, comment.id)}
+                                    className="p-1 hover:text-red-500 transition-colors"
+                                    aria-label="Delete comment"
+                                  >
+                                    <Trash2 size={12} />
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                            {Object.prototype.hasOwnProperty.call(editingComments, comment.id) ? (
+                              <div className="mt-2 space-y-2">
+                                <textarea
+                                  value={editingComments[comment.id]}
+                                  onChange={(e) =>
+                                    setEditingComments((prev) => ({
+                                      ...prev,
+                                      [comment.id]: e.target.value,
+                                    }))
+                                  }
+                                  className="w-full min-h-20 resize-none rounded-xl border border-stone-200 px-3 py-2 text-[13px] text-stone-700 outline-none focus:ring-1 focus:ring-stone-400"
+                                />
+                                <div className="flex gap-2 justify-end">
+                                  <button
+                                    onClick={() => handleCancelEditComment(comment.id)}
+                                    className="px-3 py-1.5 rounded-full bg-stone-100 text-stone-600 text-[11px] font-bold uppercase tracking-wide"
+                                  >
+                                    Cancel
+                                  </button>
+                                  <button
+                                    onClick={() => handleUpdateComment(post.id, comment.id)}
+                                    className="px-3 py-1.5 rounded-full bg-stone-900 text-white text-[11px] font-bold uppercase tracking-wide"
+                                  >
+                                    Save
+                                  </button>
+                                </div>
+                              </div>
+                            ) : (
+                              <p className="text-[13px] text-stone-700 mt-0.5 leading-snug">{comment.comment_text}</p>
+                            )}
                           </div>
                         </div>
                       ))}

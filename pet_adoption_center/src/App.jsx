@@ -20,7 +20,6 @@ import ForgotPassword from "./User/Pages/Login/ForgotPassword";
 import Login from "./User/Pages/Login/Login";
 import OTPVerification from "./User/Pages/Login/OTPVerification";
 import OTPVerificationReset from "./User/Pages/Login/OTPVerificationReset";
-import ResetPassword from "./User/Pages/Login/ResetPassword";
 import Cart from "./User/Pages/Shop/Cart";
 import Shop from "./User/Pages/Shop/Shop";
 import Profile from "./User/Profile/Profile";
@@ -104,7 +103,6 @@ const App = () => {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/otp-verification" element={<OTPVerification />} />
         <Route path="/otp-verification-reset" element={<OTPVerificationReset />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
 
         {/* -------- Admin Routes -------- */}
         <Route

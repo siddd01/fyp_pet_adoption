@@ -57,7 +57,6 @@ const ensureCommunityTables = async () => {
 // Helper function to create admin notifications
 const createAdminNotification = async (type, postId, userId) => {
   try {
-    // Get post details and admin who created it
     const [postDetails] = await db.query(
       "SELECT admin_id, title FROM charity_posts WHERE id = ?",
       [postId]
@@ -65,31 +64,14 @@ const createAdminNotification = async (type, postId, userId) => {
     
     if (postDetails.length === 0) return;
     
-    // Try to get user details first, then staff details
-    let userDetails = null;
-    let userName = "";
-    
-    // Check if it's a user
     const [userResult] = await db.query(
       "SELECT first_name, last_name FROM users WHERE id = ?",
       [userId]
     );
     
-    if (userResult.length > 0) {
-      userName = `${userResult[0].first_name} ${userResult[0].last_name}`.trim();
-    } else {
-      // Check if it's a staff member
-      const [staffResult] = await db.query(
-        "SELECT first_name, last_name FROM staff WHERE staff_id = ?",
-        [userId]
-      );
-      
-      if (staffResult.length > 0) {
-        userName = `${staffResult[0].first_name} ${staffResult[0].last_name}`.trim();
-      } else {
-        return; // Neither user nor staff found
-      }
-    }
+    if (userResult.length === 0) return;
+
+    const userName = `${userResult[0].first_name} ${userResult[0].last_name}`.trim();
     
     const postTitle = postDetails[0].title;
     
@@ -122,26 +104,19 @@ export const initiateDonation = async (req, res) => {
   const userId = req.user?.id;
 
   try {
-    // Fetch name + email from DB using the JWT id
-    // Inside initiateDonation
-// Ensure your SELECT matches your table columns
-const [rows] = await db.execute(
-  "SELECT first_name, last_name, email FROM users WHERE id = ?",
-  [userId]
-);
+    const [rows] = await db.execute(
+      "SELECT first_name, last_name, email FROM users WHERE id = ?",
+      [userId]
+    );
 
-if (rows.length === 0) {
-  return res.status(404).json({ success: false, message: "User not found" });
-}
+    if (rows.length === 0) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
 
-// Check what your DB actually returns
-console.log("User data from DB:", rows[0]); 
-
-// Use whatever column name exists in your DB (e.g., rows[0].username or rows[0].full_name)
-const donorName = [rows[0]?.first_name, rows[0]?.last_name]
-  .filter(Boolean) // Removes undefined or empty strings
-  .join(" ") || "Anonymous Donor";
-const donorEmail = rows[0].email || null;
+    const donorName = [rows[0]?.first_name, rows[0]?.last_name]
+      .filter(Boolean)
+      .join(" ") || "Anonymous Donor";
+    const donorEmail = rows[0].email || null;
 
     // Insert donation record first (so we always have a DB row even if Khalti fails)
     const [result] = await db.execute(
@@ -343,12 +318,13 @@ export const getPostComments = async (req, res) => {
     }
 
     const [comments] = await db.query(
-      `SELECT
+       `SELECT
          pc.id,
          pc.post_id,
          pc.user_id,
          pc.comment_text,
          pc.created_at,
+         pc.updated_at,
          u.first_name,
          u.last_name,
          u.profile_image
@@ -398,6 +374,77 @@ export const createPostComment = async (req, res) => {
   } catch (error) {
     console.error("Failed to create comment:", error);
     res.status(500).json({ success: false, message: "Failed to add comment" });
+  }
+};
+
+// PUT /api/charity/posts/:postId/comments/:commentId
+export const updatePostComment = async (req, res) => {
+  try {
+    await ensureCommunityTables();
+    const userId = req.user?.id;
+    const postId = Number(req.params.postId);
+    const commentId = Number(req.params.commentId);
+    const { comment_text } = req.body;
+
+    if (!userId) {
+      return res.status(403).json({ success: false, message: "Only users can edit comments" });
+    }
+
+    if (!Number.isInteger(postId) || !Number.isInteger(commentId)) {
+      return res.status(400).json({ success: false, message: "Invalid post or comment id" });
+    }
+
+    if (!comment_text || !comment_text.trim()) {
+      return res.status(400).json({ success: false, message: "Comment cannot be empty" });
+    }
+
+    const [result] = await db.query(
+      `UPDATE post_comments
+       SET comment_text = ?
+       WHERE id = ? AND post_id = ? AND user_id = ?`,
+      [comment_text.trim(), commentId, postId, userId]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ success: false, message: "Comment not found" });
+    }
+
+    res.json({ success: true, message: "Comment updated" });
+  } catch (error) {
+    console.error("Failed to update comment:", error);
+    res.status(500).json({ success: false, message: "Failed to update comment" });
+  }
+};
+
+// DELETE /api/charity/posts/:postId/comments/:commentId
+export const deletePostComment = async (req, res) => {
+  try {
+    await ensureCommunityTables();
+    const userId = req.user?.id;
+    const postId = Number(req.params.postId);
+    const commentId = Number(req.params.commentId);
+
+    if (!userId) {
+      return res.status(403).json({ success: false, message: "Only users can delete comments" });
+    }
+
+    if (!Number.isInteger(postId) || !Number.isInteger(commentId)) {
+      return res.status(400).json({ success: false, message: "Invalid post or comment id" });
+    }
+
+    const [result] = await db.query(
+      "DELETE FROM post_comments WHERE id = ? AND post_id = ? AND user_id = ?",
+      [commentId, postId, userId]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ success: false, message: "Comment not found" });
+    }
+
+    res.json({ success: true, message: "Comment deleted" });
+  } catch (error) {
+    console.error("Failed to delete comment:", error);
+    res.status(500).json({ success: false, message: "Failed to delete comment" });
   }
 };
 

@@ -89,6 +89,8 @@ const Notifications = () => {
     return () => clearInterval(interval);
   }, []);
 
+  const reportUnreadCount = reportNotifications.filter((n) => !n.is_read).length;
+
   const counts = activeTab === "adoptions" ? {
     all: adoptionNotifications.length,
     approved: adoptionNotifications.filter((n) => n.status === "approved").length,
@@ -153,7 +155,7 @@ const Notifications = () => {
                 }`}
               >
                 <Bell className="w-4 h-4" />
-                Reports ({counts.unread})
+                Reports ({reportUnreadCount})
               </button>
             </div>
 

@@ -6,11 +6,12 @@ import { CartContext } from "../../Context/CartContext.jsx";
 
 const PaymentVerify = () => {
   const [searchParams] = useSearchParams();
-  const [status, setStatus] = useState("verifying"); // verifying | success | error
+  const [status, setStatus] = useState("verifying"); // verifying | pending | success | error
   const navigate = useNavigate();
   const { fetchCart } = useContext(CartContext);
 
   const hasVerified = useRef(false); // prevent double API call
+  const retryCount = useRef(0);
 
   const pidx = searchParams.get("pidx");
 
@@ -32,7 +33,10 @@ const PaymentVerify = () => {
         if (data.success) {
           await fetchCart();
           setStatus("success");
-          
+        } else if (data.pending && retryCount.current < 5) {
+          retryCount.current += 1;
+          setStatus("pending");
+          setTimeout(verifyPayment, 4000);
         } else {
           console.error("Verification failed reason:", data.message);
           setStatus("error");
@@ -70,6 +74,16 @@ const PaymentVerify = () => {
             <h2 className="font-serif text-2xl mb-2">Verifying Payment</h2>
             <p className="text-stone-400 text-sm">
               Please do not refresh or close this page.
+            </p>
+          </>
+        )}
+
+        {status === "pending" && (
+          <>
+            <Loader2 className="w-12 h-12 text-amber-500 animate-spin mx-auto mb-6" />
+            <h2 className="font-serif text-2xl mb-2">Payment Is Processing</h2>
+            <p className="text-stone-400 text-sm">
+              We are still waiting for final confirmation from Khalti.
             </p>
           </>
         )}
