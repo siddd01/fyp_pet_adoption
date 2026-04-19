@@ -1,6 +1,7 @@
 import { CheckCircle, ChevronRight, Heart, Loader2, Sparkles, Star } from "lucide-react";
 import { useState } from "react";
 import api from "../../../api/axios";
+import ScrollReveal from "../../Components/ScrollReveal";
 
 const presetAmounts = [
   { value: 20,  desc: "Feed a rescue for a week" },
@@ -8,11 +9,18 @@ const presetAmounts = [
   { value: 100, desc: "Emergency medical checkup" },
 ];
 
+const donateImages = [
+  "https://images.unsplash.com/photo-1599421112316-5384af3f39d5?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1518717758536-85ae29035b6d?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=1200&q=80",
+];
+
 const Donate = () => {
   const [amount,  setAmount]  = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [error,   setError]   = useState("");
+  const [imageIndex, setImageIndex] = useState(0);
 
   const handlePreset = (val) => {
     setAmount(val);
@@ -68,7 +76,7 @@ const Donate = () => {
 
       {/* Header */}
       <div className="bg-white border-b border-stone-100">
-        <div className="max-w-7xl mx-auto px-6 pt-16 pb-12">
+        <ScrollReveal className="max-w-7xl mx-auto px-6 pt-16 pb-12">
           <p className="text-[10px] font-black tracking-[0.3em] text-emerald-600 uppercase mb-4 flex items-center gap-2">
             <Heart className="w-3.5 h-3.5" />
             Impact Driven
@@ -79,20 +87,27 @@ const Donate = () => {
           <p className="text-stone-400 text-sm font-medium">
             Your generosity provides rescue, rehabilitation, and a second chance at life.
           </p>
-        </div>
+        </ScrollReveal>
       </div>
 
       {/* Main Card */}
       <div className="max-w-7xl mx-auto px-6 py-12">
-        <div className="bg-white rounded-[2.5rem] border border-stone-100 shadow-xl shadow-stone-100/50 grid md:grid-cols-12 overflow-hidden">
+        <ScrollReveal className="bg-white rounded-[2.5rem] border border-stone-100 shadow-xl shadow-stone-100/50 grid md:grid-cols-12 overflow-hidden">
 
           {/* ── LEFT: Emotional panel ── */}
           <div className="md:col-span-5 relative bg-stone-950 p-12 flex flex-col justify-between overflow-hidden">
             <div className="absolute inset-0 opacity-20">
               <img
-                src="https://images.unsplash.com/photo-1599421112316-5384af3f39d5?q=80&w=800&auto=format&fit=crop"
-                alt=""
+                src={donateImages[imageIndex]}
+                alt="Rescued animals supported by donations"
                 className="w-full h-full object-cover scale-110"
+                onError={() =>
+                  setImageIndex((currentIndex) =>
+                    currentIndex < donateImages.length - 1
+                      ? currentIndex + 1
+                      : currentIndex
+                  )
+                }
               />
             </div>
             <div className="absolute inset-0 bg-gradient-to-t from-stone-950/90 to-transparent" />
@@ -228,7 +243,7 @@ const Donate = () => {
             </div>
           </div>
 
-        </div>
+        </ScrollReveal>
       </div>
     </div>
   );

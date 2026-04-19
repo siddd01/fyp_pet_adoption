@@ -1,6 +1,7 @@
 import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { PetContext } from "../../../Context/PetContext";
+import ScrollReveal from "../../Components/ScrollReveal";
 
 const Adopt = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -43,7 +44,7 @@ const Adopt = () => {
       <div className="bg-linear-to-b from-stone-100 to-white pt-20 pb-4 border-b border-stone-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12">
           
-          <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-12 gap-8">
+          <ScrollReveal className="flex flex-col md:flex-row md:items-end md:justify-between mb-12 gap-8">
             <div className="space-y-4">
               <div className="flex items-center gap-3">
                 <span className="h-px w-10 bg-stone-400"></span>
@@ -64,10 +65,10 @@ const Adopt = () => {
                 Every pet here is waiting for a forever home. Start your journey of friendship in our curated collection.
               </p>
             </div>
-          </div>
+          </ScrollReveal>
 
           {/* Floating Search Bar */}
-          <div className="bg-white p-3 rounded-3xl shadow-[0_20px_50px_-20px_rgba(0,0,0,0.1)] border border-stone-200/60">
+          <ScrollReveal delay={0.08} className="bg-white p-3 rounded-3xl shadow-[0_20px_50px_-20px_rgba(0,0,0,0.1)] border border-stone-200/60">
             <div className="flex flex-col lg:flex-row gap-3">
               <div className="relative grow">
                 <svg
@@ -104,7 +105,7 @@ const Adopt = () => {
                 ))}
               </div>
             </div>
-          </div>
+          </ScrollReveal>
         </div>
       </div>
 
@@ -117,9 +118,10 @@ const Adopt = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6 md:gap-8">
-            {filteredPets.map((pet) => (
-              <div
+            {filteredPets.map((pet, index) => (
+              <ScrollReveal
                 key={pet.id}
+                delay={(index % 4) * 0.06}
                 onClick={() => navigate(`/adopt/${pet.id}`)}
                 className="group bg-white rounded-3xl overflow-hidden cursor-pointer border border-stone-100 hover:border-stone-200 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_30px_60px_-15px_rgba(0,0,0,0.1)] transition-all duration-500 hover:-translate-y-2 flex flex-col"
               >
@@ -190,7 +192,7 @@ const Adopt = () => {
                     </svg>
                   </button>
                 </div>
-              </div>
+              </ScrollReveal>
             ))}
           </div>
         )}
