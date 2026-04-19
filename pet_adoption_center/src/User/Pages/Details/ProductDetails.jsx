@@ -11,6 +11,7 @@ import { useContext, useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { ProductContext } from "../../../Context/ProductContext";
 import { CartContext } from "../../../Context/CartContext";
+import { getOptimizedImageUrl } from "../../Services/imageService.jsx";
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -103,7 +104,11 @@ const ProductDetails = () => {
           <div className="lg:col-span-7 space-y-8">
             <div className="relative aspect-square bg-white rounded-3xl overflow-hidden shadow-sm border border-stone-100 group">
               <img
-                src={product.image_url}
+                src={getOptimizedImageUrl(product.image_url, {
+                  width: 1400,
+                  height: 1400,
+                  crop: "fill",
+                })}
                 alt={product.name}
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
               />

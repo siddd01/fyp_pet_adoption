@@ -2,6 +2,7 @@ import { ArrowLeft, Calendar, Heart, Share2 } from "lucide-react";
 import { useContext, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { PetContext } from "../../../Context/PetContext";
+import { getOptimizedImageUrl } from "../../Services/imageService.jsx";
 
 const PetDetails = () => {
   const { id } = useParams();
@@ -83,7 +84,13 @@ const PetDetails = () => {
           {/* Image */}
           <div className="rounded-2xl overflow-hidden shadow-lg">
             <img
-              src={pet.image_url || "/placeholder-pet.jpg"}
+              src={
+                getOptimizedImageUrl(pet.image_url, {
+                  width: 1400,
+                  height: 1100,
+                  crop: "fill",
+                }) || "/placeholder-pet.jpg"
+              }
               alt={pet.name}
               className="w-full h-100 object-cover"
             />

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { CartContext } from "../../../Context/CartContext";
 import { ProductContext } from "../../../Context/ProductContext";
 import ScrollReveal from "../../Components/ScrollReveal";
+import { getOptimizedImageUrl } from "../../Services/imageService.jsx";
 
 const Shop = () => {
   const navigate = useNavigate();
@@ -126,7 +127,12 @@ const Shop = () => {
                 {/* ── Image Section (Matches Adopt Card) ── */}
                 <div className="relative overflow-hidden bg-stone-100 aspect-4/3">
                   <img
-                    src={product.image_url || product.image || "/placeholder-product.jpg"}
+                    src={
+                      getOptimizedImageUrl(product.image_url || product.image, {
+                        width: 900,
+                        height: 700,
+                      }) || "/placeholder-product.jpg"
+                    }
                     alt={product.name}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
                   />

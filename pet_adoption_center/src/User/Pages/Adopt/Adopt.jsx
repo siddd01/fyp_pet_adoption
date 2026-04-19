@@ -2,6 +2,7 @@ import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { PetContext } from "../../../Context/PetContext";
 import ScrollReveal from "../../Components/ScrollReveal";
+import { getOptimizedImageUrl } from "../../Services/imageService.jsx";
 
 const Adopt = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -128,7 +129,12 @@ const Adopt = () => {
                 {/* ── Image Section ── */}
                 <div className="relative overflow-hidden bg-stone-100 aspect-4/3">
                   <img
-                    src={pet.image_url || pet.image || "/placeholder-pet.jpg"}
+                    src={
+                      getOptimizedImageUrl(pet.image_url || pet.image, {
+                        width: 900,
+                        height: 700,
+                      }) || "/placeholder-pet.jpg"
+                    }
                     alt={pet.name}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
                   />
