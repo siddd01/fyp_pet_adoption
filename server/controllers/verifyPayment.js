@@ -69,35 +69,6 @@ const verifyPaymentAndUpdateOrder = async (pidx) => {
 
       const lockedOrder = lockedOrders[0];
 
-      if (lockedOrder.status !== "completed") {
-        const [orderItems] = await connection.execute(
-          "SELECT product_id, quantity FROM order_items WHERE order_id = ?",
-          [lockedOrder.id]
-        );
-
-        for (const item of orderItems) {
-          const orderedQuantity = Number(item.quantity);
-
-          const [products] = await connection.execute(
-            "SELECT id, COALESCE(stock, 0) AS stock FROM products WHERE id = ? FOR UPDATE",
-            [item.product_id]
-          );
-
-          if (products.length === 0) {
-            throw new Error(`Product ${item.product_id} not found`);
-          }
-
-          if (Number(products[0].stock) < orderedQuantity) {
-            throw new Error(`Insufficient stock for product ${item.product_id}`);
-          }
-
-          await connection.execute(
-            "UPDATE products SET stock = stock - ? WHERE id = ?",
-            [orderedQuantity, item.product_id]
-          );
-        }
-      }
-
       await connection.execute(
         "UPDATE orders SET status = ?, transaction_id = COALESCE(?, transaction_id) WHERE id = ?",
         [nextStatus, data.transaction_id || data.transactionId || null, lockedOrder.id]
@@ -123,6 +94,64 @@ const verifyPaymentAndUpdateOrder = async (pidx) => {
         message: "Payment verified successfully",
         cartCleared: true,
         orderStatus: nextStatus,
+      },
+    };
+  }
+
+  if (
+    order.status === "pending" &&
+    (nextStatus === "failed" || nextStatus === "refunded")
+  ) {
+    const connection = await db.getConnection();
+
+    try {
+      await connection.beginTransaction();
+
+      const [lockedOrders] = await connection.execute(
+        "SELECT id, status FROM orders WHERE id = ? FOR UPDATE",
+        [order.id]
+      );
+
+      if (lockedOrders.length === 0) {
+        throw new Error("Order disappeared during verification");
+      }
+
+      const lockedOrder = lockedOrders[0];
+
+      if (lockedOrder.status === "pending") {
+        const [orderItems] = await connection.execute(
+          "SELECT product_id, quantity FROM order_items WHERE order_id = ?",
+          [lockedOrder.id]
+        );
+
+        for (const item of orderItems) {
+          await connection.execute(
+            "UPDATE products SET stock = stock + ? WHERE id = ?",
+            [Number(item.quantity), item.product_id]
+          );
+        }
+      }
+
+      await connection.execute(
+        "UPDATE orders SET status = ?, transaction_id = COALESCE(?, transaction_id) WHERE id = ?",
+        [nextStatus, data.transaction_id || data.transactionId || null, lockedOrder.id]
+      );
+
+      await connection.commit();
+    } catch (dbError) {
+      await connection.rollback();
+      throw dbError;
+    } finally {
+      connection.release();
+    }
+
+    return {
+      httpStatus: 200,
+      body: {
+        success: false,
+        pending: false,
+        orderStatus: nextStatus,
+        message: `Payment not completed. Status: ${data.status}`,
       },
     };
   }

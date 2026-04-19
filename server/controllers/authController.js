@@ -3,6 +3,61 @@ import jwt from "jsonwebtoken";
 import db from "../config/db.js";
 import sendEmail from "../utils/sendEmail.js";
 
+const buildOtpEmailTemplate = ({
+  title,
+  subtitle,
+  otp,
+  footerNote = "For your security, never share this code with anyone.",
+}) => `
+  <div style="margin:0;padding:32px 16px;background:#f4efe6;font-family:Arial,Helvetica,sans-serif;color:#1c1917;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:640px;margin:0 auto;">
+      <tr>
+        <td style="padding:0;">
+          <div style="background:linear-gradient(135deg,#1f2937 0%,#111827 100%);border-radius:28px 28px 0 0;padding:28px 32px;">
+            <div style="display:inline-block;padding:8px 14px;border-radius:999px;background:rgba(255,255,255,0.12);color:#d1fae5;font-size:11px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;">
+              Sano Ghar
+            </div>
+            <h1 style="margin:20px 0 8px;font-size:30px;line-height:1.15;color:#ffffff;font-family:Georgia,'Times New Roman',serif;">
+              ${title}
+            </h1>
+            <p style="margin:0;color:#d6d3d1;font-size:15px;line-height:1.7;">
+              ${subtitle}
+            </p>
+          </div>
+
+          <div style="background:#ffffff;border:1px solid #e7e5e4;border-top:none;border-radius:0 0 28px 28px;padding:32px;">
+            <p style="margin:0 0 18px;font-size:14px;color:#57534e;line-height:1.7;">
+              Use the verification code below to continue.
+            </p>
+
+            <div style="margin:0 0 22px;padding:20px;border-radius:24px;background:linear-gradient(135deg,#ecfdf5 0%,#f5f5f4 100%);border:1px solid #d6d3d1;text-align:center;">
+              <div style="font-size:12px;font-weight:700;letter-spacing:0.24em;text-transform:uppercase;color:#78716c;margin-bottom:10px;">
+                One-Time Password
+              </div>
+              <div style="font-size:36px;line-height:1;font-weight:800;letter-spacing:0.35em;color:#111827;padding-left:0.35em;">
+                ${otp}
+              </div>
+            </div>
+
+            <div style="margin:0 0 20px;padding:16px 18px;border-radius:18px;background:#fafaf9;border:1px solid #e7e5e4;">
+              <p style="margin:0 0 6px;font-size:13px;font-weight:700;color:#1f2937;text-transform:uppercase;letter-spacing:0.08em;">
+                Valid for 10 minutes
+              </p>
+              <p style="margin:0;font-size:14px;line-height:1.6;color:#57534e;">
+                ${footerNote}
+              </p>
+            </div>
+
+            <p style="margin:0;font-size:12px;line-height:1.7;color:#a8a29e;text-align:center;">
+              If you did not request this code, you can safely ignore this email.
+            </p>
+          </div>
+        </td>
+      </tr>
+    </table>
+  </div>
+`;
+
 export const signup = async (req, res) => {
   try {
     const { first_name, last_name, email, password, role_id, date_of_birth, gender } = req.body;
@@ -35,6 +90,11 @@ export const signup = async (req, res) => {
       to: email,
       subject: "Your OTP for Pet Adoption Center",
       text: `Your OTP is ${otp}. It is valid for 10 minutes.`,
+      html: buildOtpEmailTemplate({
+        title: "Verify your account",
+        subtitle: "Welcome to Sano Ghar. Confirm your email to complete your account setup and continue your journey.",
+        otp,
+      }),
     });
 
     // Respond success
@@ -166,6 +226,11 @@ export const resendOTP = async (req, res) => {
       to: email,
       subject: "Your New OTP for Pet Adoption Center",
       text: `Your new OTP is ${otp}. It is valid for 10 minutes.`,
+      html: buildOtpEmailTemplate({
+        title: "Your new verification code",
+        subtitle: "You requested a fresh OTP for your Sano Ghar account. Enter this code to continue.",
+        otp,
+      }),
     });
 
     res.status(200).json({
@@ -244,7 +309,13 @@ export const forgotPassword = async (req, res) => {
     await sendEmail({
       to: email,
       subject: "Password Reset OTP",
-      text: `Your OTP is: ${otp}. It expires in 10 minutes.`
+      text: `Your OTP is: ${otp}. It expires in 10 minutes.`,
+      html: buildOtpEmailTemplate({
+        title: "Reset your password",
+        subtitle: "We received a password reset request for your account. Use this code to securely continue.",
+        otp,
+        footerNote: "This code expires in 10 minutes. If you did not request a reset, please ignore this message.",
+      }),
     });
 
     res.json({ message: "OTP sent to your email" });

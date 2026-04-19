@@ -1,8 +1,9 @@
-    import express from "express";
+import express from "express";
 
 import { createAdoptionApplication, deleteApplication, getAllAdoptions, getUserNotifications, updateAdoptionApplication, updateAdoptionStatus } from "../controllers/adoptionController.js";
 
 import { authMiddleware, verifyToken } from "../middleware/authMiddleware.js";
+import { verifyFlexibleToken } from "../middleware/flexibleAuthMiddleware.js";
 
     const router = express.Router();
 
@@ -10,9 +11,9 @@ import { authMiddleware, verifyToken } from "../middleware/authMiddleware.js";
 
     router.post("/apply", authMiddleware, createAdoptionApplication);
 
-    router.get("/", authMiddleware, getAllAdoptions);
+    router.get("/", verifyFlexibleToken, getAllAdoptions);
 
-    router.put("/:id/status", authMiddleware, updateAdoptionStatus);
+    router.put("/:id/status", verifyFlexibleToken, updateAdoptionStatus);
 
     router.put("/:id", authMiddleware, updateAdoptionApplication);
 

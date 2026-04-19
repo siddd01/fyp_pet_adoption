@@ -50,11 +50,31 @@ export const handleCheckout = async (req, res) => {
         for (const item of cartItems) {
             // Support different naming conventions for IDs
             const productId = item.product_id || item.id || item._id;
+            const orderedQuantity = Number(item.quantity);
+
+            const [products] = await connection.execute(
+                "SELECT id, COALESCE(stock, 0) AS stock FROM products WHERE id = ? FOR UPDATE",
+                [productId]
+            );
+
+            if (products.length === 0) {
+                throw new Error(`Product ${productId} not found`);
+            }
+
+            if (Number(products[0].stock) < orderedQuantity) {
+                throw new Error(`Insufficient stock for product ${productId}`);
+            }
 
             await connection.execute(
                 `INSERT INTO order_items (order_id, product_id, quantity, price_at_purchase) 
                  VALUES (?, ?, ?, ?)`,
                 [orderId, productId, item.quantity, item.price]
+            );
+
+            // Reserve stock immediately while payment is pending.
+            await connection.execute(
+                "UPDATE products SET stock = stock - ? WHERE id = ?",
+                [orderedQuantity, productId]
             );
         }
 

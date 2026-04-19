@@ -158,13 +158,18 @@ const Shop = () => {
 
                 {/* ── Info Section ── */}
                 <div className="p-6 flex-1 flex flex-col gap-4">
+                  {(() => {
+                    const availableStock = Number(product.stock ?? product.quantity ?? 0);
+
+                    return (
+                      <>
                   {/* Price Chip */}
                   <div className="flex items-center gap-2">
                     <span className="text-[10px] uppercase tracking-wider bg-stone-900 text-white px-3 py-1 rounded-lg font-bold">
                       {product.price} NPR
                     </span>
-                    <span className="text-[10px] uppercase tracking-wider text-stone-400 font-medium">
-                      In Stock
+                    <span className={`text-[10px] uppercase tracking-wider font-medium ${availableStock > 0 ? "text-stone-400" : "text-red-500"}`}>
+                      {availableStock > 0 ? `In Stock (${availableStock})` : "Out of Stock"}
                     </span>
                   </div>
 
@@ -182,18 +187,26 @@ const Shop = () => {
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      addToCart(product.id, 1, product.price);
+                      if (availableStock > 0) {
+                        addToCart(product.id, 1, product.price);
+                      }
                     }}
-                    className="mt-auto w-full bg-stone-900 hover:bg-stone-800 text-white py-3.5 rounded-2xl text-[10px] font-bold uppercase tracking-[0.2em] transition-all duration-300 flex items-center justify-center gap-2 group/btn"
+                    disabled={availableStock < 1}
+                    className="mt-auto w-full bg-stone-900 hover:bg-stone-800 text-white py-3.5 rounded-2xl text-[10px] font-bold uppercase tracking-[0.2em] transition-all duration-300 flex items-center justify-center gap-2 group/btn disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Add to Cart
-                    <svg 
-                      className="transform group-hover/btn:translate-x-1 transition-transform" 
-                      width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"
-                    >
-                      <path d="M5 12h14M12 5l7 7-7 7" />
-                    </svg>
+                    {availableStock > 0 ? "Add to Cart" : "Out of Stock"}
+                    {availableStock > 0 && (
+                      <svg 
+                        className="transform group-hover/btn:translate-x-1 transition-transform" 
+                        width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"
+                      >
+                        <path d="M5 12h14M12 5l7 7-7 7" />
+                      </svg>
+                    )}
                   </button>
+                      </>
+                    );
+                  })()}
                 </div>
               </ScrollReveal>
             ))}
