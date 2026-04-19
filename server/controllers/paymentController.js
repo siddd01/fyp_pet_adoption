@@ -16,6 +16,7 @@ export const handleCheckout = async (req, res) => {
 
     const userId = req.user.id;
     const frontendUrl = req.headers.origin || process.env.FRONTEND_URL || "http://localhost:3000";
+    const backendUrl = `${req.protocol}://${req.get("host")}`;
     // Calculate 2% charity contribution
     const donationAmount = (Number(totalAmount) * 0.02).toFixed(2);
     
@@ -63,7 +64,7 @@ export const handleCheckout = async (req, res) => {
         const KHALTI_URL = "https://a.khalti.com/api/v2/epayment/initiate/";
         
        const khaltiPayload = {
-  return_url: `${frontendUrl}/payment/verify`,
+  return_url: `${backendUrl}/api/payment/verify-return?frontend_url=${encodeURIComponent(frontendUrl)}`,
   website_url: frontendUrl,
   amount: Math.round(Number(totalAmount) * 100),
   purchase_order_id: orderId.toString(),

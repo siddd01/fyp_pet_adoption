@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import api from "../../../api/axios";
 import { ProductContext } from "../../../Context/ProductContext";
 
@@ -21,6 +21,10 @@ const StoreManagement = () => {
   const [form, setForm] = useState(initialForm);
   const [image, setImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
+
+  useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts]);
 
   // --- Functions ---
   const handleEditClick = (product) => {

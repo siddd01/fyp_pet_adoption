@@ -19,6 +19,135 @@ const mapKhaltiStatusToOrderStatus = (status) => {
   return "pending";
 };
 
+const verifyPaymentAndUpdateOrder = async (pidx) => {
+  const [orders] = await db.execute(
+    "SELECT id, user_id, status FROM orders WHERE pidx = ? LIMIT 1",
+    [pidx]
+  );
+
+  if (orders.length === 0) {
+    return {
+      httpStatus: 404,
+      body: {
+        success: false,
+        message: "Order not found for this payment",
+      },
+    };
+  }
+
+  const order = orders[0];
+
+  const response = await axios.post(
+    "https://a.khalti.com/api/v2/epayment/lookup/",
+    { pidx },
+    {
+      headers: {
+        Authorization: `Key ${process.env.KHALTI_SECRET_KEY}`,
+        "Content-Type": "application/json",
+      },
+    }
+  );
+
+  const data = response.data;
+  console.log("Khalti Verify Response:", data);
+  const nextStatus = mapKhaltiStatusToOrderStatus(data.status);
+
+  if (nextStatus === "completed") {
+    const connection = await db.getConnection();
+
+    try {
+      await connection.beginTransaction();
+
+      const [lockedOrders] = await connection.execute(
+        "SELECT id, user_id, status FROM orders WHERE id = ? FOR UPDATE",
+        [order.id]
+      );
+
+      if (lockedOrders.length === 0) {
+        throw new Error("Order disappeared during verification");
+      }
+
+      const lockedOrder = lockedOrders[0];
+
+      if (lockedOrder.status !== "completed") {
+        const [orderItems] = await connection.execute(
+          "SELECT product_id, quantity FROM order_items WHERE order_id = ?",
+          [lockedOrder.id]
+        );
+
+        for (const item of orderItems) {
+          const orderedQuantity = Number(item.quantity);
+
+          const [products] = await connection.execute(
+            "SELECT id, COALESCE(stock, 0) AS stock FROM products WHERE id = ? FOR UPDATE",
+            [item.product_id]
+          );
+
+          if (products.length === 0) {
+            throw new Error(`Product ${item.product_id} not found`);
+          }
+
+          if (Number(products[0].stock) < orderedQuantity) {
+            throw new Error(`Insufficient stock for product ${item.product_id}`);
+          }
+
+          await connection.execute(
+            "UPDATE products SET stock = stock - ? WHERE id = ?",
+            [orderedQuantity, item.product_id]
+          );
+        }
+      }
+
+      await connection.execute(
+        "UPDATE orders SET status = ?, transaction_id = COALESCE(?, transaction_id) WHERE id = ?",
+        [nextStatus, data.transaction_id || data.transactionId || null, lockedOrder.id]
+      );
+
+      await connection.execute(
+        "DELETE FROM cart_items WHERE user_id = ?",
+        [lockedOrder.user_id]
+      );
+
+      await connection.commit();
+    } catch (dbError) {
+      await connection.rollback();
+      throw dbError;
+    } finally {
+      connection.release();
+    }
+
+    return {
+      httpStatus: 200,
+      body: {
+        success: true,
+        message: "Payment verified successfully",
+        cartCleared: true,
+        orderStatus: nextStatus,
+      },
+    };
+  }
+
+  if (nextStatus !== order.status) {
+    await db.execute(
+      "UPDATE orders SET status = ?, transaction_id = COALESCE(?, transaction_id) WHERE id = ?",
+      [nextStatus, data.transaction_id || data.transactionId || null, order.id]
+    );
+  }
+
+  return {
+    httpStatus: 200,
+    body: {
+      success: false,
+      pending: nextStatus === "pending",
+      orderStatus: nextStatus,
+      message:
+        nextStatus === "pending"
+          ? `Payment is still processing. Current status: ${data.status}`
+          : `Payment not completed. Status: ${data.status}`,
+    },
+  };
+};
+
 export const verifyPayment = async (req, res) => {
   const { pidx } = req.body;
 
@@ -30,117 +159,8 @@ export const verifyPayment = async (req, res) => {
   }
 
   try {
-    const [orders] = await db.execute(
-      "SELECT id, user_id, status FROM orders WHERE pidx = ? LIMIT 1",
-      [pidx]
-    );
-
-    if (orders.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: "Order not found for this payment",
-      });
-    }
-
-    const order = orders[0];
-
-    const response = await axios.post(
-      "https://a.khalti.com/api/v2/epayment/lookup/",
-      { pidx },
-      {
-        headers: {
-          Authorization: `Key ${process.env.KHALTI_SECRET_KEY}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
-
-    const data = response.data;
-    console.log("Khalti Verify Response:", data);
-    const nextStatus = mapKhaltiStatusToOrderStatus(data.status);
-
-    if (nextStatus === "completed") {
-      const connection = await db.getConnection();
-
-      try {
-        await connection.beginTransaction();
-
-        const [lockedOrders] = await connection.execute(
-          "SELECT id, user_id, status FROM orders WHERE id = ? FOR UPDATE",
-          [order.id]
-        );
-
-        if (lockedOrders.length === 0) {
-          throw new Error("Order disappeared during verification");
-        }
-
-        const lockedOrder = lockedOrders[0];
-
-        if (lockedOrder.status !== "completed") {
-          const [orderItems] = await connection.execute(
-            "SELECT product_id, quantity FROM order_items WHERE order_id = ?",
-            [lockedOrder.id]
-          );
-
-          for (const item of orderItems) {
-            const orderedQuantity = Number(item.quantity);
-
-            const [updateResult] = await connection.execute(
-              `UPDATE products
-               SET stock = stock - ?,
-                   quantity = GREATEST(quantity - ?, 0)
-               WHERE id = ? AND stock >= ?`,
-              [orderedQuantity, orderedQuantity, item.product_id, orderedQuantity]
-            );
-
-            if (updateResult.affectedRows === 0) {
-              throw new Error(`Insufficient stock for product ${item.product_id}`);
-            }
-          }
-        }
-
-        await connection.execute(
-          "UPDATE orders SET status = ?, transaction_id = COALESCE(?, transaction_id) WHERE id = ?",
-          [nextStatus, data.transaction_id || data.transactionId || null, lockedOrder.id]
-        );
-
-        await connection.execute(
-          "DELETE FROM cart_items WHERE user_id = ?",
-          [lockedOrder.user_id]
-        );
-
-        await connection.commit();
-      } catch (dbError) {
-        await connection.rollback();
-        throw dbError;
-      } finally {
-        connection.release();
-      }
-
-      return res.json({
-        success: true,
-        message: "Payment verified successfully",
-        cartCleared: true,
-        orderStatus: nextStatus,
-      });
-    }
-
-    if (nextStatus !== order.status) {
-      await db.execute(
-        "UPDATE orders SET status = ?, transaction_id = COALESCE(?, transaction_id) WHERE id = ?",
-        [nextStatus, data.transaction_id || data.transactionId || null, order.id]
-      );
-    }
-
-    return res.json({
-      success: false,
-      pending: nextStatus === "pending",
-      orderStatus: nextStatus,
-      message:
-        nextStatus === "pending"
-          ? `Payment is still processing. Current status: ${data.status}`
-          : `Payment not completed. Status: ${data.status}`,
-    });
+    const result = await verifyPaymentAndUpdateOrder(pidx);
+    return res.status(result.httpStatus).json(result.body);
   } catch (error) {
     console.error("Verify Error:", error.response?.data || error.message);
 
@@ -148,5 +168,35 @@ export const verifyPayment = async (req, res) => {
       success: false,
       message: "Verification failed",
     });
+  }
+};
+
+export const verifyPaymentReturn = async (req, res) => {
+  const pidx = req.query.pidx;
+  const frontendUrl =
+    req.query.frontend_url ||
+    process.env.FRONTEND_URL ||
+    "http://localhost:5173";
+
+  if (!pidx) {
+    return res.redirect(`${frontendUrl}/payment/verify?status=error`);
+  }
+
+  try {
+    const result = await verifyPaymentAndUpdateOrder(pidx);
+    const status = result.body.success
+      ? "success"
+      : result.body.pending
+        ? "pending"
+        : "error";
+
+    return res.redirect(
+      `${frontendUrl}/payment/verify?pidx=${encodeURIComponent(pidx)}&status=${status}`
+    );
+  } catch (error) {
+    console.error("Verify Return Error:", error.response?.data || error.message);
+    return res.redirect(
+      `${frontendUrl}/payment/verify?pidx=${encodeURIComponent(pidx)}&status=error`
+    );
   }
 };

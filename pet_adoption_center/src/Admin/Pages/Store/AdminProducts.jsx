@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../../api/axios";
 import { ProductContext } from "../../../Context/ProductContext";
@@ -6,6 +6,10 @@ import { ProductContext } from "../../../Context/ProductContext";
 const AdminProducts = () => {
   const navigate = useNavigate();
   const { products, productLoading, fetchProducts } = useContext(ProductContext);
+
+  useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts]);
 
   const handleDelete = async (id) => {
     if (!window.confirm("Permanently delete this product from the database?")) return;
@@ -117,6 +121,11 @@ const AdminProducts = () => {
                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                       <p className="text-[10px] font-bold text-stone-400 uppercase tracking-widest">Active</p>
                     </div>
+                  </div>
+
+                  <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-widest">
+                    <span className="text-stone-400">Stock</span>
+                    <span className="text-stone-900">{product.stock ?? 0}</span>
                   </div>
 
                   <div className="grid grid-cols-2 gap-2">
