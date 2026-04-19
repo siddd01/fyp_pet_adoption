@@ -135,6 +135,7 @@ const Cart = () => {
                           onClick={() =>
                             updateQuantity(item.id, item.quantity + 1)
                           }
+                          disabled={item.quantity >= Number(item.stock || 0)}
                           className="w-7 h-7 flex items-center justify-center border rounded-lg"
                         >
                           <Plus className="w-3 h-3" />

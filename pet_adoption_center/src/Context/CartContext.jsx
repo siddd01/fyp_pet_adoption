@@ -28,7 +28,7 @@ export const CartProvider = ({ children }) => {
     const token = localStorage.getItem("token");
     if (!token) {
       alert("Please login first");
-      return;
+      return false;
     }
 
     try {
@@ -41,9 +41,11 @@ export const CartProvider = ({ children }) => {
       );
       alert(res.data.message);
       fetchCart(); // Refresh cart after adding
+      return true;
     } catch (err) {
       console.error("Add to cart error:", err);
-      alert("Failed to add item to cart");
+      alert(err.response?.data?.error || "Failed to add item to cart");
+      return false;
     }
   };
 
@@ -60,6 +62,7 @@ export const CartProvider = ({ children }) => {
       fetchCart();
     } catch (error) {
       console.error("Update quantity error:", error);
+      alert(error.response?.data?.error || "Failed to update quantity");
     }
   };
 

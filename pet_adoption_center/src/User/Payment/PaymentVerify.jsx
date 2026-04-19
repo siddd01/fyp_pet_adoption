@@ -3,12 +3,14 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import api from "../../api/axios";
 import { CartContext } from "../../Context/CartContext.jsx";
+import { ProductContext } from "../../Context/ProductContext.jsx";
 
 const PaymentVerify = () => {
   const [searchParams] = useSearchParams();
   const [status, setStatus] = useState("verifying"); // verifying | pending | success | error
   const navigate = useNavigate();
   const { fetchCart } = useContext(CartContext);
+  const { fetchProducts } = useContext(ProductContext);
 
   const hasVerified = useRef(false); // prevent double API call
   const retryCount = useRef(0);
@@ -32,6 +34,7 @@ const PaymentVerify = () => {
 
         if (data.success) {
           await fetchCart();
+          await fetchProducts();
           setStatus("success");
         } else if (data.pending && retryCount.current < 5) {
           retryCount.current += 1;
@@ -51,7 +54,7 @@ const PaymentVerify = () => {
     };
 
     verifyPayment();
-  }, [pidx, fetchCart]);
+  }, [pidx, fetchCart, fetchProducts]);
 
   useEffect(() => {
     if (status === "success") {

@@ -1,13 +1,10 @@
 import {
   ArrowLeft,
-  Calendar,
   Heart,
   Package,
   Share2,
   Shield,
-  ShoppingCart,
   Star,
-  Tag,
   ChevronRight,
 } from "lucide-react";
 import { useContext, useState } from "react";
@@ -25,6 +22,33 @@ const ProductDetails = () => {
   const [cartQuantity, setCartQuantity] = useState(1);
 
   const product = products.find((p) => Number(p.id) === Number(id));
+  const availableStock = Math.max(
+    0,
+    Number(product?.stock ?? product?.quantity ?? 0)
+  );
+
+  const decreaseQuantity = () => {
+    setCartQuantity((currentQuantity) => Math.max(1, currentQuantity - 1));
+  };
+
+  const increaseQuantity = () => {
+    setCartQuantity((currentQuantity) =>
+      Math.min(availableStock || 1, currentQuantity + 1)
+    );
+  };
+
+  const handleAddToCart = async (goToCart = false) => {
+    if (availableStock < 1) {
+      alert("This product is out of stock.");
+      return;
+    }
+
+    const added = await addToCart(product.id, cartQuantity, product.price);
+
+    if (added && goToCart) {
+      navigate("/cart");
+    }
+  };
 
   if (productLoading) {
     return (
@@ -45,20 +69,19 @@ const ProductDetails = () => {
 
   return (
     <div className="min-h-screen bg-[#faf9f6] text-stone-800 pb-20">
-      {/* Editorial Navigation */}
       <nav className="bg-white/80 backdrop-blur-md sticky top-0 z-30 border-b border-stone-100">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <button 
+          <button
             onClick={() => navigate(-1)}
             className="group flex items-center gap-2 text-stone-400 hover:text-stone-900 transition-colors text-[10px] font-bold uppercase tracking-[0.2em]"
           >
             <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
             Back to Collection
           </button>
-          
+
           <div className="flex items-center gap-6">
             <button onClick={() => setIsFavorited(!isFavorited)} className="text-stone-400 hover:text-rose-500 transition-colors">
-              <Heart className={`w-5 h-5 ${isFavorited ? 'fill-rose-500 text-rose-500' : ''}`} />
+              <Heart className={`w-5 h-5 ${isFavorited ? "fill-rose-500 text-rose-500" : ""}`} />
             </button>
             <button className="text-stone-400 hover:text-stone-900 transition-colors">
               <Share2 className="w-5 h-5" />
@@ -68,7 +91,6 @@ const ProductDetails = () => {
       </nav>
 
       <main className="max-w-7xl mx-auto px-6 pt-12">
-        {/* Breadcrumb */}
         <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-stone-400 mb-8 font-bold">
           <Link to="/" className="hover:text-stone-900">Sano Ghar</Link>
           <ChevronRight size={10} />
@@ -78,8 +100,6 @@ const ProductDetails = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
-          
-          {/* Left: Visual Gallery */}
           <div className="lg:col-span-7 space-y-8">
             <div className="relative aspect-square bg-white rounded-3xl overflow-hidden shadow-sm border border-stone-100 group">
               <img
@@ -90,18 +110,17 @@ const ProductDetails = () => {
               {product.stock < 5 && product.stock > 0 && (
                 <div className="absolute top-6 left-6">
                   <span className="bg-white/90 backdrop-blur-sm text-stone-800 text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-full shadow-sm border border-stone-100">
-                    Rare Find — {product.stock} Left
+                    Rare Find - {product.stock} Left
                   </span>
                 </div>
               )}
             </div>
 
-            {/* Editorial Description */}
             <div className="space-y-8 pt-8 border-t border-stone-200">
               <div>
                 <h3 className="text-[11px] uppercase tracking-[0.3em] text-stone-400 font-bold mb-4">The Story</h3>
                 <p className="text-xl font-serif text-stone-700 leading-relaxed italic">
-                   "{product.description}"
+                  "{product.description}"
                 </p>
               </div>
 
@@ -127,12 +146,11 @@ const ProductDetails = () => {
             </div>
           </div>
 
-          {/* Right: Interaction Sidebar */}
           <div className="lg:col-span-5">
             <div className="sticky top-32 space-y-8">
               <header className="space-y-4">
                 <div className="flex items-center justify-between">
-                   <span className="text-[10px] uppercase tracking-[0.3em] text-emerald-600 font-bold">
+                  <span className="text-[10px] uppercase tracking-[0.3em] text-emerald-600 font-bold">
                     {product.category}
                   </span>
                   <div className="flex items-center gap-1 text-amber-400">
@@ -150,41 +168,54 @@ const ProductDetails = () => {
 
               <div className="h-px bg-stone-200" />
 
-              {/* Purchase Controls */}
               <div className="space-y-6">
                 <div className="flex flex-col gap-4">
                   <label className="text-[10px] uppercase tracking-widest font-bold text-stone-400">Quantity</label>
                   <div className="flex items-center w-fit bg-white border border-stone-200 rounded-2xl p-1">
-                    <button 
-                      onClick={() => setCartQuantity(Math.max(1, cartQuantity - 1))}
-                      className="w-10 h-10 rounded-xl hover:bg-stone-50 transition flex items-center justify-center font-bold"
-                    > − </button>
+                    <button
+                      type="button"
+                      onClick={decreaseQuantity}
+                      disabled={availableStock < 1}
+                      className="w-10 h-10 rounded-xl hover:bg-stone-50 transition flex items-center justify-center font-bold disabled:cursor-not-allowed disabled:opacity-40"
+                    >
+                      -
+                    </button>
                     <span className="w-12 text-center font-bold text-sm">{cartQuantity}</span>
-                    <button 
-                      onClick={() => setCartQuantity(Math.min(product.quantity, cartQuantity + 1))}
-                      className="w-10 h-10 rounded-xl hover:bg-stone-50 transition flex items-center justify-center font-bold"
-                    > + </button>
+                    <button
+                      type="button"
+                      onClick={increaseQuantity}
+                      disabled={availableStock < 1 || cartQuantity >= availableStock}
+                      className="w-10 h-10 rounded-xl hover:bg-stone-50 transition flex items-center justify-center font-bold disabled:cursor-not-allowed disabled:opacity-40"
+                    >
+                      +
+                    </button>
                   </div>
+                  <p className="text-xs text-stone-500">
+                    {availableStock > 0
+                      ? `${availableStock} item${availableStock === 1 ? "" : "s"} available`
+                      : "Out of stock"}
+                  </p>
                 </div>
 
                 <div className="space-y-3 pt-4">
-                  <button 
-                    onClick={() => { addToCart(product.id, cartQuantity, product.price); navigate("/cart"); }}
-                    className="w-full bg-stone-900 text-white py-5 rounded-2xl font-bold text-xs uppercase tracking-[0.2em] hover:bg-stone-800 transition-all transform active:scale-[0.98] shadow-lg shadow-stone-200"
+                  <button
+                    onClick={() => handleAddToCart(true)}
+                    disabled={availableStock < 1}
+                    className="w-full bg-stone-900 text-white py-5 rounded-2xl font-bold text-xs uppercase tracking-[0.2em] hover:bg-stone-800 transition-all transform active:scale-[0.98] shadow-lg shadow-stone-200 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     Proceed to Checkout
                   </button>
-                  
+
                   <button
-                    onClick={() => addToCart(product.id, cartQuantity, product.price)}
-                    className="w-full border-2 border-stone-900 text-stone-900 py-5 rounded-2xl font-bold text-xs uppercase tracking-[0.2em] hover:bg-stone-900 hover:text-white transition-all"
+                    onClick={() => handleAddToCart(false)}
+                    disabled={availableStock < 1}
+                    className="w-full border-2 border-stone-900 text-stone-900 py-5 rounded-2xl font-bold text-xs uppercase tracking-[0.2em] hover:bg-stone-900 hover:text-white transition-all disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     Add to Collection
                   </button>
                 </div>
               </div>
 
-              {/* Trust Indicators */}
               <div className="grid grid-cols-2 gap-4 pt-8">
                 <div className="p-4 bg-white rounded-2xl border border-stone-100 flex flex-col items-center text-center space-y-2">
                   <Shield size={18} className="text-stone-400" />
@@ -196,7 +227,6 @@ const ProductDetails = () => {
                 </div>
               </div>
 
-              {/* Charity Note */}
               <div className="bg-emerald-50 rounded-2xl p-6 border border-emerald-100">
                 <div className="flex items-center gap-3 mb-2">
                   <Heart size={14} className="text-emerald-600 fill-emerald-600" />
@@ -208,7 +238,6 @@ const ProductDetails = () => {
               </div>
             </div>
           </div>
-
         </div>
       </main>
     </div>

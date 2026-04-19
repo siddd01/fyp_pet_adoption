@@ -22,7 +22,7 @@ export const signup = async (req, res) => {
 
     // Insert user into DB
     await db.query(
-      `INSERT INTO users 
+      ` INSERT INTO users 
       (first_name, last_name, email, password, role_id, date_of_birth, gender, otp, otp_expiry) 
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [first_name, last_name, email, hashedPassword, role_id, date_of_birth, gender, otp, otp_expiry]

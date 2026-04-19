@@ -65,14 +65,48 @@ export const verifyPayment = async (req, res) => {
       try {
         await connection.beginTransaction();
 
+        const [lockedOrders] = await connection.execute(
+          "SELECT id, user_id, status FROM orders WHERE id = ? FOR UPDATE",
+          [order.id]
+        );
+
+        if (lockedOrders.length === 0) {
+          throw new Error("Order disappeared during verification");
+        }
+
+        const lockedOrder = lockedOrders[0];
+
+        if (lockedOrder.status !== "completed") {
+          const [orderItems] = await connection.execute(
+            "SELECT product_id, quantity FROM order_items WHERE order_id = ?",
+            [lockedOrder.id]
+          );
+
+          for (const item of orderItems) {
+            const orderedQuantity = Number(item.quantity);
+
+            const [updateResult] = await connection.execute(
+              `UPDATE products
+               SET stock = stock - ?,
+                   quantity = GREATEST(quantity - ?, 0)
+               WHERE id = ? AND stock >= ?`,
+              [orderedQuantity, orderedQuantity, item.product_id, orderedQuantity]
+            );
+
+            if (updateResult.affectedRows === 0) {
+              throw new Error(`Insufficient stock for product ${item.product_id}`);
+            }
+          }
+        }
+
         await connection.execute(
           "UPDATE orders SET status = ?, transaction_id = COALESCE(?, transaction_id) WHERE id = ?",
-          [nextStatus, data.transaction_id || data.transactionId || null, order.id]
+          [nextStatus, data.transaction_id || data.transactionId || null, lockedOrder.id]
         );
 
         await connection.execute(
           "DELETE FROM cart_items WHERE user_id = ?",
-          [order.user_id]
+          [lockedOrder.user_id]
         );
 
         await connection.commit();
