@@ -1,4 +1,5 @@
 import db from "../config/db.js";
+import sendEmail from "../utils/sendEmail.js";
 
 export const updateAdoptionStatus = async (req, res) => {
   try {
@@ -9,6 +10,30 @@ export const updateAdoptionStatus = async (req, res) => {
       return res.status(400).json({ message: "Invalid status" });
     }
 
+    const [applications] = await db.execute(
+      `
+      SELECT
+        aa.id,
+        aa.user_id,
+        aa.status AS current_status,
+        aa.full_name,
+        u.email,
+        p.name AS pet_name
+      FROM adoption_applications aa
+      JOIN users u ON u.id = aa.user_id
+      JOIN pets p ON p.id = aa.pet_id
+      WHERE aa.id = ?
+      LIMIT 1
+      `,
+      [id]
+    );
+
+    if (applications.length === 0) {
+      return res.status(404).json({ message: "Application not found" });
+    }
+
+    const application = applications[0];
+
     const [result] = await db.execute(
       "UPDATE adoption_applications SET status = ? WHERE id = ?",
       [status, id]
@@ -16,6 +41,50 @@ export const updateAdoptionStatus = async (req, res) => {
 
     if (result.affectedRows === 0) {
       return res.status(404).json({ message: "Application not found" });
+    }
+
+    const readableStatus = status === "approved" ? "approved" : "rejected";
+    const notificationMessage =
+      status === "approved"
+        ? `Your adoption request for ${application.pet_name} has been approved.`
+        : `Your adoption request for ${application.pet_name} has been rejected.`;
+
+    await db.execute(
+      "INSERT INTO user_notifications (user_id, type, message, related_id, created_at) VALUES (?, 'adoption', ?, ?, NOW())",
+      [application.user_id, notificationMessage, id]
+    );
+
+    if (application.email) {
+      const userName = application.full_name || "there";
+
+      await sendEmail({
+        to: application.email,
+        subject: `Your adoption request has been ${readableStatus}`,
+        text:
+          status === "approved"
+            ? `Hello ${userName}, your adoption request for ${application.pet_name} has been approved by Sano Ghar. Please log in to your account for the next steps.`
+            : `Hello ${userName}, your adoption request for ${application.pet_name} has been rejected by Sano Ghar. You can log in to your account to review your application and explore other pets.`,
+        html:
+          status === "approved"
+            ? `
+              <div style="font-family: Arial, sans-serif; color: #1c1917; line-height: 1.6;">
+                <h2 style="margin-bottom: 12px;">Adoption Request Approved</h2>
+                <p>Hello ${userName},</p>
+                <p>Your adoption request for <strong>${application.pet_name}</strong> has been approved by Sano Ghar.</p>
+                <p>Please log in to your account to review the next steps.</p>
+                <p style="margin-top: 20px;">Thank you for supporting pet adoption.</p>
+              </div>
+            `
+            : `
+              <div style="font-family: Arial, sans-serif; color: #1c1917; line-height: 1.6;">
+                <h2 style="margin-bottom: 12px;">Adoption Request Rejected</h2>
+                <p>Hello ${userName},</p>
+                <p>Your adoption request for <strong>${application.pet_name}</strong> has been rejected by Sano Ghar.</p>
+                <p>You can log in to your account to review your application and explore other pets that may be a good match.</p>
+                <p style="margin-top: 20px;">Thank you for caring for rescued animals.</p>
+              </div>
+            `,
+      });
     }
 
     res.json({
