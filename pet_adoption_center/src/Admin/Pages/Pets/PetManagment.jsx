@@ -12,6 +12,7 @@ import { useContext, useMemo, useState } from "react";
 import api from "../../../api/axios";
 import { AdminAuthContext } from "../../../Context/AdminAuthContext";
 import { PetContext } from "../../../Context/PetContext";
+import { DEFAULT_PET_IMAGE } from "../../../constants/defaultImages";
 
 const speciesOptions = ["Cat", "Dog", "Bird", "Others"];
 
@@ -199,7 +200,7 @@ const PetManagement = () => {
                   <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
                     <div className="flex items-start gap-4">
                       <img
-                        src={pet.image_url || "/placeholder.jpg"}
+                        src={pet.image_url || DEFAULT_PET_IMAGE}
                         alt={pet.name}
                         className="h-20 w-20 rounded-2xl object-cover ring-1 ring-stone-200"
                       />

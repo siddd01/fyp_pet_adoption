@@ -2,6 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { AuthContext } from "../../../Context/AuthContext";
 import api from "../../../api/axios.js";
+import { getNotifications } from "../../Services/notificationService";
 
 const AdoptionForm = () => {
   const { id } = useParams();
@@ -22,6 +23,8 @@ const AdoptionForm = () => {
   });
   const [loading, setLoading] = useState(false);
   const [submitError, setSubmitError] = useState("");
+  const [existingApplication, setExistingApplication] = useState(null);
+  const [checkingExisting, setCheckingExisting] = useState(false);
 
   const calculateAge = (dob) => {
     if (!dob) return "";
@@ -62,6 +65,27 @@ const AdoptionForm = () => {
     }
   }, [user, isEditMode, editData]);
 
+  useEffect(() => {
+    const checkExistingApplication = async () => {
+      if (isEditMode || !user || !id) return;
+
+      setCheckingExisting(true);
+      try {
+        const notifications = await getNotifications();
+        const match = (notifications || []).find(
+          (application) => String(application.pet_id) === String(id)
+        );
+        setExistingApplication(match || null);
+      } catch (error) {
+        console.error("Failed to check existing adoption applications:", error);
+      } finally {
+        setCheckingExisting(false);
+      }
+    };
+
+    checkExistingApplication();
+  }, [id, isEditMode, user]);
+
   const handleChange = (e) => {
     setSubmitError("");
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -83,6 +107,13 @@ const AdoptionForm = () => {
       }
 
       if (!id) throw new Error("Pet ID missing");
+
+      if (existingApplication) {
+        setSubmitError(
+          `You have already submitted an adoption request for this pet (${existingApplication.status || "pending"}).`
+        );
+        return;
+      }
 
       await api.post(
         "/adoptions/apply",
@@ -129,6 +160,13 @@ const AdoptionForm = () => {
                 {submitError && (
                   <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
                     {submitError}
+                  </div>
+                )}
+
+                {!isEditMode && existingApplication && (
+                  <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+                    You already have an adoption request for this pet with status{" "}
+                    <strong>{existingApplication.status || "pending"}</strong>.
                   </div>
                 )}
 
@@ -238,10 +276,16 @@ const AdoptionForm = () => {
                 <div className="flex justify-end pt-2 border-t border-gray-100">
                   <button
                     type="submit"
-                    disabled={loading}
+                    disabled={loading || checkingExisting || (!isEditMode && !!existingApplication)}
                     className="inline-flex items-center gap-2 px-8 py-3 bg-stone-900 hover:bg-stone-700 disabled:bg-gray-300 text-white text-sm font-semibold rounded-xl transition hover:-translate-y-0.5 hover:shadow-lg disabled:cursor-not-allowed"
                   >
-                    {loading ? "Saving..." : isEditMode ? "Save Changes" : "Submit Application"}
+                    {checkingExisting
+                      ? "Checking..."
+                      : loading
+                      ? "Saving..."
+                      : isEditMode
+                      ? "Save Changes"
+                      : "Submit Application"}
                   </button>
                 </div>
               </form>

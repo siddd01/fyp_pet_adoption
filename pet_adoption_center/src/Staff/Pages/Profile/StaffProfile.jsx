@@ -1,6 +1,7 @@
 import { Calendar, Camera, Mail, Phone, Save, User } from "lucide-react";
 import { useContext, useEffect, useState } from "react";
 import { StaffContext } from "../../../Context/StaffContext";
+import { DEFAULT_PROFILE_IMAGE } from "../../../constants/defaultImages";
 
 const StaffProfile = () => {
   const { staff, fetchStaffProfile, updateStaffProfile } = useContext(StaffContext);
@@ -141,7 +142,7 @@ const StaffProfile = () => {
                   src={
                     formData.image instanceof File
                       ? URL.createObjectURL(formData.image)
-                      : formData.image || "https://via.placeholder.com/150"
+                      : formData.image || DEFAULT_PROFILE_IMAGE
                   }
                   alt="Profile"
                   className="w-40 h-40 rounded-[2.5rem] object-cover border-4 border-stone-50 shadow-inner"

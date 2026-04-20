@@ -3,6 +3,7 @@ import { useContext, useState } from "react";
 import { FiMoreVertical } from "react-icons/fi";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../Context/AuthContext";
+import { DEFAULT_PROFILE_IMAGE } from "../../constants/defaultImages";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -95,7 +96,7 @@ const Navbar = () => {
         {user && (
           <>
             <img
-              src={user.image || "/default-user.png"}
+              src={user.image || DEFAULT_PROFILE_IMAGE}
               alt="Profile"
               className="h-8 w-8 sm:h-9 sm:w-9 rounded-full border-2 border-stone-200 cursor-pointer hover:scale-105 transition"
               onClick={() => navigate("/profile")}

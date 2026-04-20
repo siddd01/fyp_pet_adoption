@@ -4,6 +4,7 @@ import { CartContext } from "../../../Context/CartContext";
 import { ProductContext } from "../../../Context/ProductContext";
 import ScrollReveal from "../../Components/ScrollReveal";
 import { getOptimizedImageUrl } from "../../Services/imageService.jsx";
+import { DEFAULT_SITE_IMAGE } from "../../../constants/defaultImages";
 
 const Shop = () => {
   const navigate = useNavigate();
@@ -143,7 +144,7 @@ const Shop = () => {
                       getOptimizedImageUrl(product.image_url || product.image, {
                         width: 900,
                         height: 700,
-                      }) || "/placeholder-product.jpg"
+                      }) || DEFAULT_SITE_IMAGE
                     }
                     alt={product.name}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"

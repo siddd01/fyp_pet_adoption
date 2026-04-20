@@ -2,6 +2,7 @@ import { Calendar, Check, Edit2, Mail, Shield, User, X, AlertTriangle } from "lu
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../Context/AuthContext.jsx";
 import { useNavigate } from "react-router-dom";
+import { DEFAULT_PROFILE_IMAGE } from "../../constants/defaultImages";
 
 const Profile = () => {
   const { user, updateUser } = useContext(AuthContext);
@@ -123,7 +124,7 @@ const Profile = () => {
                   src={
                     formData.image instanceof File
                       ? URL.createObjectURL(formData.image)
-                      : formData.image || "https://via.placeholder.com/150"
+                      : formData.image || DEFAULT_PROFILE_IMAGE
                   }
                   alt="Profile"
                   className="w-20 h-20 rounded-2xl border border-stone-200 shadow-sm object-cover"

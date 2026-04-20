@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../../api/axios";
 import { getNotifications } from "../../Services/notificationService";
+import { DEFAULT_PET_IMAGE } from "../../../constants/defaultImages";
 
 const statusConfig = {
   approved: {
@@ -189,7 +190,7 @@ const Notifications = () => {
                   <div className="p-8 flex flex-col h-full">
                     <div className="flex justify-between items-start mb-6">
                       <div className="flex items-center gap-4">
-                        <img src={item.image_url || "/default-pet.png"} alt="" className="w-16 h-16 rounded-2xl object-cover ring-4 ring-stone-50" />
+                        <img src={item.image_url || DEFAULT_PET_IMAGE} alt="" className="w-16 h-16 rounded-2xl object-cover ring-4 ring-stone-50" />
                         <div>
                           <h3 className="text-stone-900 font-semibold text-xl" style={{ fontFamily: "Georgia, serif" }}>{item.pet_name}</h3>
                           <p className="text-[10px] text-stone-400 uppercase tracking-tighter">Application ID: #{item.id.toString().slice(-4)}</p>
@@ -286,7 +287,7 @@ const Notifications = () => {
 
               <div className="space-y-8">
                 <div className="flex gap-6 p-6 bg-stone-50 rounded-3xl border border-stone-100">
-                  <img src={selectedApp.image_url} className="w-20 h-20 rounded-2xl object-cover shadow-sm" />
+                  <img src={selectedApp.image_url || DEFAULT_PET_IMAGE} className="w-20 h-20 rounded-2xl object-cover shadow-sm" />
                   <div>
                     <p className="text-[10px] text-stone-400 uppercase font-bold tracking-[0.2em] mb-1">Subject</p>
                     <p className="text-2xl font-semibold text-stone-900">{selectedApp.pet_name}</p>

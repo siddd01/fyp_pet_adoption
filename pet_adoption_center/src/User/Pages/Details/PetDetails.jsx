@@ -3,6 +3,7 @@ import { useContext, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { PetContext } from "../../../Context/PetContext";
 import { getOptimizedImageUrl } from "../../Services/imageService.jsx";
+import { DEFAULT_PET_IMAGE } from "../../../constants/defaultImages";
 
 const PetDetails = () => {
   const { id } = useParams();
@@ -89,7 +90,7 @@ const PetDetails = () => {
                   width: 1400,
                   height: 1100,
                   crop: "fill",
-                }) || "/placeholder-pet.jpg"
+                }) || DEFAULT_PET_IMAGE
               }
               alt={pet.name}
               className="w-full h-100 object-cover"

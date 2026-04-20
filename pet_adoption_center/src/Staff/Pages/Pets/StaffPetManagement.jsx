@@ -2,6 +2,7 @@ import { useContext, useState } from "react";
 import { PetContext } from "../../../Context/PetContext";
 import { StaffContext } from "../../../Context/StaffContext";
 import api from "../../../api/axios";
+import { DEFAULT_PET_IMAGE } from "../../../constants/defaultImages";
 
 const StaffPetManagement = () => {
   const { addPet, deletePet } = useContext(StaffContext);
@@ -116,7 +117,7 @@ const StaffPetManagement = () => {
           {pets.map((pet) => (
             <div key={pet.id} className="group bg-white rounded-3xl overflow-hidden border border-stone-100 shadow-sm hover:shadow-xl transition-all duration-500">
               <div className="relative aspect-square overflow-hidden bg-stone-100">
-                <img src={pet.image_url || "/placeholder.jpg"} alt={pet.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                <img src={pet.image_url || DEFAULT_PET_IMAGE} alt={pet.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                 <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent" />
                 <span className="absolute top-3 right-3 bg-white/90 backdrop-blur-md text-stone-800 text-[8px] font-bold uppercase tracking-widest px-2 py-1 rounded-full">{pet.species}</span>
                 <div className="absolute bottom-4 left-5">

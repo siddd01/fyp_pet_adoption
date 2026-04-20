@@ -3,18 +3,41 @@ import {
   LogOut,
   Menu,
   PawPrint,
+  SquareUserRound,
   ShoppingBag,
-  UserCircle,
-  X
+  X,
 } from "lucide-react";
-import { useContext, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { useContext, useEffect, useMemo, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { StaffContext } from "../../../Context/StaffContext";
 
 const StaffDashboard = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { staff } = useContext(StaffContext);
+  const { staff, staffLogout, fetchStaffProfile } = useContext(StaffContext);
   const location = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    fetchStaffProfile().catch((error) => {
+      console.error("Failed to load staff profile for sidebar", error);
+    });
+  }, [fetchStaffProfile]);
+
+  const displayName = useMemo(() => {
+    const fullName = [staff?.first_name, staff?.last_name].filter(Boolean).join(" ").trim();
+    return fullName || staff?.email || "Staff Member";
+  }, [staff]);
+
+  const avatarLabel = useMemo(() => {
+    if (staff?.first_name) return staff.first_name.charAt(0).toUpperCase();
+    if (staff?.email) return staff.email.charAt(0).toUpperCase();
+    return "S";
+  }, [staff]);
+
+  const handleLogout = () => {
+    staffLogout();
+    navigate("/staff/login");
+  };
 
   const groups = [
     {
@@ -28,37 +51,30 @@ const StaffDashboard = () => {
       section: "Administration",
       items: [
         { title: "Adoption Requests", icon: <ClipboardList size={20} />, link: "/staff/adoptions" },
-        { title: "My Profile", icon: <UserCircle size={20} />, link: "/staff/profile" },
+        { title: "Profile", icon: <SquareUserRound size={20} />, link: "/staff/profile" },
       ],
     },
   ];
 
-  const stats = [
-    { label: "Capacity", value: "85%", color: "text-emerald-600" },
-    { label: "Inventory", value: "24", color: "text-violet-600" },
-    { label: "Queue", value: "3", color: "text-amber-600" },
-  ];
-
   return (
     <div className="flex min-h-screen bg-[#fbfaf8]">
-      {/* Sidebar */}
-      <aside className={`
+      <aside
+        className={`
         fixed inset-y-0 left-0 z-50 w-72 bg-white border-r border-stone-200 transform transition-transform duration-300 ease-in-out
         ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"} 
         lg:translate-x-0 lg:static lg:inset-0
-      `}>
-        <div className="flex flex-col h-full p-6">
-          {/* Logo Area */}
+      `}
+      >
+        <div className="flex h-full flex-col p-6">
           <div className="mb-10 px-2">
             <h1 className="text-3xl font-serif text-stone-900">Workspace</h1>
-            <p className="text-xs font-bold text-stone-400 tracking-widest mt-1 uppercase">Staff Portal</p>
+            <p className="mt-1 text-xs font-bold uppercase tracking-widest text-stone-400">Staff Portal</p>
           </div>
 
-          {/* Navigation */}
           <nav className="flex-1 space-y-8 overflow-y-auto">
             {groups.map((group) => (
               <div key={group.section}>
-                <h2 className="px-2 text-[10px] font-bold tracking-[0.2em] text-stone-400 uppercase mb-3">
+                <h2 className="mb-3 px-2 text-[10px] font-bold uppercase tracking-[0.2em] text-stone-400">
                   {group.section}
                 </h2>
                 <div className="space-y-1">
@@ -69,15 +85,13 @@ const StaffDashboard = () => {
                         key={item.title}
                         to={item.link}
                         onClick={() => setIsMobileMenuOpen(false)}
-                        className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group ${
-                          isActive 
-                            ? "bg-stone-900 text-white shadow-md shadow-stone-200" 
+                        className={`group flex items-center gap-3 rounded-xl px-3 py-2.5 transition-all duration-200 ${
+                          isActive
+                            ? "bg-stone-900 text-white shadow-md shadow-stone-200"
                             : "text-stone-500 hover:bg-stone-100 hover:text-stone-900"
                         }`}
                       >
-                        <span className={`${isActive ? "text-white" : "text-stone-400 group-hover:text-stone-900"}`}>
-                          {item.icon}
-                        </span>
+                        <span className={isActive ? "text-white" : "text-stone-400 group-hover:text-stone-900"}>{item.icon}</span>
                         <span className="text-sm font-semibold">{item.title}</span>
                       </Link>
                     );
@@ -87,18 +101,20 @@ const StaffDashboard = () => {
             ))}
           </nav>
 
-          {/* User Section */}
-          <div className="mt-auto pt-6 border-t border-stone-100">
-            <div className="flex items-center gap-3 px-2 mb-4">
-              <div className="w-10 h-10 rounded-full bg-stone-100 border border-stone-200 flex items-center justify-center text-stone-600 font-serif">
-                {staff?.first_name?.charAt(0) || "S"}
+          <div className="mt-auto border-t border-stone-100 pt-6">
+            <div className="mb-4 flex items-center gap-3 px-2">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full border border-stone-200 bg-stone-100 font-serif text-stone-600">
+                {avatarLabel}
               </div>
               <div>
-                <p className="text-sm font-bold text-stone-800">{staff?.first_name} {staff?.last_name}</p>
-                <p className="text-xs text-stone-400 font-medium tracking-wide">Operations Staff</p>
+                <p className="text-sm font-bold text-stone-800">{displayName}</p>
+                <p className="text-xs font-medium tracking-wide text-stone-400">Operations Staff</p>
               </div>
             </div>
-            <button className="flex items-center gap-3 w-full px-3 py-2 text-sm font-semibold text-rose-500 hover:bg-rose-50 rounded-xl transition-colors">
+            <button
+              onClick={handleLogout}
+              className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold text-rose-500 transition-colors hover:bg-rose-50"
+            >
               <LogOut size={18} />
               Logout
             </button>
@@ -106,68 +122,66 @@ const StaffDashboard = () => {
         </div>
       </aside>
 
-      {/* Main Content Area */}
-      <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        {/* Top Header */}
-        <header className="h-16 lg:h-20 bg-white/80 backdrop-blur-md border-b border-stone-200 flex items-center justify-between px-6 lg:px-10 sticky top-0 z-40">
-          <button 
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="lg:hidden p-2 text-stone-600"
-          >
+      <main className="flex min-w-0 flex-1 flex-col overflow-hidden">
+        <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-stone-200 bg-white/80 px-6 backdrop-blur-md lg:h-20 lg:px-10">
+          <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="p-2 text-stone-600 lg:hidden">
             {isMobileMenuOpen ? <X /> : <Menu />}
           </button>
 
-          <div className="hidden md:flex gap-8">
-            {stats.map((stat) => (
-              <div key={stat.label} className="flex flex-col">
-                <span className="text-[10px] font-bold text-stone-400 uppercase tracking-tighter">{stat.label}</span>
-                <span className={`text-xl font-serif ${stat.color}`}>{stat.value}</span>
-              </div>
-            ))}
-          </div>
+          <div className="hidden md:block" />
 
-          <div className="flex items-center gap-2 bg-stone-50 border border-stone-200 rounded-full px-3 py-1.5 text-[10px] font-bold text-stone-600">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            OPERATIONAL
+          <div className="flex items-center gap-3 rounded-full border border-stone-200 bg-stone-50 px-3 py-1.5 text-stone-600">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full border border-stone-200 bg-white font-serif text-xs text-stone-700">
+              {avatarLabel}
+            </div>
+            <div className="hidden text-right sm:block">
+              <p className="text-xs font-semibold text-stone-800">{displayName}</p>
+              <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-stone-400">Operations Staff</p>
+            </div>
+            <div className="h-6 w-px bg-stone-200" />
+            <div className="flex items-center gap-2 text-[10px] font-bold">
+              <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+              OPERATIONAL
+            </div>
           </div>
         </header>
 
-        {/* Content Body */}
-        <div className="p-6 lg:p-10 overflow-y-auto">
+        <div className="overflow-y-auto p-6 lg:p-10">
           <div className="max-w-5xl">
             <header className="mb-10">
-              <h2 className="text-4xl font-serif text-stone-900 mb-2">Staff Overview</h2>
-              <p className="text-stone-500 italic">Shelter operations and task management hub.</p>
+              <h2 className="mb-2 text-4xl font-serif text-stone-900">Staff Overview</h2>
+              <p className="italic text-stone-500">Shelter operations and task management hub.</p>
             </header>
 
-            {/* Quick Action Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Link to="/staff/pets" className="group bg-white p-8 rounded-[2rem] border border-stone-200 hover:border-emerald-200 transition-all shadow-sm hover:shadow-md">
-                <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              <Link
+                to="/staff/pets"
+                className="group rounded-[2rem] border border-stone-200 bg-white p-8 shadow-sm transition-all hover:border-emerald-200 hover:shadow-md"
+              >
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600 transition-transform group-hover:scale-110">
                   <PawPrint />
                 </div>
-                <h3 className="text-xl font-bold text-stone-800 mb-1">Pet Registry</h3>
-                <p className="text-stone-400 text-sm">Update inventory and listing details.</p>
+                <h3 className="mb-1 text-xl font-bold text-stone-800">Pet Registry</h3>
+                <p className="text-sm text-stone-400">Update inventory and listing details.</p>
               </Link>
 
-              <Link to="/staff/adoptions" className="group bg-white p-8 rounded-[2rem] border border-stone-200 hover:border-amber-200 transition-all shadow-sm hover:shadow-md">
-                <div className="w-12 h-12 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+              <Link
+                to="/staff/adoptions"
+                className="group rounded-[2rem] border border-stone-200 bg-white p-8 shadow-sm transition-all hover:border-amber-200 hover:shadow-md"
+              >
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-50 text-amber-600 transition-transform group-hover:scale-110">
                   <ClipboardList />
                 </div>
-                <h3 className="text-xl font-bold text-stone-800 mb-1">Adoption Hub</h3>
-                <p className="text-stone-400 text-sm">Review applications and pending statuses.</p>
+                <h3 className="mb-1 text-xl font-bold text-stone-800">Adoption Hub</h3>
+                <p className="text-sm text-stone-400">Review applications and pending statuses.</p>
               </Link>
             </div>
           </div>
         </div>
       </main>
 
-      {/* Mobile Overlay */}
       {isMobileMenuOpen && (
-        <div 
-          className="fixed inset-0 bg-stone-900/20 backdrop-blur-sm z-40 lg:hidden"
-          onClick={() => setIsMobileMenuOpen(false)}
-        />
+        <div className="fixed inset-0 z-40 bg-stone-900/20 backdrop-blur-sm lg:hidden" onClick={() => setIsMobileMenuOpen(false)} />
       )}
     </div>
   );

@@ -2,6 +2,7 @@ import { useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../../api/axios";
 import { ProductContext } from "../../../Context/ProductContext";
+import { DEFAULT_SITE_IMAGE } from "../../../constants/defaultImages";
 
 const AdminProducts = () => {
   const navigate = useNavigate();
@@ -94,7 +95,7 @@ const AdminProducts = () => {
                 {/* Visual Asset Container */}
                 <div className="relative aspect-square overflow-hidden bg-stone-100">
                   <img
-                    src={product.image_url || "/placeholder.jpg"}
+                    src={product.image_url || DEFAULT_SITE_IMAGE}
                     alt={product.name}
                     className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
                   />

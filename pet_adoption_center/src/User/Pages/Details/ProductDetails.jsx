@@ -1,17 +1,17 @@
 import {
   ArrowLeft,
+  ChevronRight,
   Heart,
   Package,
   Share2,
-  Shield,
-  Star,
-  ChevronRight,
+  Shield
 } from "lucide-react";
 import { useContext, useState } from "react";
-import { useNavigate, useParams, Link } from "react-router-dom";
-import { ProductContext } from "../../../Context/ProductContext";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { CartContext } from "../../../Context/CartContext";
+import { ProductContext } from "../../../Context/ProductContext";
 import { getOptimizedImageUrl } from "../../Services/imageService.jsx";
+import { DEFAULT_SITE_IMAGE } from "../../../constants/defaultImages";
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -116,11 +116,13 @@ const ProductDetails = () => {
           <div className="lg:col-span-7 space-y-8">
             <div className="relative aspect-square bg-white rounded-3xl overflow-hidden shadow-sm border border-stone-100 group">
               <img
-                src={getOptimizedImageUrl(product.image_url, {
-                  width: 1400,
-                  height: 1400,
-                  crop: "fill",
-                })}
+                src={
+                  getOptimizedImageUrl(product.image_url, {
+                    width: 1400,
+                    height: 1400,
+                    crop: "fill",
+                  }) || DEFAULT_SITE_IMAGE
+                }
                 alt={product.name}
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
               />
@@ -170,10 +172,10 @@ const ProductDetails = () => {
                   <span className="text-[10px] uppercase tracking-[0.3em] text-emerald-600 font-bold">
                     {product.category}
                   </span>
-                  <div className="flex items-center gap-1 text-amber-400">
+                  {/* <div className="flex items-center gap-1 text-amber-400">
                     <Star size={12} fill="currentColor" />
                     <span className="text-[10px] font-bold text-stone-400 tracking-tighter">4.8 / 5.0</span>
-                  </div>
+                  </div> */}
                 </div>
                 <h1 className="text-5xl font-serif text-stone-900 leading-tight">
                   {product.name}

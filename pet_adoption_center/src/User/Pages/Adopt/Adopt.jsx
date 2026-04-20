@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { PetContext } from "../../../Context/PetContext";
 import ScrollReveal from "../../Components/ScrollReveal";
 import { getOptimizedImageUrl } from "../../Services/imageService.jsx";
+import { DEFAULT_PET_IMAGE } from "../../../constants/defaultImages";
 
 const Adopt = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -133,7 +134,7 @@ const Adopt = () => {
                       getOptimizedImageUrl(pet.image_url || pet.image, {
                         width: 900,
                         height: 700,
-                      }) || "/placeholder-pet.jpg"
+                      }) || DEFAULT_PET_IMAGE
                     }
                     alt={pet.name}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"

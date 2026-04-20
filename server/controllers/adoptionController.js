@@ -1,7 +1,44 @@
 import db from "../config/db.js";
 import sendEmail from "../utils/sendEmail.js";
 
+const sendAdoptionStatusEmail = async ({ to, userName, petName, status }) => {
+  if (!to) return;
+
+  const readableStatus = status === "approved" ? "approved" : "rejected";
+
+  await sendEmail({
+    to,
+    subject: `Your adoption request has been ${readableStatus}`,
+    text:
+      status === "approved"
+        ? `Hello ${userName}, your adoption request for ${petName} has been approved by Sano Ghar. Please log in to your account for the next steps.`
+        : `Hello ${userName}, your adoption request for ${petName} has been rejected by Sano Ghar. You can log in to your account to review your application and explore other pets.`,
+    html:
+      status === "approved"
+        ? `
+          <div style="font-family: Arial, sans-serif; color: #1c1917; line-height: 1.6;">
+            <h2 style="margin-bottom: 12px;">Adoption Request Approved</h2>
+            <p>Hello ${userName},</p>
+            <p>Your adoption request for <strong>${petName}</strong> has been approved by Sano Ghar.</p>
+            <p>Please log in to your account to review the next steps.</p>
+            <p style="margin-top: 20px;">Thank you for supporting pet adoption.</p>
+          </div>
+        `
+        : `
+          <div style="font-family: Arial, sans-serif; color: #1c1917; line-height: 1.6;">
+            <h2 style="margin-bottom: 12px;">Adoption Request Rejected</h2>
+            <p>Hello ${userName},</p>
+            <p>Your adoption request for <strong>${petName}</strong> has been rejected by Sano Ghar.</p>
+            <p>You can log in to your account to review your application and explore other pets that may be a good match.</p>
+            <p style="margin-top: 20px;">Thank you for caring for rescued animals.</p>
+          </div>
+        `,
+  });
+};
+
 export const updateAdoptionStatus = async (req, res) => {
+  const connection = await db.getConnection();
+
   try {
     const { id } = req.params;
     const { status } = req.body;
@@ -10,11 +47,14 @@ export const updateAdoptionStatus = async (req, res) => {
       return res.status(400).json({ message: "Invalid status" });
     }
 
-    const [applications] = await db.execute(
+    await connection.beginTransaction();
+
+    const [applications] = await connection.execute(
       `
       SELECT
         aa.id,
         aa.user_id,
+        aa.pet_id,
         aa.status AS current_status,
         aa.full_name,
         u.email,
@@ -29,77 +69,136 @@ export const updateAdoptionStatus = async (req, res) => {
     );
 
     if (applications.length === 0) {
+      await connection.rollback();
       return res.status(404).json({ message: "Application not found" });
     }
 
     const application = applications[0];
 
-    const [result] = await db.execute(
+    if (application.current_status === "approved" && status === "approved") {
+      await connection.rollback();
+      return res.status(400).json({ message: "Application is already approved" });
+    }
+
+    if (status === "approved") {
+      const [approvedForPet] = await connection.execute(
+        `
+        SELECT id
+        FROM adoption_applications
+        WHERE pet_id = ? AND status = 'approved' AND id <> ?
+        LIMIT 1
+        `,
+        [application.pet_id, id]
+      );
+
+      if (approvedForPet.length > 0) {
+        await connection.rollback();
+        return res.status(400).json({ message: "This pet already has an approved adoption application" });
+      }
+    }
+
+    const [result] = await connection.execute(
       "UPDATE adoption_applications SET status = ? WHERE id = ?",
       [status, id]
     );
 
     if (result.affectedRows === 0) {
+      await connection.rollback();
       return res.status(404).json({ message: "Application not found" });
     }
 
-    const readableStatus = status === "approved" ? "approved" : "rejected";
     const notificationMessage =
       status === "approved"
         ? `Your adoption request for ${application.pet_name} has been approved.`
         : `Your adoption request for ${application.pet_name} has been rejected.`;
 
-    await db.execute(
+    await connection.execute(
       "INSERT INTO user_notifications (user_id, type, message, related_id, created_at) VALUES (?, 'adoption', ?, ?, NOW())",
       [application.user_id, notificationMessage, id]
     );
 
-    if (application.email) {
-      const userName = application.full_name || "there";
+    let autoRejectedCount = 0;
+    let autoRejectedApplications = [];
 
-      await sendEmail({
-        to: application.email,
-        subject: `Your adoption request has been ${readableStatus}`,
-        text:
-          status === "approved"
-            ? `Hello ${userName}, your adoption request for ${application.pet_name} has been approved by Sano Ghar. Please log in to your account for the next steps.`
-            : `Hello ${userName}, your adoption request for ${application.pet_name} has been rejected by Sano Ghar. You can log in to your account to review your application and explore other pets.`,
-        html:
-          status === "approved"
-            ? `
-              <div style="font-family: Arial, sans-serif; color: #1c1917; line-height: 1.6;">
-                <h2 style="margin-bottom: 12px;">Adoption Request Approved</h2>
-                <p>Hello ${userName},</p>
-                <p>Your adoption request for <strong>${application.pet_name}</strong> has been approved by Sano Ghar.</p>
-                <p>Please log in to your account to review the next steps.</p>
-                <p style="margin-top: 20px;">Thank you for supporting pet adoption.</p>
-              </div>
-            `
-            : `
-              <div style="font-family: Arial, sans-serif; color: #1c1917; line-height: 1.6;">
-                <h2 style="margin-bottom: 12px;">Adoption Request Rejected</h2>
-                <p>Hello ${userName},</p>
-                <p>Your adoption request for <strong>${application.pet_name}</strong> has been rejected by Sano Ghar.</p>
-                <p>You can log in to your account to review your application and explore other pets that may be a good match.</p>
-                <p style="margin-top: 20px;">Thank you for caring for rescued animals.</p>
-              </div>
-            `,
-      });
+    if (status === "approved") {
+      const [pendingOthers] = await connection.execute(
+        `
+        SELECT
+          aa.id,
+          aa.user_id,
+          aa.full_name,
+          aa.status,
+          u.email
+        FROM adoption_applications aa
+        JOIN users u ON u.id = aa.user_id
+        WHERE aa.pet_id = ? AND aa.id <> ? AND aa.status NOT IN ('approved', 'rejected')
+        `,
+        [application.pet_id, id]
+      );
+
+      if (pendingOthers.length > 0) {
+        autoRejectedApplications = pendingOthers;
+        autoRejectedCount = pendingOthers.length;
+
+        await connection.execute(
+          `
+          UPDATE adoption_applications
+          SET status = 'rejected'
+          WHERE pet_id = ? AND id <> ? AND status NOT IN ('approved', 'rejected')
+          `,
+          [application.pet_id, id]
+        );
+
+        for (const rejectedApp of pendingOthers) {
+          await connection.execute(
+            "INSERT INTO user_notifications (user_id, type, message, related_id, created_at) VALUES (?, 'adoption', ?, ?, NOW())",
+            [
+              rejectedApp.user_id,
+              `Your adoption request for ${application.pet_name} has been rejected because another application for this pet was approved.`,
+              rejectedApp.id,
+            ]
+          );
+        }
+      }
     }
+
+    await connection.commit();
+
+    await Promise.allSettled([
+      sendAdoptionStatusEmail({
+        to: application.email,
+        userName: application.full_name || "there",
+        petName: application.pet_name,
+        status,
+      }),
+      ...autoRejectedApplications.map((rejectedApp) =>
+        sendAdoptionStatusEmail({
+          to: rejectedApp.email,
+          userName: rejectedApp.full_name || "there",
+          petName: application.pet_name,
+          status: "rejected",
+        })
+      ),
+    ]);
 
     res.json({
       success: true,
-      message: `Application ${status}`,
+      message:
+        status === "approved" && autoRejectedCount > 0
+          ? `Application approved. ${autoRejectedCount} other pending application(s) for this pet were automatically rejected.`
+          : `Application ${status}`,
     });
   } catch (error) {
-    console.error("❌ Status update error:", error);
+    await connection.rollback();
+    console.error("Status update error:", error);
     res.status(500).json({ message: "Server error" });
+  } finally {
+    connection.release();
   }
 };
 
 export const getAllAdoptions = async (req, res) => {
   try {
-    // Join with pets table to get pet details
     const [rows] = await db.execute(`
       SELECT 
         aa.*, 
@@ -117,24 +216,18 @@ export const getAllAdoptions = async (req, res) => {
       applications: rows,
     });
   } catch (error) {
-    console.error("❌ Fetch error:", error);
+    console.error("Fetch error:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
 
 export const createAdoptionApplication = async (req, res) => {
   try {
-    // ✅ Check user from middleware
     if (!req.user) {
-      console.log("❌ No user found in request");
       return res.status(401).json({ message: "Unauthorized" });
     }
 
     const userId = req.user.id;
-
-    console.log("👤 REQ.USER:", req.user);
-    console.log("📦 REQ.BODY:", req.body);
-
     const {
       pet_id,
       full_name,
@@ -145,7 +238,6 @@ export const createAdoptionApplication = async (req, res) => {
       reason_for_adoption,
     } = req.body;
 
-  
     if (
       !pet_id ||
       !full_name ||
@@ -155,27 +247,32 @@ export const createAdoptionApplication = async (req, res) => {
       !experience_with_pets ||
       !reason_for_adoption
     ) {
-      console.log("❌ Missing fields:", {
-        pet_id,
-        full_name,
-        age,
-        job,
-        phone,
-        experience_with_pets,
-        reason_for_adoption,
-      });
-
       return res.status(400).json({
         message: "All fields are required",
       });
     }
 
-    console.log("🚀 Inserting into database...");
+    const [existingApplications] = await db.execute(
+      `
+      SELECT id, status
+      FROM adoption_applications
+      WHERE user_id = ? AND pet_id = ?
+      LIMIT 1
+      `,
+      [userId, pet_id]
+    );
+
+    if (existingApplications.length > 0) {
+      const existingStatus = existingApplications[0].status;
+      return res.status(409).json({
+        message: `You have already submitted an adoption request for this pet${existingStatus ? ` (${existingStatus})` : ""}.`,
+      });
+    }
 
     const [result] = await db.execute(
       `INSERT INTO adoption_applications
-      (user_id, pet_id, full_name, age, job, phone, experience_with_pets, reason_for_adoption)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      (user_id, pet_id, full_name, age, job, phone, experience_with_pets, reason_for_adoption, status)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         userId,
         pet_id,
@@ -185,10 +282,9 @@ export const createAdoptionApplication = async (req, res) => {
         phone,
         experience_with_pets,
         reason_for_adoption,
+        "pending",
       ]
     );
-
-    console.log("✅ Insert Success:", result);
 
     res.status(201).json({
       success: true,
@@ -200,11 +296,17 @@ export const createAdoptionApplication = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("❌ Adoption error:", error);
+    console.error("Adoption error:", error);
+
+    if (error.code === "ER_DUP_ENTRY") {
+      return res.status(409).json({
+        message: "You have already submitted an adoption request for this pet.",
+      });
+    }
 
     res.status(500).json({
       message: "Server error",
-      error: error.message, // helpful for debugging
+      error: error.message,
     });
   }
 };
@@ -217,7 +319,8 @@ export const getUserNotifications = async (req, res) => {
 
     const userId = req.user.id;
 
-    const [rows] = await db.execute(`
+    const [rows] = await db.execute(
+      `
       SELECT 
         aa.*,
         p.name AS pet_name,
@@ -226,32 +329,33 @@ export const getUserNotifications = async (req, res) => {
       JOIN pets p ON aa.pet_id = p.id
       WHERE aa.user_id = ?
       ORDER BY aa.created_at DESC
-    `, [userId]);
+    `,
+      [userId]
+    );
 
     res.json({
       success: true,
       notifications: rows,
     });
-
   } catch (error) {
-    console.error("❌ Notification error:", error);
+    console.error("Notification error:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
+
 export const updateAdoptionApplication = async (req, res) => {
   try {
-    const { id } = req.params; // Application ID
+    const { id } = req.params;
     const userId = req.user.id;
     const { job, phone, experience_with_pets, reason_for_adoption } = req.body;
 
-    // Check if application exists and belongs to user and is still PENDING
     const [rows] = await db.execute(
       "SELECT status FROM adoption_applications WHERE id = ? AND user_id = ?",
       [id, userId]
     );
 
     if (rows.length === 0) return res.status(404).json({ message: "Application not found" });
-    if (rows[0].status !== 'pending') return res.status(400).json({ message: "Cannot edit a processed application" });
+    if (rows[0].status !== "pending") return res.status(400).json({ message: "Cannot edit a processed application" });
 
     await db.execute(
       `UPDATE adoption_applications 
@@ -260,9 +364,8 @@ export const updateAdoptionApplication = async (req, res) => {
       [job, phone, experience_with_pets, reason_for_adoption, id, userId]
     );
 
-    // Create notification for user about status change
     const notificationMessage = `Your adoption application for pet ID ${id} has been updated.`;
-    
+
     await db.execute(
       "INSERT INTO user_notifications (user_id, type, message, related_id, created_at) VALUES (?, 'adoption', ?, ?, NOW())",
       [userId, notificationMessage, id]
@@ -270,7 +373,7 @@ export const updateAdoptionApplication = async (req, res) => {
 
     res.json({ success: true, message: "Application updated successfully" });
   } catch (error) {
-    console.error("❌ Update error:", error);
+    console.error("Update error:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
@@ -280,7 +383,6 @@ export const deleteApplication = async (req, res) => {
     const { id } = req.params;
     const userId = req.user.id;
 
-    // Check if application exists and belongs to the user
     const [app] = await db.query(
       "SELECT status, user_id FROM adoption_applications WHERE id = ?",
       [id]
@@ -290,12 +392,10 @@ export const deleteApplication = async (req, res) => {
       return res.status(404).json({ message: "Application not found" });
     }
 
-    // Check if application belongs to the authenticated user
     if (app[0].user_id !== userId) {
       return res.status(403).json({ message: "You can only delete your own applications" });
     }
 
-    // Only allow deletion of pending applications
     if (app[0].status.toLowerCase() !== "pending") {
       return res.status(400).json({
         message: "Only pending applications can be deleted",
@@ -305,7 +405,6 @@ export const deleteApplication = async (req, res) => {
     await db.query("DELETE FROM adoption_applications WHERE id = ?", [id]);
 
     res.status(200).json({ message: "Application deleted successfully" });
-
   } catch (error) {
     console.error("Delete application error:", error);
     res.status(500).json({ message: "Delete failed" });
