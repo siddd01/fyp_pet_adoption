@@ -27,8 +27,10 @@ export const CartProvider = ({ children }) => {
   const addToCart = async (product_id, quantity = 1, price) => {
     const token = localStorage.getItem("token");
     if (!token) {
-      alert("Please login first");
-      return false;
+      return {
+        success: false,
+        message: "Please login first.",
+      };
     }
 
     try {
@@ -39,13 +41,17 @@ export const CartProvider = ({ children }) => {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      alert(res.data.message);
       fetchCart(); // Refresh cart after adding
-      return true;
+      return {
+        success: true,
+        message: res.data.message || "Added to cart.",
+      };
     } catch (err) {
       console.error("Add to cart error:", err);
-      alert(err.response?.data?.error || "Failed to add item to cart");
-      return false;
+      return {
+        success: false,
+        message: err.response?.data?.error || "Failed to add item to cart",
+      };
     }
   };
 
@@ -59,10 +65,14 @@ export const CartProvider = ({ children }) => {
         { quantity },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      fetchCart();
+      await fetchCart();
+      return { success: true };
     } catch (error) {
       console.error("Update quantity error:", error);
-      alert(error.response?.data?.error || "Failed to update quantity");
+      return {
+        success: false,
+        message: error.response?.data?.error || "Failed to update quantity",
+      };
     }
   };
 
@@ -92,17 +102,22 @@ const clearCart = async () => {
       headers: { Authorization: `Bearer ${token}` },
     });
     console.log("Clear cart response:", response);
-    alert("Cart cleared successfully!");
-
     // clear frontend state
     setCartItems([]);
 
     // optional but BEST (sync with DB)
     await fetchCart();
+    return {
+      success: true,
+      message: response.data?.message || "Cart cleared successfully.",
+    };
   } catch (error) {
     console.error("Clear cart error:", error);
     console.error("Error response:", error.response);
-    alert("Failed to clear cart: " + (error.response?.data?.message || error.message));
+    return {
+      success: false,
+      message: error.response?.data?.message || error.message,
+    };
   }
 };
 

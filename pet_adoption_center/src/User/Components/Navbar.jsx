@@ -119,6 +119,15 @@ const Navbar = () => {
                   >
                     Profile
                   </button>
+                  <button
+                    onClick={() => {
+                      navigate("/history");
+                      setOpenMenu(false);
+                    }}
+                    className="block w-full px-4 py-2 text-sm hover:bg-stone-100 text-left"
+                  >
+                    History
+                  </button>
 
                   <button
                     onClick={handleLogout}

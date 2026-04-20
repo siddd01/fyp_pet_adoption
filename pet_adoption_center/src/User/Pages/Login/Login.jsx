@@ -1,6 +1,6 @@
 import { ArrowRight, Lock, Mail, PawPrint } from "lucide-react";
 import { useContext, useEffect, useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import api from "../../../api/axios";
 import { AuthContext } from "../../../Context/AuthContext.jsx";
 
@@ -8,6 +8,7 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
   const { fetchUser } = useContext(AuthContext);
@@ -22,6 +23,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setErrorMessage("");
 
     try {
       const res = await api.post("/auth/login", { email, password });
@@ -30,7 +32,7 @@ const Login = () => {
       navigate("/");
     } catch (error) {
       console.error("Login error:", error);
-      alert(error.response?.data?.message || "Invalid email or password");
+      setErrorMessage(error.response?.data?.message || "Invalid email or password");
     } finally {
       setLoading(false);
     }
@@ -59,6 +61,11 @@ const Login = () => {
         </header>
 
         <form onSubmit={handleSubmit} className="space-y-6">
+          {errorMessage && (
+            <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+              {errorMessage}
+            </div>
+          )}
           {/* Email Input */}
           <div className="space-y-2">
             <label className="text-[10px] uppercase tracking-widest font-bold text-stone-500 ml-2">
@@ -71,7 +78,10 @@ const Login = () => {
                 placeholder="example@email.com"
                 className="w-full pl-12 pr-6 py-4 bg-stone-50 border-none rounded-2xl text-stone-900 focus:ring-2 focus:ring-stone-200 transition-all placeholder:text-stone-200"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  setErrorMessage("");
+                }}
                 required
               />
             </div>
@@ -97,7 +107,10 @@ const Login = () => {
                 placeholder="••••••••"
                 className="w-full pl-12 pr-6 py-4 bg-stone-50 border-none rounded-2xl text-stone-900 focus:ring-2 focus:ring-stone-200 transition-all placeholder:text-stone-200"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  setErrorMessage("");
+                }}
                 required
               />
             </div>

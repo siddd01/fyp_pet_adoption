@@ -13,6 +13,7 @@ const ReportIssue = () => {
   const [loading, setLoading] = useState(false);
   const [userReports, setUserReports] = useState([]);
   const [showMyReports, setShowMyReports] = useState(false);
+  const [formMessage, setFormMessage] = useState({ type: "", text: "" });
 
   const categories = [
     { value: "Technical", label: "Technical Issue", color: "bg-blue-500" },
@@ -50,16 +51,20 @@ const ReportIssue = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setFormMessage({ type: "", text: "" });
     
     if (!formData.subject.trim() || !formData.description.trim()) {
-      alert("Please fill in all required fields");
+      setFormMessage({ type: "error", text: "Please fill in all required fields." });
       return;
     }
 
     setLoading(true);
     try {
       const res = await api.post("/reports", formData);
-      alert(res.data.message || "Report submitted successfully");
+      setFormMessage({
+        type: "success",
+        text: res.data.message || "Report submitted successfully.",
+      });
       setFormData({
         subject: "",
         description: "",
@@ -69,7 +74,10 @@ const ReportIssue = () => {
       fetchUserReports();
     } catch (error) {
       console.error("Failed to submit report:", error);
-      alert(error.response?.data?.message || "Failed to submit report");
+      setFormMessage({
+        type: "error",
+        text: error.response?.data?.message || "Failed to submit report",
+      });
     } finally {
       setLoading(false);
     }
@@ -77,6 +85,7 @@ const ReportIssue = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+    setFormMessage({ type: "", text: "" });
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
@@ -124,6 +133,17 @@ const ReportIssue = () => {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
+            {formMessage.text && (
+              <div
+                className={`rounded-xl border px-4 py-3 text-sm ${
+                  formMessage.type === "success"
+                    ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                    : "border-red-200 bg-red-50 text-red-700"
+                }`}
+              >
+                {formMessage.text}
+              </div>
+            )}
             {/* Subject */}
             <div>
               <label className="block text-sm font-medium text-stone-700 mb-2">

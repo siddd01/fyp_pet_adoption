@@ -69,6 +69,7 @@ import Signup from "./User/Pages/Login/Signup.jsx";
 import Notifications from "./User/Pages/Notifications/Notifications.jsx";
 import ReportIssue from "./User/Pages/Reports/ReportIssue.jsx";
 import Checkout from "./User/Pages/Shop/Checkout.jsx";
+import OrderHistory from "./User/Pages/Shop/OrderHistory.jsx";
 import PaymentVerify from "./User/Payment/PaymentVerify.jsx";
 // -------- User Protected Route --------
 const PrivateRoute = ({ children }) => {
@@ -189,6 +190,7 @@ const App = () => {
           <Route path="profile" element={<Profile />} />
           <Route path="cart" element={<Cart />} />
           <Route path="checkout" element={<Checkout />} />
+          <Route path="history" element={<OrderHistory />} />
           <Route path="/payment/verify" element={<PaymentVerify />} />
           <Route path="/donation/verify" element={<DonationVerify />} />
 

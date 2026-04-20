@@ -7,6 +7,7 @@ import { usePayment } from "../../../Context/PaymentContext";
 export const Checkout = () => {
   const { cartItems, totalAmount } = useContext(CartContext);
   const { initiateKhaltiPayment, loading } = usePayment();
+  const [formError, setFormError] = useState("");
 
   // 1. Added Form State
   const [formData, setFormData] = useState({
@@ -19,23 +20,19 @@ export const Checkout = () => {
 
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    setFormError("");
   };
 
-  const handlePayment = () => {
-    // 2. Simple Validation
-if (!formData.address || !formData.phone || !formData.email) {
-      alert("Please fill in all shipping details");
+  const handlePayment = async () => {
+    if (!formData.address || !formData.phone || !formData.email) {
+      setFormError("Please fill in all shipping details.");
       return;
     }
 
-    const orderId = `SG-${Date.now()}`;
-    
-    // 3. Khalti expects Paisa (Amount * 100)
-    // Ensure totalAmount is handled as a number
-    const amountInPaisa = Math.round(Number(totalAmount) * 100);
-
-    // Pass formData if your initiateKhaltiPayment function supports it
-    initiateKhaltiPayment(totalAmount, cartItems, formData)
+    const result = await initiateKhaltiPayment(totalAmount, cartItems, formData);
+    if (result?.success === false) {
+      setFormError(result.message);
+    }
   };
 
   return (
@@ -115,6 +112,11 @@ if (!formData.address || !formData.phone || !formData.email) {
                   </div>
                 </div>
             </section>
+            {formError && (
+              <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                {formError}
+              </div>
+            )}
           </div>
 
           {/* Right Summary - Same as yours with minor cleanup */}

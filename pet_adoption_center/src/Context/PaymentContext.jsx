@@ -23,11 +23,16 @@ const initiateKhaltiPayment = async (totalAmount, cartItems, formData) => {
 
         if (data.payment_url) {
             window.location.href = data.payment_url;
+            return { success: true };
         }
+        return { success: false, message: "Unable to start checkout." };
     } catch (error) {
         // If it still says "Invalid Token", the token in localStorage['token'] is expired or wrong
         console.error("Payment Error:", error.response?.data);
-        alert(error.response?.data?.message || "Checkout failed");
+        return {
+            success: false,
+            message: error.response?.data?.message || "Checkout failed",
+        };
     } finally {
         setLoading(false);
     }

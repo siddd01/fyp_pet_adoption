@@ -17,6 +17,7 @@ const Profile = () => {
 
   const [isEditing, setIsEditing] = useState(false);
   const [disabled, setDisabled] = useState(false);
+  const [formMessage, setFormMessage] = useState({ type: "", text: "" });
 
   const formatDateForInput = (dateString) => {
     if (!dateString) return "";
@@ -63,6 +64,7 @@ const Profile = () => {
   }, [user]);
 
   const handleChange = (e) => {
+    setFormMessage({ type: "", text: "" });
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
@@ -73,10 +75,15 @@ const Profile = () => {
     if (!user) return;
     try {
       await updateUser(formData);
+      setFormMessage({ type: "success", text: "Profile updated successfully." });
       setTimeout(() => setDisabled(false), 2000);
-      alert("Profile updated");
     } catch (err) {
       console.error(err);
+      setDisabled(false);
+      setFormMessage({
+        type: "error",
+        text: err.response?.data?.message || "Failed to update profile.",
+      });
     }
   };
 
@@ -217,6 +224,17 @@ const Profile = () => {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-5">
+              {formMessage.text && (
+                <div
+                  className={`rounded-xl border px-4 py-3 text-sm ${
+                    formMessage.type === "success"
+                      ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                      : "border-red-200 bg-red-50 text-red-700"
+                  }`}
+                >
+                  {formMessage.text}
+                </div>
+              )}
               <div className="grid md:grid-cols-2 gap-5">
                 <Input
                   label="First Name"

@@ -21,6 +21,7 @@ const ProductDetails = () => {
 
   const [isFavorited, setIsFavorited] = useState(false);
   const [cartQuantity, setCartQuantity] = useState(1);
+  const [cartFeedback, setCartFeedback] = useState({ type: "", text: "" });
 
   const product = products.find((p) => Number(p.id) === Number(id));
   const availableStock = Math.max(
@@ -40,13 +41,24 @@ const ProductDetails = () => {
 
   const handleAddToCart = async (goToCart = false) => {
     if (availableStock < 1) {
-      alert("This product is out of stock.");
       return;
     }
 
-    const added = await addToCart(product.id, cartQuantity, product.price);
+    const result = await addToCart(product.id, cartQuantity, product.price);
 
-    if (added && goToCart) {
+    if (result?.success) {
+      setCartFeedback({
+        type: "success",
+        text: result.message || "Item added to your cart.",
+      });
+    } else if (result?.message) {
+      setCartFeedback({
+        type: "error",
+        text: result.message,
+      });
+    }
+
+    if (result?.success && goToCart) {
       navigate("/cart");
     }
   };
@@ -203,6 +215,17 @@ const ProductDetails = () => {
                 </div>
 
                 <div className="space-y-3 pt-4">
+                  {cartFeedback.text && (
+                    <div
+                      className={`rounded-2xl border px-4 py-3 text-sm ${
+                        cartFeedback.type === "success"
+                          ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                          : "border-red-200 bg-red-50 text-red-700"
+                      }`}
+                    >
+                      {cartFeedback.text}
+                    </div>
+                  )}
                   <button
                     onClick={() => handleAddToCart(true)}
                     disabled={availableStock < 1}

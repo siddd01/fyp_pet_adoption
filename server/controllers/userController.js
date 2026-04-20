@@ -35,6 +35,67 @@ export const getLoggedInUser = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+export const getUserOrderHistory = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const limit = Math.max(1, Math.min(50, Number(req.query.limit) || 5));
+    const offset = Math.max(0, Number(req.query.offset) || 0);
+
+    const [rows] = await db.execute(
+      `
+      SELECT
+        o.id AS order_id,
+        o.total_amount,
+        o.charity_amount,
+        o.currency,
+        o.status,
+        o.transaction_id,
+        o.full_name,
+        o.email,
+        o.phone,
+        o.shipping_address,
+        o.created_at,
+        oi.product_id,
+        oi.quantity,
+        oi.price_at_purchase,
+        p.name AS product_name,
+        p.category,
+        p.image_url
+      FROM orders o
+      INNER JOIN order_items oi ON oi.order_id = o.id
+      LEFT JOIN products p ON p.id = oi.product_id
+      WHERE o.user_id = ?
+      ORDER BY o.created_at DESC, oi.id DESC
+      LIMIT ? OFFSET ?
+      `,
+      [userId, limit, offset]
+    );
+
+    const [countRows] = await db.execute(
+      `
+      SELECT COUNT(*) AS total
+      FROM orders o
+      INNER JOIN order_items oi ON oi.order_id = o.id
+      WHERE o.user_id = ?
+      `,
+      [userId]
+    );
+
+    const total = Number(countRows[0]?.total || 0);
+
+    res.json({
+      items: rows,
+      total,
+      hasMore: offset + rows.length < total,
+      limit,
+      offset,
+    });
+  } catch (error) {
+    console.error("Error fetching user order history:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
 export const updateUserProfile = async (req, res) => {
   try {
     const userId = req.user.id;

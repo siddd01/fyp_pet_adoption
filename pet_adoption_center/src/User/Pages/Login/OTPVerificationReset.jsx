@@ -85,8 +85,8 @@ const OTPVerificationReset = () => {
         otp,
         newPassword: password,
       });
-      alert("Password updated successfully!");
-      navigate("/login");
+      setSuccessMsg("Password updated successfully. Redirecting to login...");
+      setTimeout(() => navigate("/login"), 1200);
     } catch (err) {
       setError(err.response?.data?.message || "Reset failed. Try again.");
     } finally {

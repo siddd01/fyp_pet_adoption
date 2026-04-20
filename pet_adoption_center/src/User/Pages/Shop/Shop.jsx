@@ -9,6 +9,7 @@ const Shop = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [category, setCategory] = useState("All");
+  const [cartMessage, setCartMessage] = useState({ type: "", text: "" });
   const { products, productLoading } = useContext(ProductContext);
   const { addToCart } = useContext(CartContext);
 
@@ -110,6 +111,17 @@ const Shop = () => {
 
       {/* ── Products Grid ── */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-6 md:py-8">
+        {cartMessage.text && (
+          <div
+            className={`mb-6 rounded-2xl border px-4 py-3 text-sm ${
+              cartMessage.type === "success"
+                ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                : "border-red-200 bg-red-50 text-red-700"
+            }`}
+          >
+            {cartMessage.text}
+          </div>
+        )}
         {filteredProducts.length === 0 ? (
           <div className="text-center py-40 bg-stone-50/50 border border-dashed border-stone-200">
             <p className="text-5xl mb-4">🛒</p>
@@ -185,10 +197,21 @@ const Shop = () => {
                     </p>
                   )}                         {/* Action Button (Matches Adopt Card) */}
                   <button
-                    onClick={(e) => {
+                    onClick={async (e) => {
                       e.stopPropagation();
                       if (availableStock > 0) {
-                        addToCart(product.id, 1, product.price);
+                        const result = await addToCart(product.id, 1, product.price);
+                        if (result?.success) {
+                          setCartMessage({
+                            type: "success",
+                            text: result.message || `${product.name} added to cart.`,
+                          });
+                        } else if (result?.message) {
+                          setCartMessage({
+                            type: "error",
+                            text: result.message,
+                          });
+                        }
                       }
                     }}
                     disabled={availableStock < 1}
