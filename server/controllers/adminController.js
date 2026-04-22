@@ -51,10 +51,22 @@ export const confirmAdminPassword = async (req, res) => {
 
 // Change Admin Password
 export const changeAdminPassword = async (req, res) => {
-  const { oldPassword, newPassword } = req.body;
+  const { oldPassword, newPassword, confirmPassword } = req.body;
   const admin_id = req.admin.admin_id;
 
   try {
+    if (!oldPassword || !newPassword || !confirmPassword) {
+      return res.status(400).json({ message: "Current password, new password, and re-typed password are required" });
+    }
+
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({ message: "New passwords do not match" });
+    }
+
+    if (String(newPassword).length < 6) {
+      return res.status(400).json({ message: "Password must be at least 6 characters long" });
+    }
+
     // 1. Get current password from DB
     const [rows] = await db.query("SELECT password FROM admins WHERE admin_id = ?", [admin_id]);
     
@@ -77,17 +89,29 @@ export const changeAdminPassword = async (req, res) => {
 };
 export const updateAdminProfile = async (req, res) => {
   const admin_id = req.admin.admin_id;
-  const { full_name } = req.body;
+  const { full_name, email } = req.body;
 
   try {
-    console.log("in process of update profile")
-    // 1. Capture the Cloudinary URLs if files were uploaded
+    if (!full_name?.trim() || !email?.trim()) {
+      return res.status(400).json({ message: "Full name and email are required" });
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
+
+    const [existingAdmin] = await db.query(
+      "SELECT admin_id FROM admins WHERE email = ? AND admin_id != ?",
+      [normalizedEmail, admin_id]
+    );
+
+    if (existingAdmin.length > 0) {
+      return res.status(400).json({ message: "Email already exists" });
+    }
+
     const profile_image = req.files?.profile_image ? req.files.profile_image[0].path : null;
     const cover_image = req.files?.cover_image ? req.files.cover_image[0].path : null;
 
-    // 2. Build the dynamic SQL query
-    let updates = ["full_name = ?"];
-    let params = [full_name];
+    let updates = ["full_name = ?", "email = ?"];
+    let params = [full_name.trim(), normalizedEmail];
 
     if (profile_image) {
       updates.push("profile_image = ?");
@@ -103,7 +127,6 @@ export const updateAdminProfile = async (req, res) => {
 
     await db.query(sql, params);
 
-    // 3. Return the fresh data so the frontend updates instantly
     const [rows] = await db.query(
       "SELECT admin_id, full_name, email, role, profile_image, cover_image FROM admins WHERE admin_id = ?",
       [admin_id]

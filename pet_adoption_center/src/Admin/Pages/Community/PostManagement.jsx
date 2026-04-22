@@ -19,7 +19,7 @@ const PostManagement = () => {
 
   const fetchPosts = async () => {
     try {
-      const res = await api.get("/charity/posts");
+      const res = await api.get("/charity/admin/posts");
       setPosts(res.data.posts || []);
     } catch (error) {
       console.error("Failed to fetch posts:", error);

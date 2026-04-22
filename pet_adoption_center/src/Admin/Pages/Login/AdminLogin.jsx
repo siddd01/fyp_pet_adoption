@@ -107,6 +107,14 @@ const AdminLogin = () => {
             {loading ? "Authorizing..." : "Initialize Session"}
             <ArrowRight className="w-4 h-4" />
           </button>
+
+          <button
+            type="button"
+            onClick={() => navigate("/admin/forgot-password")}
+            className="w-full text-center text-[10px] font-bold uppercase tracking-[0.18em] text-stone-400 hover:text-stone-900 transition-colors"
+          >
+            Forgot Password
+          </button>
         </form>
 
         <footer className="mt-10 text-center">

@@ -1,5 +1,5 @@
 import { createContext, useEffect, useState } from "react";
-import api from "../api/axios"; // Adjust path
+import api from "../api/axios";
 
 export const AdminAuthContext = createContext();
 
@@ -9,43 +9,36 @@ export const AdminAuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [AdminProfileLoading, setAdminProfileLoading] = useState(true);
 
-  // Check if user is already logged in on mount
   useEffect(() => {
-  const token = localStorage.getItem("adminToken");
-  const storedAdmin = localStorage.getItem("admin");
-  
-  if (token && token !== "null" && storedAdmin) {
-    setAdmin(JSON.parse(storedAdmin));
-    setIsAuthenticated(true);
-    setAdminProfileLoading(false); // Add this!
-  } else {
-    setAdminProfileLoading(false); // Stop loading even if no admin
-  }
-  setLoading(false);
-}, []);
+    const token = localStorage.getItem("adminToken");
+    const storedAdmin = localStorage.getItem("admin");
+
+    if (token && token !== "null" && storedAdmin) {
+      setAdmin(JSON.parse(storedAdmin));
+      setIsAuthenticated(true);
+      fetchAdminProfile().catch((error) => {
+        console.error("Failed to refresh admin session:", error);
+      });
+    } else {
+      setAdminProfileLoading(false);
+    }
+    setLoading(false);
+  }, []);
 
   const adminLogin = async (email, password) => {
     try {
-      const response = await api.post("/admin/auth/login", {
-        email, 
-        password 
-      });
+      const response = await api.post("/admin/auth/login", { email, password });
+      const { token, admin: adminData } = response.data;
 
-      const { token, admin } = response.data;
-
-      // IMPORTANT: Save the token to localStorage
       localStorage.setItem("adminToken", token);
-      localStorage.setItem("admin", JSON.stringify(admin));
+      localStorage.setItem("admin", JSON.stringify(adminData));
 
-      setAdmin(admin);
+      setAdmin(adminData);
       setIsAuthenticated(true);
-
-      console.log("✅ Login successful, token saved:", token.substring(0, 20) + "...");
 
       return response.data;
     } catch (error) {
-      console.error("❌ Login failed:", error.response?.data);
-
+      console.error("Login failed:", error.response?.data || error);
       throw error.response?.data?.message || "Login failed";
     }
   };
@@ -58,77 +51,92 @@ export const AdminAuthProvider = ({ children }) => {
   };
 
   const fetchAdminProfile = async () => {
-  setAdminProfileLoading(true);
-  console.log("📡 API Call Started..."); // Log 1
-  try {
-    const token = localStorage.getItem("adminToken");
-    const res = await api.get("/admin/profile", {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    console.log("✅ API Data Received:", res.data); // Log 2
-    setAdmin(res.data);
-  } catch (error) {
-    console.error("❌ API Error:", error);
-  } finally {
-    console.log("🏁 Loading set to FALSE"); // Log 3
-    setAdminProfileLoading(false);
-  }
-};
+    setAdminProfileLoading(true);
 
-// Add pet (Admin)
-const addPet = async (formData) => {
-  try {
-    const token = localStorage.getItem("adminToken");
+    try {
+      const token = localStorage.getItem("adminToken");
+      const res = await api.get("/admin/profile", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-    const res = await api.post("/pets", formData, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "multipart/form-data",
-      },
-    });
+      setAdmin(res.data);
+      localStorage.setItem("admin", JSON.stringify(res.data));
+      return res.data;
+    } catch (error) {
+      console.error("Failed to fetch admin profile:", error);
+      throw error.response?.data?.message || "Failed to fetch profile";
+    } finally {
+      setAdminProfileLoading(false);
+    }
+  };
 
-    return res.data;
-  } catch (error) {
-    console.error("Failed to add pet", error);
-    throw error.response?.data?.message || "Failed to add pet";
-  }
-};
+  const addPet = async (formData) => {
+    try {
+      const token = localStorage.getItem("adminToken");
 
-// Delete pet by ID (Admin)
-const deletePet = async (id) => {
-  try {
-    const token = localStorage.getItem("adminToken");
+      const res = await api.post("/pets", formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
 
-    const res = await api.delete(`/pets/${id}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+      return res.data;
+    } catch (error) {
+      console.error("Failed to add pet", error);
+      throw error.response?.data?.message || "Failed to add pet";
+    }
+  };
 
-    return res.data;
-  } catch (error) {
-    console.error("Failed to delete pet", error);
-    throw error.response?.data?.message || "Failed to delete pet";
-  }
-};
-// Update Profile (Name & Images)
-const updateAdminProfile = async (formData) => {
-  const token = localStorage.getItem("adminToken");
-  const res = await api.put("/admin/update-profile", formData, {
-    headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" }
-  });
-  setAdmin(res.data.admin);
-  localStorage.setItem("admin", JSON.stringify(res.data.admin));
-};
+  const deletePet = async (id) => {
+    try {
+      const token = localStorage.getItem("adminToken");
 
-const changeAdminPassword = async (data) => {
-  const token = localStorage.getItem("adminToken");
-  return await api.put("/admin/change-password", data, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
-};
+      const res = await api.delete(`/pets/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-// Change Password
+      return res.data;
+    } catch (error) {
+      console.error("Failed to delete pet", error);
+      throw error.response?.data?.message || "Failed to delete pet";
+    }
+  };
+
+  const updateAdminProfile = async (formData) => {
+    try {
+      const token = localStorage.getItem("adminToken");
+      const res = await api.put("/admin/update-profile", formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      setAdmin(res.data.admin);
+      localStorage.setItem("admin", JSON.stringify(res.data.admin));
+      return res.data;
+    } catch (error) {
+      console.error("Failed to update admin profile:", error);
+      throw error.response?.data?.message || "Failed to update profile";
+    }
+  };
+
+  const changeAdminPassword = async (data) => {
+    try {
+      const token = localStorage.getItem("adminToken");
+      const res = await api.put("/admin/change-password", data, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      return res.data;
+    } catch (error) {
+      console.error("Failed to change admin password:", error);
+      throw error.response?.data?.message || "Failed to change password";
+    }
+  };
 
   return (
     <AdminAuthContext.Provider
@@ -144,7 +152,6 @@ const changeAdminPassword = async (data) => {
         deletePet,
         updateAdminProfile,
         changeAdminPassword,
-        
       }}
     >
       {children}

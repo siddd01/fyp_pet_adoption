@@ -264,6 +264,38 @@ export const getCharityPosts = async (req, res) => {
     res.status(500).json({ success: false, message: "Failed to fetch posts" });
   }
 };
+
+export const getAdminCharityPosts = async (req, res) => {
+  try {
+    await ensureCommunityTables();
+    const adminId = req.admin.admin_id;
+
+    const [rows] = await db.query(
+      `SELECT
+          cp.id,
+          cp.title,
+          cp.content,
+          cp.image_url,
+          cp.amount_spent,
+          cp.created_at,
+          cp.updated_at,
+          cp.admin_id,
+          a.full_name AS admin_name,
+          (SELECT COUNT(*) FROM post_likes WHERE post_id = cp.id) AS like_count,
+          (SELECT COUNT(*) FROM post_comments WHERE post_id = cp.id) AS comment_count
+       FROM charity_posts cp
+       LEFT JOIN admins a ON a.admin_id = cp.admin_id
+       WHERE cp.admin_id = ?
+       ORDER BY cp.created_at DESC`,
+      [adminId]
+    );
+
+    res.json({ success: true, posts: rows });
+  } catch (error) {
+    console.error("Failed to fetch admin charity posts:", error);
+    res.status(500).json({ success: false, message: "Failed to fetch admin posts" });
+  }
+};
 // POST /api/charity/posts/:postId/like
 export const togglePostLike = async (req, res) => {
   try {
@@ -560,5 +592,26 @@ export const markNotificationRead = async (req, res) => {
   } catch (error) {
     console.error("Failed to mark notification as read:", error);
     res.status(500).json({ success: false, message: "Failed to update notification" });
+  }
+};
+
+export const markAllNotificationsRead = async (req, res) => {
+  try {
+    await ensureCommunityTables();
+    const adminId = req.admin.admin_id;
+
+    const [result] = await db.query(
+      "UPDATE admin_notifications SET is_read = TRUE WHERE admin_id = ? AND is_read = FALSE",
+      [adminId]
+    );
+
+    res.json({
+      success: true,
+      message: "All notifications marked as read",
+      updatedCount: result.affectedRows,
+    });
+  } catch (error) {
+    console.error("Failed to mark all notifications as read:", error);
+    res.status(500).json({ success: false, message: "Failed to update notifications" });
   }
 };

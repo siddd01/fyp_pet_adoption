@@ -31,8 +31,10 @@ import AdminCharityHistory from "./Admin/Pages/Charity/AdminCharityHistory.jsx";
 import PostManagement from "./Admin/Pages/Community/PostManagement.jsx";
 import AdminDashboard from "./Admin/Pages/Home/AdminDashboard.jsx";
 import AdminHome from "./Admin/Pages/Home/AdminHome.jsx";
+import AdminForgotPassword from "./Admin/Pages/Login/AdminForgotPassword.jsx";
 import AdminLogin from "./Admin/Pages/Login/AdminLogin.jsx";
 import AdminRegister from "./Admin/Pages/Login/AdminRegister.jsx";
+import AdminResetPassword from "./Admin/Pages/Login/AdminResetPassword.jsx";
 import AdminDeleteStaff from "./Admin/Pages/Staff/AdminDeleteStaff.jsx";
 import AdminStaffRegister from "./Admin/Pages/Staff/AdminStaffRegister.jsx";
 
@@ -71,11 +73,12 @@ import ReportIssue from "./User/Pages/Reports/ReportIssue.jsx";
 import Checkout from "./User/Pages/Shop/Checkout.jsx";
 import OrderHistory from "./User/Pages/Shop/OrderHistory.jsx";
 import PaymentVerify from "./User/Payment/PaymentVerify.jsx";
+import PetLoader from "./Components/PetLoader.jsx";
 // -------- User Protected Route --------
 const PrivateRoute = ({ children }) => {
   const { user, loading } = useContext(AuthContext);
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <PetLoader />;
 
   return user ? children : <Navigate to="/login" />;
 };
@@ -84,7 +87,7 @@ const PrivateRoute = ({ children }) => {
 const StaffPrivateRoute = ({ children }) => {
   const { isAuthenticated, staffLoginLoading } = useContext(StaffContext);
 
-  if (staffLoginLoading) return <p>Loading...</p>;
+  if (staffLoginLoading) return <PetLoader />;
 
   return isAuthenticated ? children : <Navigate to="/staff/login" />;
 };
@@ -101,6 +104,8 @@ const App = () => {
         <Route path="/staff/login" element={<StaffLogin />} />
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/admin/signup" element={<AdminRegister />} />
+        <Route path="/admin/forgot-password" element={<AdminForgotPassword />} />
+        <Route path="/admin/reset-password" element={<AdminResetPassword />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/otp-verification" element={<OTPVerification />} />
         <Route path="/otp-verification-reset" element={<OTPVerificationReset />} />

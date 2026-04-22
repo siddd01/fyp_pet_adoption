@@ -3,8 +3,8 @@ import {
   LogOut,
   Menu,
   PawPrint,
-  SquareUserRound,
   ShoppingBag,
+  SquareUserRound,
   X,
 } from "lucide-react";
 import { useContext, useEffect, useMemo, useState } from "react";
@@ -156,7 +156,7 @@ const StaffDashboard = () => {
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               <Link
                 to="/staff/pets"
-                className="group rounded-[2rem] border border-stone-200 bg-white p-8 shadow-sm transition-all hover:border-emerald-200 hover:shadow-md"
+                className="group rounded-4xl border border-stone-200 bg-white p-8 shadow-sm transition-all hover:border-emerald-200 hover:shadow-md"
               >
                 <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600 transition-transform group-hover:scale-110">
                   <PawPrint />
@@ -167,7 +167,7 @@ const StaffDashboard = () => {
 
               <Link
                 to="/staff/adoptions"
-                className="group rounded-[2rem] border border-stone-200 bg-white p-8 shadow-sm transition-all hover:border-amber-200 hover:shadow-md"
+                className="group rounded-4xl border border-stone-200 bg-white p-8 shadow-sm transition-all hover:border-amber-200 hover:shadow-md"
               >
                 <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-50 text-amber-600 transition-transform group-hover:scale-110">
                   <ClipboardList />

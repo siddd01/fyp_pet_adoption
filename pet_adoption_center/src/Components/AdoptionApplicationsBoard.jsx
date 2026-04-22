@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { CalendarDays, CheckCircle2, ClipboardList, Clock3, Phone, User2, X, XCircle } from "lucide-react";
 import { DEFAULT_PET_IMAGE } from "../constants/defaultImages";
 
@@ -55,6 +56,8 @@ const SUMMARY_STYLES = {
     value: "text-blue-700",
   },
 };
+
+const PAGE_SIZE = 5;
 
 const formatDate = (value) => {
   if (!value) return "Unknown date";
@@ -115,11 +118,7 @@ const DetailsModal = ({ application, onClose, onStatusUpdate }) => {
 
         <div className="space-y-8 overflow-y-auto p-6">
           <div className="flex flex-col gap-5 rounded-3xl bg-stone-900 p-5 text-white sm:flex-row sm:items-center">
-              <img
-              src={application.pet_image || DEFAULT_PET_IMAGE}
-              alt={application.pet_name}
-              className="h-24 w-24 rounded-2xl object-cover"
-            />
+            <img src={application.pet_image || DEFAULT_PET_IMAGE} alt={application.pet_name} className="h-24 w-24 rounded-2xl object-cover" />
             <div className="flex-1">
               <p className="text-[11px] uppercase tracking-[0.22em] text-stone-400">Pet Requested</p>
               <h3 className="mt-1 text-2xl font-serif">{application.pet_name}</h3>
@@ -196,6 +195,8 @@ const AdoptionApplicationsBoard = ({
   setSelectedApp,
   onStatusUpdate,
 }) => {
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+
   const filterConfig = {
     all: { label: "All", count: applications.length },
     pending: { label: "Pending", count: applications.filter((app) => app.status === "pending").length },
@@ -204,6 +205,12 @@ const AdoptionApplicationsBoard = ({
   };
 
   const filteredApplications = applications.filter((app) => filter === "all" || app.status === filter);
+  const visibleApplications = filteredApplications.slice(0, visibleCount);
+  const hasMoreApplications = visibleCount < filteredApplications.length;
+
+  useEffect(() => {
+    setVisibleCount(PAGE_SIZE);
+  }, [filter, applications.length]);
 
   return (
     <div className="min-h-screen bg-stone-50 p-4 sm:p-6 lg:p-8">
@@ -252,7 +259,7 @@ const AdoptionApplicationsBoard = ({
           <EmptyState filter={filter} />
         ) : (
           <div className="grid gap-5">
-            {filteredApplications.map((app) => {
+            {visibleApplications.map((app) => {
               const statusStyle = getStatusStyle(app.status);
               const StatusIcon = statusStyle.icon;
 
@@ -317,6 +324,17 @@ const AdoptionApplicationsBoard = ({
                 </article>
               );
             })}
+
+            {hasMoreApplications && (
+              <div className="flex justify-center pt-2">
+                <button
+                  onClick={() => setVisibleCount((prev) => prev + PAGE_SIZE)}
+                  className="rounded-full border border-stone-300 bg-white px-6 py-3 text-sm font-semibold text-stone-700 transition hover:border-stone-400 hover:text-stone-900"
+                >
+                  See More
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>

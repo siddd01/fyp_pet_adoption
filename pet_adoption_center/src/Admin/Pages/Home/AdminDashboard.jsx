@@ -1,4 +1,5 @@
 import {
+  AlertTriangle,
   ClipboardList,
   HeartHandshake,
   LayoutDashboard,
@@ -9,13 +10,15 @@ import {
   TrendingUp,
   Users,
   X,
-  AlertTriangle,
 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import api from "../../../api/axios";
+import { AdminAuthContext } from "../../../Context/AdminAuthContext";
+import { DEFAULT_PROFILE_IMAGE } from "../../../constants/defaultImages";
 
 const AdminDashboard = () => {
+  const { admin } = useContext(AdminAuthContext);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [dashboardStats, setDashboardStats] = useState({
     staffCount: 0,
@@ -59,6 +62,16 @@ const AdminDashboard = () => {
       ],
     },
   ];
+    const handleLogout = () => {
+    localStorage.removeItem("adminToken");
+    window.location.href = "/admin/login";
+  };
+
+  const getImageSrc = (value) => {
+    if (!value) return DEFAULT_PROFILE_IMAGE;
+    if (value.startsWith("http://") || value.startsWith("https://")) return value;
+    return `http://localhost:5000/uploads/${value}`;
+  };
 
   useEffect(() => {
     const fetchDashboardStats = async () => {
@@ -157,15 +170,17 @@ const AdminDashboard = () => {
 
           <div className="mt-auto border-t border-stone-100 pt-6">
             <div className="mb-4 flex items-center gap-3 px-2">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full border border-stone-200 bg-stone-100 font-serif text-stone-600">
-                A
-              </div>
+              <img
+                src={getImageSrc(admin?.profile_image)}
+                alt={admin?.full_name || "Admin"}
+                className="h-10 w-10 rounded-full border border-stone-200 object-cover bg-stone-100"
+              />
               <div>
-                <p className="text-sm font-bold text-stone-800">Admin User</p>
-                <p className="text-xs text-stone-400">Main Shelter</p>
+                <p className="text-sm font-bold text-stone-800">{admin?.full_name || "Admin User"}</p>
+                <p className="text-xs text-stone-400">{admin?.email || "admin@sanoghar.com"}</p>
               </div>
             </div>
-            <button className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold text-rose-500 transition-colors hover:bg-rose-50">
+            <button onClick={handleLogout} className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold text-rose-500 transition-colors hover:bg-rose-50">
               <LogOut size={18} />
               Logout
             </button>
@@ -202,7 +217,7 @@ const AdminDashboard = () => {
             </header>
 
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-              <Link to="/admin/pets" className="group rounded-[2rem] border border-stone-200 bg-white p-8 transition-all hover:border-emerald-200">
+              <Link to="/admin/pets" className="group rounded-4xl border border-stone-200 bg-white p-8 transition-all hover:border-emerald-200">
                 <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600 transition-transform group-hover:scale-110">
                   <PawPrint />
                 </div>
@@ -212,7 +227,7 @@ const AdminDashboard = () => {
 
               <Link
                 to="/admin/pet/handle-adoptions"
-                className="group rounded-[2rem] border border-stone-200 bg-white p-8 transition-all hover:border-amber-200"
+                className="group rounded-4xl border border-stone-200 bg-white p-8 transition-all hover:border-amber-200"
               >
                 <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-50 text-amber-600 transition-transform group-hover:scale-110">
                   <ClipboardList />

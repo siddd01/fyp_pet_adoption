@@ -1,15 +1,24 @@
-import { Bell, Menu, User, X, CheckCheck, Clock } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { Bell, Menu, User, Clock } from "lucide-react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../../api/axios.js";
+import { AdminAuthContext } from "../../Context/AdminAuthContext";
+import { DEFAULT_PROFILE_IMAGE } from "../../constants/defaultImages";
 
 const AdminNavbar = () => {
+  const { admin } = useContext(AdminAuthContext);
   const [open, setOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [notificationOpen, setNotificationOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const dropdownRef = useRef(null);
   const notificationRef = useRef(null);
+
+  const getImageSrc = (value) => {
+    if (!value) return DEFAULT_PROFILE_IMAGE;
+    if (value.startsWith("http://") || value.startsWith("https://")) return value;
+    return `http://localhost:5000/uploads/${value}`;
+  };
 
   const handleLogout = () => {
     localStorage.removeItem("adminToken");
@@ -34,8 +43,8 @@ const AdminNavbar = () => {
   const handleMarkNotificationRead = async (notificationId) => {
     try {
       await api.put(`/charity/admin/notifications/${notificationId}/read`);
-      setNotifications(prev => 
-        prev.map(n => n.id === notificationId ? { ...n, is_read: 1 } : n)
+      setNotifications((prev) =>
+        prev.map((n) => (n.id === notificationId ? { ...n, is_read: 1 } : n))
       );
     } catch (error) {
       console.error("Failed to mark notification as read:", error);
@@ -44,29 +53,37 @@ const AdminNavbar = () => {
 
   const markAllAsRead = async () => {
     try {
-      // Assuming you have an endpoint for this, or loop through unread
-      await api.put(`/charity/admin/notifications/read-all`);
-      setNotifications(prev => prev.map(n => ({ ...n, is_read: 1 })));
+      await api.put("/charity/admin/notifications/read-all");
+      setNotifications((prev) => prev.map((n) => ({ ...n, is_read: 1 })));
     } catch (error) {
-      console.error(error);
+      try {
+        const unreadNotifications = notifications.filter((n) => !n.is_read);
+        await Promise.all(
+          unreadNotifications.map((notification) =>
+            api.put(`/charity/admin/notifications/${notification.id}/read`)
+          )
+        );
+        setNotifications((prev) => prev.map((n) => ({ ...n, is_read: 1 })));
+      } catch (fallbackError) {
+        console.error("Failed to mark all notifications as read:", fallbackError);
+      }
     }
   };
 
-  const unreadCount = notifications.filter(n => !n.is_read).length;
+  const unreadCount = notifications.filter((n) => !n.is_read).length;
 
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) setProfileOpen(false);
       if (notificationRef.current && !notificationRef.current.contains(e.target)) setNotificationOpen(false);
     };
+
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   return (
     <nav className="bg-white border-b border-stone-200 px-6 py-3 flex items-center justify-between sticky top-0 z-100">
-      
-      {/* Left: Logo */}
       <div className="flex items-center gap-4">
         <button className="md:hidden text-stone-600" onClick={() => setOpen(!open)}>
           <Menu size={22} />
@@ -76,10 +93,7 @@ const AdminNavbar = () => {
         </Link>
       </div>
 
-      {/* Right: Icons */}
       <div className="flex items-center gap-2">
-        
-        {/* Notifications Dropdown */}
         <div className="relative" ref={notificationRef}>
           <button
             onClick={() => setNotificationOpen(!notificationOpen)}
@@ -94,17 +108,21 @@ const AdminNavbar = () => {
               </span>
             )}
           </button>
-          
+
           {notificationOpen && (
             <div className="absolute right-0 mt-3 w-90 bg-white rounded-2xl shadow-2xl border border-stone-200 z-110 overflow-hidden flex flex-col animate-in fade-in slide-in-from-top-2 duration-200">
-              
-              {/* FB Style Header */}
               <div className="p-4 border-b border-stone-100 flex items-center justify-between bg-white sticky top-0">
                 <h3 className="text-lg font-black text-stone-900">Notifications</h3>
-               
+                {unreadCount > 0 && (
+                  <button
+                    onClick={markAllAsRead}
+                    className="text-xs font-bold uppercase tracking-[0.18em] text-emerald-700 transition hover:text-emerald-900"
+                  >
+                    Mark all as read
+                  </button>
+                )}
               </div>
 
-              {/* Scrollable List Area */}
               <div className="max-h-105 overflow-y-auto custom-scrollbar">
                 {notifications.length === 0 ? (
                   <div className="py-12 flex flex-col items-center justify-center text-stone-400">
@@ -120,20 +138,21 @@ const AdminNavbar = () => {
                         !n.is_read ? "bg-emerald-50/40 hover:bg-emerald-50" : "hover:bg-stone-50"
                       }`}
                     >
-                      {/* Icon part */}
                       <div className="relative">
-                        <div className={`w-12 h-12 rounded-full flex items-center justify-center border ${
-                            n.type === 'like' ? 'bg-rose-50 border-rose-100 text-rose-500' : 'bg-emerald-50 border-emerald-100 text-emerald-600'
-                        }`}>
-                            <User size={20} />
+                        <div
+                          className={`w-12 h-12 rounded-full flex items-center justify-center border ${
+                            n.type === "like"
+                              ? "bg-rose-50 border-rose-100 text-rose-500"
+                              : "bg-emerald-50 border-emerald-100 text-emerald-600"
+                          }`}
+                        >
+                          <User size={20} />
                         </div>
-                        {/* Status Dot */}
                         {!n.is_read && (
                           <div className="absolute -right-0.5 bottom-1 w-3.5 h-3.5 bg-blue-600 rounded-full border-2 border-white" />
                         )}
                       </div>
 
-                      {/* Content part */}
                       <div className="flex-1">
                         <p className={`text-[13px] leading-snug ${!n.is_read ? "font-bold text-stone-900" : "text-stone-600"}`}>
                           {n.message}
@@ -147,20 +166,20 @@ const AdminNavbar = () => {
                   ))
                 )}
               </div>
-
-              {/* FB Style Footer */}
-              
             </div>
           )}
         </div>
 
-        {/* Profile Dropdown */}
         <div className="relative" ref={dropdownRef}>
-          <button 
+          <button
             onClick={() => setProfileOpen(!profileOpen)}
             className="w-10 h-10 rounded-full bg-stone-100 border border-stone-200 flex items-center justify-center text-stone-600 hover:bg-stone-200 transition-colors overflow-hidden"
           >
-            <User size={20} />
+            <img
+              src={getImageSrc(admin?.profile_image)}
+              alt={admin?.full_name || "Admin"}
+              className="h-full w-full object-cover"
+            />
           </button>
 
           {profileOpen && (

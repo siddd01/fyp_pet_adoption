@@ -4,10 +4,12 @@ import {
   createPostComment,
   deletePostComment,
   deleteCharityPost,
+  getAdminCharityPosts,
   getAdminNotifications,
   getCharityPosts,
   getPostComments,
   initiateDonation,
+  markAllNotificationsRead,
   markNotificationRead,
   togglePostLike,
   updatePostComment,
@@ -41,6 +43,7 @@ router.post(
 );
 
 router.get("/posts", verifyFlexibleToken, getCharityPosts);
+router.get("/admin/posts", adminAuth(), getAdminCharityPosts);
 router.post("/posts", adminAuth(), createCharityPost);  // Create post (alternative to /spend)
 router.put("/posts/:postId", adminAuth(), updateCharityPost);
 router.delete("/posts/:postId", adminAuth(), deleteCharityPost);
@@ -53,5 +56,6 @@ router.delete("/posts/:postId/comments/:commentId", verifyToken, deletePostComme
 // --- Admin Notifications ---
 router.get("/admin/notifications", adminAuth(), getAdminNotifications);
 router.put("/admin/notifications/:notificationId/read", adminAuth(), markNotificationRead);
+router.put("/admin/notifications/read-all", adminAuth(), markAllNotificationsRead);
 
 export default router;
