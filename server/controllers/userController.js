@@ -1,11 +1,55 @@
+import bcrypt from "bcryptjs";
 import db from "../config/db.js";
 
-// Get currently logged-in user's profile
+let userNotificationsReady = false;
+
+const ensureUserNotificationsTable = async () => {
+  if (userNotificationsReady) return;
+
+  await db.query(`
+    CREATE TABLE IF NOT EXISTS user_notifications (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      user_id INT NOT NULL,
+      type ENUM('adoption', 'report', 'general') NOT NULL,
+      message TEXT NOT NULL,
+      related_id INT DEFAULT NULL,
+      is_read BOOLEAN DEFAULT FALSE,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    )
+  `);
+
+  userNotificationsReady = true;
+};
+
+const runCleanupQuery = async (connection, sql, params) => {
+  try {
+    await connection.query(sql, params);
+  } catch (error) {
+    if (error.code !== "ER_NO_SUCH_TABLE") {
+      throw error;
+    }
+  }
+};
+
+const deleteUserData = async (connection, userId) => {
+  await runCleanupQuery(connection, "DELETE FROM admin_notifications WHERE user_id = ?", [userId]);
+  await runCleanupQuery(connection, "DELETE FROM post_comments WHERE user_id = ?", [userId]);
+  await runCleanupQuery(connection, "DELETE FROM post_likes WHERE user_id = ?", [userId]);
+  await runCleanupQuery(connection, "DELETE FROM user_notifications WHERE user_id = ?", [userId]);
+  await runCleanupQuery(connection, "DELETE FROM reports WHERE user_id = ?", [userId]);
+  await runCleanupQuery(connection, "DELETE FROM adoption_applications WHERE user_id = ?", [userId]);
+  await runCleanupQuery(connection, "DELETE FROM cart_items WHERE user_id = ?", [userId]);
+  await runCleanupQuery(connection, "DELETE oi FROM order_items oi INNER JOIN orders o ON oi.order_id = o.id WHERE o.user_id = ?", [userId]);
+  await runCleanupQuery(connection, "DELETE FROM orders WHERE user_id = ?", [userId]);
+  await runCleanupQuery(connection, "DELETE FROM donations WHERE user_id = ?", [userId]);
+  await connection.query("DELETE FROM users WHERE id = ?", [userId]);
+};
+
 export const getLoggedInUser = async (req, res) => {
   try {
     const userId = req.user.id;
-    
-    // Use profile_image instead of image
+
     const [rows] = await db.execute(
       `SELECT 
         u.id, 
@@ -96,6 +140,7 @@ export const getUserOrderHistory = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
 export const updateUserProfile = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -107,21 +152,14 @@ export const updateUserProfile = async (req, res) => {
       });
     }
 
-    // Cloudinary image URL (if uploaded)
     const imageUrl = req.file ? req.file.path : null;
 
     let query = `
       UPDATE users
       SET first_name = ?, last_name = ?, date_of_birth = ?, gender = ?
     `;
-    const values = [
-      first_name,
-      last_name,
-      date_of_birth || null,
-      gender || null,
-    ];
+    const values = [first_name, last_name, date_of_birth || null, gender || null];
 
-    // Only update image if a new one was uploaded
     if (imageUrl) {
       query += `, profile_image = ?`;
       values.push(imageUrl);
@@ -132,7 +170,6 @@ export const updateUserProfile = async (req, res) => {
 
     await db.execute(query, values);
 
-    // Fetch updated user
     const [rows] = await db.execute(
       `
       SELECT 
@@ -158,5 +195,125 @@ export const updateUserProfile = async (req, res) => {
   } catch (error) {
     console.error("Error updating user profile:", error);
     res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const deleteOwnAccount = async (req, res) => {
+  const connection = await db.getConnection();
+
+  try {
+    const userId = req.user.id;
+    const { password } = req.body;
+
+    if (!password) {
+      return res.status(400).json({ message: "Password is required" });
+    }
+
+    const [rows] = await connection.query("SELECT password FROM users WHERE id = ?", [userId]);
+    if (rows.length === 0) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const isValid = await bcrypt.compare(password, rows[0].password);
+    if (!isValid) {
+      return res.status(400).json({ message: "Incorrect password" });
+    }
+
+    await connection.beginTransaction();
+    await deleteUserData(connection, userId);
+    await connection.commit();
+
+    res.json({ success: true, message: "Account deleted successfully" });
+  } catch (error) {
+    await connection.rollback();
+    console.error("Error deleting own account:", error);
+    res.status(500).json({ message: "Failed to delete account" });
+  } finally {
+    connection.release();
+  }
+};
+
+export const getAllUsersForAdmin = async (req, res) => {
+  try {
+    const [rows] = await db.query(
+      `SELECT
+        u.id,
+        u.first_name,
+        u.last_name,
+        u.email,
+        u.gender,
+        u.date_of_birth,
+        u.profile_image,
+        u.created_at,
+        r.name AS role
+      FROM users u
+      LEFT JOIN roles r ON u.role_id = r.id
+      ORDER BY u.created_at DESC`
+    );
+
+    res.json({ success: true, users: rows });
+  } catch (error) {
+    console.error("Error fetching users for admin:", error);
+    res.status(500).json({ message: "Failed to fetch users" });
+  }
+};
+
+export const adminDeleteUserAccount = async (req, res) => {
+  const connection = await db.getConnection();
+
+  try {
+    const userId = Number(req.params.userId);
+
+    if (!Number.isInteger(userId)) {
+      return res.status(400).json({ message: "Invalid user id" });
+    }
+
+    const [rows] = await connection.query("SELECT id FROM users WHERE id = ?", [userId]);
+    if (rows.length === 0) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    await connection.beginTransaction();
+    await deleteUserData(connection, userId);
+    await connection.commit();
+
+    res.json({ success: true, message: "User account deleted successfully" });
+  } catch (error) {
+    await connection.rollback();
+    console.error("Error deleting user account by admin:", error);
+    res.status(500).json({ message: "Failed to delete user account" });
+  } finally {
+    connection.release();
+  }
+};
+
+export const sendManualUserNotification = async (req, res) => {
+  try {
+    await ensureUserNotificationsTable();
+    const userId = Number(req.params.userId);
+    const { message } = req.body;
+
+    if (!Number.isInteger(userId)) {
+      return res.status(400).json({ message: "Invalid user id" });
+    }
+
+    if (!message || !message.trim()) {
+      return res.status(400).json({ message: "Message is required" });
+    }
+
+    const [rows] = await db.query("SELECT id FROM users WHERE id = ?", [userId]);
+    if (rows.length === 0) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    await db.query(
+      "INSERT INTO user_notifications (user_id, type, message, related_id) VALUES (?, 'general', ?, NULL)",
+      [userId, message.trim()]
+    );
+
+    res.json({ success: true, message: "Notification sent successfully" });
+  } catch (error) {
+    console.error("Error sending manual user notification:", error);
+    res.status(500).json({ message: "Failed to send notification" });
   }
 };

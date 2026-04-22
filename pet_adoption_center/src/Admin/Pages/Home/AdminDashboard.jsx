@@ -31,7 +31,10 @@ const AdminDashboard = () => {
   const groups = [
     {
       section: "Human Resources",
-      items: [{ title: "Staff Management", icon: <Users size={20} />, link: "/admin/staff-manage" }],
+      items: [
+        { title: "Staff Management", icon: <Users size={20} />, link: "/admin/staff-manage" },
+        { title: "User Management", icon: <Users size={20} />, link: "/admin/users" },
+      ],
     },
     {
       section: "Animal Welfare",

@@ -37,6 +37,7 @@ import AdminRegister from "./Admin/Pages/Login/AdminRegister.jsx";
 import AdminResetPassword from "./Admin/Pages/Login/AdminResetPassword.jsx";
 import AdminDeleteStaff from "./Admin/Pages/Staff/AdminDeleteStaff.jsx";
 import AdminStaffRegister from "./Admin/Pages/Staff/AdminStaffRegister.jsx";
+import UserManagement from "./Admin/Pages/Users/UserManagement.jsx";
 
 // Staff
 import StaffHandleAdoption from "./Staff/Pages/Adoptions/StaffHandleAdoption.jsx";
@@ -124,6 +125,7 @@ const App = () => {
           <Route path="profile" element={<AdminProfile/>} />
 
           <Route path="staff-manage" element={<StaffManagement />} />
+          <Route path="users" element={<UserManagement />} />
           <Route path="staff-add" element={<AdminStaffRegister />} />
           <Route path="staff-delete" element={<AdminDeleteStaff />} />
           <Route path="store/add-product" element={<AdminAddProduct />} />

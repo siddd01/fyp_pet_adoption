@@ -7,24 +7,19 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // 🔹 Fetch logged-in user profile
+  const fetchUser = async () => {
+    try {
+      const res = await api.get("/user/profile");
+      setUser(res.data);
+    } catch (err) {
+      console.error("Error fetching user:", err);
+      setUser(null);
+      localStorage.removeItem("token");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-const fetchUser = async () => {
-  try {
-    const res = await api.get("/user/profile");
-    setUser(res.data);
-  } catch (err) {
-    console.error("Error fetching user:", err);
-    setUser(null);
-    localStorage.removeItem("token");
-  } finally {
-    setLoading(false);
-  }
-};
-
-
-
-  // 🔹 Update profile (FIXED: FormData)
   const updateUser = async (updatedData) => {
     const token = localStorage.getItem("token");
     if (!token) return;
@@ -46,17 +41,29 @@ const fetchUser = async () => {
       },
     });
 
-    setUser(res.data); // 🔥 update context instantly
+    setUser(res.data);
     return res.data;
   };
 
-  // 🔹 Logout
+  const deleteAccount = async (password) => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    const res = await api.delete("/user/delete-account", {
+      headers: { Authorization: `Bearer ${token}` },
+      data: { password },
+    });
+
+    localStorage.removeItem("token");
+    setUser(null);
+    return res.data;
+  };
+
   const logout = () => {
     localStorage.removeItem("token");
     setUser(null);
   };
 
-  // 🔹 Run once on app load
   useEffect(() => {
     fetchUser();
   }, []);
@@ -69,6 +76,7 @@ const fetchUser = async () => {
         loading,
         fetchUser,
         updateUser,
+        deleteAccount,
         logout,
       }}
     >

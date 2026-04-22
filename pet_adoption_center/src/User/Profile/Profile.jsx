@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { DEFAULT_PROFILE_IMAGE } from "../../constants/defaultImages";
 
 const Profile = () => {
-  const { user, updateUser } = useContext(AuthContext);
+  const { user, updateUser, deleteAccount } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -15,10 +15,12 @@ const Profile = () => {
     gender: "",
     image: "",
   });
-
   const [isEditing, setIsEditing] = useState(false);
   const [disabled, setDisabled] = useState(false);
   const [formMessage, setFormMessage] = useState({ type: "", text: "" });
+  const [deletePassword, setDeletePassword] = useState("");
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [deleteMessage, setDeleteMessage] = useState({ type: "", text: "" });
 
   const formatDateForInput = (dateString) => {
     if (!dateString) return "";
@@ -71,9 +73,9 @@ const Profile = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!localStorage.getItem("token")) return;
+    if (!localStorage.getItem("token") || !user) return;
+
     setDisabled(true);
-    if (!user) return;
     try {
       await updateUser(formData);
       setFormMessage({ type: "success", text: "Profile updated successfully." });
@@ -88,7 +90,25 @@ const Profile = () => {
     }
   };
 
-  if (!user)
+  const handleDeleteAccount = async (e) => {
+    e.preventDefault();
+    setDeleteLoading(true);
+    setDeleteMessage({ type: "", text: "" });
+
+    try {
+      await deleteAccount(deletePassword);
+      navigate("/login");
+    } catch (err) {
+      setDeleteMessage({
+        type: "error",
+        text: err.response?.data?.message || "Failed to delete account.",
+      });
+      setDeleteLoading(false);
+      return;
+    }
+  };
+
+  if (!user) {
     return (
       <div className="min-h-screen bg-stone-50 flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
@@ -97,35 +117,25 @@ const Profile = () => {
         </div>
       </div>
     );
+  }
 
   return (
     <div className="min-h-screen bg-stone-50">
       <div className="max-w-4xl mx-auto px-6 py-16 space-y-6">
-
-        {/* Top label */}
         <div className="flex items-center gap-3">
           <div className="flex-1 h-px bg-stone-200" />
           <p className="text-xs tracking-[0.25em] uppercase text-stone-400">My Profile</p>
           <div className="flex-1 h-px bg-stone-200" />
         </div>
 
-        {/* Profile Card */}
         <div className="bg-white rounded-2xl border border-stone-100 shadow-sm overflow-hidden">
-
-          {/* Subtle top stripe */}
           <div className="h-2 bg-stone-900" />
 
           <div className="px-8 py-8 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-
-            {/* Avatar + Name */}
             <div className="flex items-center gap-6">
               <div className="relative">
                 <img
-                  src={
-                    formData.image instanceof File
-                      ? URL.createObjectURL(formData.image)
-                      : formData.image || DEFAULT_PROFILE_IMAGE
-                  }
+                  src={formData.image instanceof File ? URL.createObjectURL(formData.image) : formData.image || DEFAULT_PROFILE_IMAGE}
                   alt="Profile"
                   className="w-20 h-20 rounded-2xl border border-stone-200 shadow-sm object-cover"
                 />
@@ -147,14 +157,13 @@ const Profile = () => {
               </div>
             </div>
 
-            {/* Edit Button */}
             <button
               onClick={() => setIsEditing(!isEditing)}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold border transition
-                ${isEditing
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold border transition ${
+                isEditing
                   ? "bg-white border-stone-300 text-stone-700 hover:border-stone-500"
                   : "bg-stone-900 border-stone-900 text-white hover:bg-stone-700"
-                }`}
+              }`}
             >
               {isEditing ? <X size={15} /> : <Edit2 size={15} />}
               {isEditing ? "Cancel" : "Edit Profile"}
@@ -162,7 +171,6 @@ const Profile = () => {
           </div>
         </div>
 
-        {/* Info Cards */}
         <div className="grid sm:grid-cols-3 gap-4">
           <InfoCard icon={<Shield className="w-4 h-4" />} label="Role" value={user.role} />
           <InfoCard
@@ -170,21 +178,16 @@ const Profile = () => {
             label="Gender"
             value={user.gender ? user.gender.charAt(0).toUpperCase() + user.gender.slice(1) : "Not set"}
           />
-          <InfoCard
-            icon={<Calendar className="w-4 h-4" />}
-            label="Member Since"
-            value={formatDateForDisplay(user.created_at)}
-          />
+          <InfoCard icon={<Calendar className="w-4 h-4" />} label="Member Since" value={formatDateForDisplay(user.created_at)} />
         </div>
 
-        {/* Quick Actions */}
         <div className="bg-white rounded-2xl border border-stone-100 shadow-sm p-6">
           <div className="flex items-center gap-3 mb-6">
             <div className="flex-1 h-px bg-stone-100" />
             <p className="text-xs tracking-[0.25em] uppercase text-stone-400">Quick Actions</p>
             <div className="flex-1 h-px bg-stone-100" />
           </div>
-          
+
           <div className="grid sm:grid-cols-2 gap-4">
             <button
               onClick={() => navigate("/notifications")}
@@ -198,7 +201,7 @@ const Profile = () => {
                 <p className="text-xs text-stone-500">Check adoption & report updates</p>
               </div>
             </button>
-            
+
             <button
               onClick={() => navigate("/report-issue")}
               className="flex items-center gap-3 p-4 border border-stone-200 rounded-xl hover:border-red-400 hover:bg-red-50 transition-all"
@@ -214,10 +217,8 @@ const Profile = () => {
           </div>
         </div>
 
-        {/* Edit Form */}
         {isEditing && (
           <div className="bg-white rounded-2xl border border-stone-100 shadow-sm px-8 py-8">
-
             <div className="flex items-center gap-3 mb-8">
               <div className="flex-1 h-px bg-stone-100" />
               <p className="text-xs tracking-[0.25em] uppercase text-stone-400">Edit Details</p>
@@ -236,35 +237,16 @@ const Profile = () => {
                   {formMessage.text}
                 </div>
               )}
+
               <div className="grid md:grid-cols-2 gap-5">
-                <Input
-                  label="First Name"
-                  name="first_name"
-                  value={formData.first_name}
-                  onChange={handleChange}
-                  placeholder="First name"
-                />
-                <Input
-                  label="Last Name"
-                  name="last_name"
-                  value={formData.last_name}
-                  onChange={handleChange}
-                  placeholder="Last name"
-                />
+                <Input label="First Name" name="first_name" value={formData.first_name} onChange={handleChange} placeholder="First name" />
+                <Input label="Last Name" name="last_name" value={formData.last_name} onChange={handleChange} placeholder="Last name" />
               </div>
 
-              <Input
-                label="Date of Birth"
-                type="date"
-                name="date_of_birth"
-                value={formData.date_of_birth}
-                onChange={handleChange}
-              />
+              <Input label="Date of Birth" type="date" name="date_of_birth" value={formData.date_of_birth} onChange={handleChange} />
 
               <div>
-                <label className="block text-xs font-medium tracking-wide uppercase text-stone-500 mb-2">
-                  Gender
-                </label>
+                <label className="block text-xs font-medium tracking-wide uppercase text-stone-500 mb-2">Gender</label>
                 <select
                   className="w-full border border-stone-200 bg-stone-50 p-3 rounded-xl text-stone-800 text-sm focus:border-stone-500 focus:ring-2 focus:ring-stone-100 transition-all outline-none"
                   name="gender"
@@ -279,45 +261,74 @@ const Profile = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-medium tracking-wide uppercase text-stone-500 mb-2">
-                  Profile Image
-                </label>
+                <label className="block text-xs font-medium tracking-wide uppercase text-stone-500 mb-2">Profile Image</label>
                 <input
                   type="file"
                   accept="image/*"
                   onChange={(e) => setFormData({ ...formData, image: e.target.files[0] })}
-                  className="w-full border border-stone-200 bg-stone-50 p-3 rounded-xl text-sm text-stone-600
-                    file:mr-4 file:py-1.5 file:px-4 file:rounded-lg file:border-0
-                    file:text-xs file:font-semibold file:bg-stone-900 file:text-white
-                    hover:file:bg-stone-700 transition-all"
+                  className="w-full border border-stone-200 bg-stone-50 p-3 rounded-xl text-sm text-stone-600 file:mr-4 file:py-1.5 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-stone-900 file:text-white hover:file:bg-stone-700 transition-all"
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={!localStorage.getItem("token") || disabled}
-                className={`w-full py-3.5 rounded-xl text-sm font-semibold tracking-wide transition shadow-sm
-                  ${disabled
+                className={`w-full py-3.5 rounded-xl text-sm font-semibold tracking-wide transition shadow-sm ${
+                  disabled
                     ? "bg-stone-200 text-stone-400 cursor-not-allowed"
                     : "bg-stone-900 text-white hover:bg-stone-700"
-                  }`}
+                }`}
               >
                 {disabled ? "Saving..." : "Save Changes"}
               </button>
             </form>
           </div>
         )}
+
+        <div className="bg-white rounded-2xl border border-red-100 shadow-sm px-8 py-8">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="flex-1 h-px bg-red-100" />
+            <p className="text-xs tracking-[0.25em] uppercase text-red-400">Danger Zone</p>
+            <div className="flex-1 h-px bg-red-100" />
+          </div>
+
+          <p className="text-sm text-stone-600 mb-6">
+            Deleting your account will permanently remove your profile and linked account data. Enter your password to confirm.
+          </p>
+
+          <form onSubmit={handleDeleteAccount} className="space-y-4">
+            {deleteMessage.text && (
+              <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                {deleteMessage.text}
+              </div>
+            )}
+
+            <Input
+              label="Confirm Password"
+              type="password"
+              value={deletePassword}
+              onChange={(e) => setDeletePassword(e.target.value)}
+              placeholder="Enter your password"
+              required
+            />
+
+            <button
+              type="submit"
+              disabled={deleteLoading}
+              className="w-full py-3.5 rounded-xl text-sm font-semibold tracking-wide transition shadow-sm bg-red-600 text-white hover:bg-red-700 disabled:opacity-60"
+            >
+              {deleteLoading ? "Deleting Account..." : "Delete Account"}
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   );
 };
 
-/* Helper components */
 const InfoCard = ({ icon, label, value }) => (
   <div className="bg-white rounded-2xl border border-stone-100 shadow-sm px-6 py-5 flex items-center gap-4 hover:shadow-md transition cursor-default">
-    <div className="w-10 h-10 bg-stone-100 rounded-xl flex items-center justify-center text-stone-500">
-      {icon}
-    </div>
+    <div className="w-10 h-10 bg-stone-100 rounded-xl flex items-center justify-center text-stone-500">{icon}</div>
     <div>
       <p className="text-xs text-stone-400 font-medium uppercase tracking-wide">{label}</p>
       <p className="font-semibold text-stone-800 text-sm mt-0.5">{value}</p>
@@ -327,9 +338,7 @@ const InfoCard = ({ icon, label, value }) => (
 
 const Input = ({ label, placeholder, ...props }) => (
   <div>
-    <label className="block text-xs font-medium tracking-wide uppercase text-stone-500 mb-2">
-      {label}
-    </label>
+    <label className="block text-xs font-medium tracking-wide uppercase text-stone-500 mb-2">{label}</label>
     <input
       {...props}
       placeholder={placeholder}
