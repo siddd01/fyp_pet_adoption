@@ -133,7 +133,7 @@ const AdminProfile = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
           <div className="lg:col-span-1 space-y-6">
-            <div className="bg-white rounded-[2rem] border border-stone-100 overflow-hidden shadow-sm">
+            <div className="bg-white rounded-4xl border border-stone-100 overflow-hidden shadow-sm">
               <div className="relative h-40">
                 <img src={coverPreview} alt="Cover" className="h-full w-full object-cover" />
                 {isEditing && (
@@ -154,7 +154,7 @@ const AdminProfile = () => {
                   <img
                     src={profilePreview}
                     alt={admin?.full_name || "Admin"}
-                    className="w-32 h-32 rounded-[2rem] object-cover border-4 border-white shadow-lg bg-stone-100"
+                    className="w-32 h-32 rounded-4xl object-cover border-4 border-white shadow-lg bg-stone-100"
                   />
                   {isEditing && (
                     <label className="absolute bottom-2 right-2 p-2.5 bg-stone-900 text-white rounded-2xl cursor-pointer hover:scale-110 transition-transform shadow-xl">
@@ -183,16 +183,7 @@ const AdminProfile = () => {
               </div>
             </div>
 
-            {isEditing && (
-              <div className="bg-amber-50 rounded-2xl p-5 border border-amber-100">
-                <p className="text-[10px] font-bold text-amber-700 uppercase tracking-widest mb-2 flex items-center gap-2">
-                  <Shield size={12} /> Note
-                </p>
-                <p className="text-xs text-amber-800 leading-relaxed">
-                  Your profile and cover images appear across the admin workspace. Use clear, professional images for the best presentation.
-                </p>
-              </div>
-            )}
+          
           </div>
 
           <div className="lg:col-span-2 space-y-8">

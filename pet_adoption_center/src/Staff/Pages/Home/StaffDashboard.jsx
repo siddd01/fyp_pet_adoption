@@ -1,11 +1,9 @@
 import {
   ClipboardList,
   LogOut,
-  Menu,
   PawPrint,
   ShoppingBag,
-  SquareUserRound,
-  X,
+  SquareUserRound
 } from "lucide-react";
 import { useContext, useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -52,7 +50,7 @@ const StaffDashboard = () => {
   ];
 
   return (
-    <div className="flex min-h-screen bg-[#fbfaf8]">
+    <div className="flex min-h-[94vh] bg-[#fbfaf8]">
       <aside
         className={`
         fixed inset-y-0 left-0 z-50 w-72 bg-white border-r border-stone-200 transform transition-transform duration-300 ease-in-out
@@ -122,7 +120,7 @@ const StaffDashboard = () => {
       </aside>
 
       <main className="flex min-w-0 flex-1 flex-col overflow-hidden">
-        <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-stone-200 bg-white/80 px-6 backdrop-blur-md lg:h-20 lg:px-10">
+        {/* <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-stone-200 bg-white/80 px-6 backdrop-blur-md lg:h-20 lg:px-10">
           <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="p-2 text-stone-600 lg:hidden">
             {isMobileMenuOpen ? <X /> : <Menu />}
           </button>
@@ -147,7 +145,7 @@ const StaffDashboard = () => {
               OPERATIONAL
             </div>
           </div>
-        </header>
+        </header> */}
 
         <div className="overflow-y-auto p-6 lg:p-10">
           <div className="max-w-5xl">

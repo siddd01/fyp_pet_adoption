@@ -12,10 +12,10 @@ import {
   X,
 } from "lucide-react";
 import { useContext, useEffect, useMemo, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import api from "../../../api/axios";
-import { AdminAuthContext } from "../../../Context/AdminAuthContext";
 import { DEFAULT_PROFILE_IMAGE } from "../../../constants/defaultImages";
+import { AdminAuthContext } from "../../../Context/AdminAuthContext";
 
 const AdminDashboard = () => {
   const { admin } = useContext(AdminAuthContext);
@@ -26,6 +26,7 @@ const AdminDashboard = () => {
     revenue: 0,
     pendingApplications: 0,
   });
+  const navigate =useNavigate();
   const location = useLocation();
 
   const groups = [
@@ -142,7 +143,7 @@ const AdminDashboard = () => {
             <p className="mt-1 text-xs font-bold tracking-widest text-emerald-600">ADMIN PORTAL</p>
           </div>
 
-          <nav className="custom-scrollbar flex-1 space-y-8 overflow-y-auto">
+          <nav className="custom-scrollbar flex-1 space-y-8 overflow-y-auto pb-4">
             {groups.map((group) => (
               <div key={group.section}>
                 <h2 className="mb-3 px-2 text-[10px] font-bold uppercase tracking-[0.2em] text-stone-400">
@@ -174,6 +175,7 @@ const AdminDashboard = () => {
           <div className="mt-auto border-t border-stone-100 pt-6">
             <div className="mb-4 flex items-center gap-3 px-2">
               <img
+                onClick={()=>navigate("/admin/profile")}
                 src={getImageSrc(admin?.profile_image)}
                 alt={admin?.full_name || "Admin"}
                 className="h-10 w-10 rounded-full border border-stone-200 object-cover bg-stone-100"
@@ -191,7 +193,7 @@ const AdminDashboard = () => {
         </div>
       </aside>
 
-      <main className="flex min-w-0 flex-1 flex-col overflow-hidden">
+      <main className="flex min-w-0 flex-1 flex-col overflow-hidden ">
         <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-stone-200 bg-white/80 px-6 backdrop-blur-md lg:h-20 lg:px-10">
           <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="p-2 text-stone-600 lg:hidden">
             {isMobileMenuOpen ? <X /> : <Menu />}
