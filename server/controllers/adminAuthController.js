@@ -4,6 +4,8 @@ import db from "../config/db.js";
 import sendEmail from "../utils/sendEmail.js";
 
 let adminResetColumnsReady = false;
+const MAX_OTP_ATTEMPTS = 3;
+const OTP_BLOCK_DURATION_MS = 60 * 60 * 1000;
 
 const buildOtpEmailTemplate = ({
   title,
@@ -62,10 +64,62 @@ const ensureAdminResetColumns = async () => {
   await db.query(`
     ALTER TABLE admins
     ADD COLUMN IF NOT EXISTS otp VARCHAR(10) NULL,
-    ADD COLUMN IF NOT EXISTS otp_expiry DATETIME NULL
+    ADD COLUMN IF NOT EXISTS otp_expiry DATETIME NULL,
+    ADD COLUMN IF NOT EXISTS otp_attempts INT NOT NULL DEFAULT 0,
+    ADD COLUMN IF NOT EXISTS otp_blocked_until DATETIME NULL
   `);
 
   adminResetColumnsReady = true;
+};
+
+const buildOtpMeta = (record = {}) => {
+  const attempts = Number(record.otp_attempts || 0);
+  return {
+    remainingTries: Math.max(0, MAX_OTP_ATTEMPTS - attempts),
+    blockedUntil: record.otp_blocked_until || null,
+  };
+};
+
+const sendOtpBlockedResponse = (res, record, message = "Too many OTP attempts. Try again after 1 hour.") =>
+  res.status(429).json({
+    message,
+    otpBlocked: true,
+    ...buildOtpMeta(record),
+  });
+
+const sendOtpExpiredResponse = (res, record, message = "Token expired") =>
+  res.status(400).json({
+    message,
+    otpExpired: true,
+    ...buildOtpMeta(record),
+  });
+
+const handleInvalidOtpAttempt = async ({ email, currentAttempts, res }) => {
+  const nextAttempts = Number(currentAttempts || 0) + 1;
+
+  if (nextAttempts >= MAX_OTP_ATTEMPTS) {
+    const blockedUntil = new Date(Date.now() + OTP_BLOCK_DURATION_MS);
+    await db.query(
+      "UPDATE admins SET otp_attempts = ?, otp_blocked_until = ? WHERE email = ?",
+      [MAX_OTP_ATTEMPTS, blockedUntil, email]
+    );
+
+    return sendOtpBlockedResponse(res, {
+      otp_attempts: MAX_OTP_ATTEMPTS,
+      otp_blocked_until: blockedUntil,
+    });
+  }
+
+  await db.query(
+    "UPDATE admins SET otp_attempts = ?, otp_blocked_until = NULL WHERE email = ?",
+    [nextAttempts, email]
+  );
+
+  return res.status(400).json({
+    message: "Invalid OTP",
+    remainingTries: MAX_OTP_ATTEMPTS - nextAttempts,
+    blockedUntil: null,
+  });
 };
 
 export const adminRegister = async (req, res) => {
@@ -170,13 +224,20 @@ export const adminForgotPassword = async (req, res) => {
   try {
     await ensureAdminResetColumns();
 
-    const [rows] = await db.execute("SELECT admin_id, full_name FROM admins WHERE email = ?", [email]);
+    const [rows] = await db.execute(
+      "SELECT admin_id, full_name, otp_attempts, otp_blocked_until FROM admins WHERE email = ?",
+      [email]
+    );
     if (rows.length === 0) {
       return res.status(404).json({ message: "Admin not found" });
     }
 
+    if (rows[0].otp_blocked_until && new Date(rows[0].otp_blocked_until) > new Date()) {
+      return sendOtpBlockedResponse(res, rows[0], "OTP is temporarily blocked. Please wait before requesting a new code.");
+    }
+
     await db.query(
-      "UPDATE admins SET otp = ?, otp_expiry = ? WHERE email = ?",
+      "UPDATE admins SET otp = ?, otp_expiry = ?, otp_attempts = 0, otp_blocked_until = NULL WHERE email = ?",
       [otp, expiresAt, email]
     );
 
@@ -209,7 +270,7 @@ export const verifyAdminResetOTP = async (req, res) => {
     }
 
     const [rows] = await db.query(
-      "SELECT otp, otp_expiry FROM admins WHERE email = ?",
+      "SELECT otp, otp_expiry, otp_attempts, otp_blocked_until FROM admins WHERE email = ?",
       [email]
     );
 
@@ -219,15 +280,28 @@ export const verifyAdminResetOTP = async (req, res) => {
 
     const admin = rows[0];
 
+    if (admin.otp_blocked_until && new Date(admin.otp_blocked_until) > new Date()) {
+      return sendOtpBlockedResponse(res, admin);
+    }
+
     if (!admin.otp || Number(admin.otp) !== Number(otp)) {
-      return res.status(400).json({ message: "Invalid OTP" });
+      return handleInvalidOtpAttempt({
+        email,
+        currentAttempts: admin.otp_attempts,
+        res,
+      });
     }
 
     if (!admin.otp_expiry || new Date(admin.otp_expiry) < new Date()) {
-      return res.status(400).json({ message: "OTP expired" });
+      return sendOtpExpiredResponse(res, admin);
     }
 
-    res.json({ message: "Reset OTP verified successfully" });
+    await db.query(
+      "UPDATE admins SET otp_attempts = 0, otp_blocked_until = NULL WHERE email = ?",
+      [email]
+    );
+
+    res.json({ message: "Reset OTP verified successfully", remainingTries: MAX_OTP_ATTEMPTS });
   } catch (error) {
     console.error("Verify admin reset OTP error:", error);
     res.status(500).json({ message: "Server error" });
@@ -253,7 +327,7 @@ export const resetAdminPassword = async (req, res) => {
     }
 
     const [rows] = await db.query(
-      "SELECT admin_id, otp, otp_expiry FROM admins WHERE email = ?",
+      "SELECT admin_id, otp, otp_expiry, otp_attempts, otp_blocked_until FROM admins WHERE email = ?",
       [email]
     );
 
@@ -263,18 +337,26 @@ export const resetAdminPassword = async (req, res) => {
 
     const admin = rows[0];
 
+    if (admin.otp_blocked_until && new Date(admin.otp_blocked_until) > new Date()) {
+      return sendOtpBlockedResponse(res, admin);
+    }
+
     if (!admin.otp || Number(admin.otp) !== Number(otp)) {
-      return res.status(400).json({ message: "Invalid OTP" });
+      return handleInvalidOtpAttempt({
+        email,
+        currentAttempts: admin.otp_attempts,
+        res,
+      });
     }
 
     if (!admin.otp_expiry || new Date(admin.otp_expiry) < new Date()) {
-      return res.status(400).json({ message: "OTP expired" });
+      return sendOtpExpiredResponse(res, admin);
     }
 
     const hashedPassword = await bcrypt.hash(nextPassword, 10);
 
     await db.query(
-      "UPDATE admins SET password = ?, otp = NULL, otp_expiry = NULL WHERE admin_id = ?",
+      "UPDATE admins SET password = ?, otp = NULL, otp_expiry = NULL, otp_attempts = 0, otp_blocked_until = NULL WHERE admin_id = ?",
       [hashedPassword, admin.admin_id]
     );
 

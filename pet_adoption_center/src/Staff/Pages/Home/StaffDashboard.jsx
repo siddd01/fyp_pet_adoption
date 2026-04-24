@@ -10,6 +10,7 @@ import {
 import { useContext, useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { StaffContext } from "../../../Context/StaffContext";
+import { getProfileImageSrc } from "../../../utils/imageHelpers";
 
 const StaffDashboard = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -26,12 +27,6 @@ const StaffDashboard = () => {
   const displayName = useMemo(() => {
     const fullName = [staff?.first_name, staff?.last_name].filter(Boolean).join(" ").trim();
     return fullName || staff?.email || "Staff Member";
-  }, [staff]);
-
-  const avatarLabel = useMemo(() => {
-    if (staff?.first_name) return staff.first_name.charAt(0).toUpperCase();
-    if (staff?.email) return staff.email.charAt(0).toUpperCase();
-    return "S";
   }, [staff]);
 
   const handleLogout = () => {
@@ -103,8 +98,12 @@ const StaffDashboard = () => {
 
           <div className="mt-auto border-t border-stone-100 pt-6">
             <div className="mb-4 flex items-center gap-3 px-2">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full border border-stone-200 bg-stone-100 font-serif text-stone-600">
-                {avatarLabel}
+              <div className="h-10 w-10 overflow-hidden rounded-full border border-stone-200 bg-stone-100">
+                <img
+                  src={getProfileImageSrc(staff?.profile_image)}
+                  alt={displayName}
+                  className="h-full w-full object-cover"
+                />
               </div>
               <div>
                 <p className="text-sm font-bold text-stone-800">{displayName}</p>
@@ -131,8 +130,12 @@ const StaffDashboard = () => {
           <div className="hidden md:block" />
 
           <div className="flex items-center gap-3 rounded-full border border-stone-200 bg-stone-50 px-3 py-1.5 text-stone-600">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full border border-stone-200 bg-white font-serif text-xs text-stone-700">
-              {avatarLabel}
+            <div className="h-8 w-8 overflow-hidden rounded-full border border-stone-200 bg-white">
+              <img
+                src={getProfileImageSrc(staff?.profile_image)}
+                alt={displayName}
+                className="h-full w-full object-cover"
+              />
             </div>
             <div className="hidden text-right sm:block">
               <p className="text-xs font-semibold text-stone-800">{displayName}</p>

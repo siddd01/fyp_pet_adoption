@@ -3,6 +3,72 @@ import jwt from "jsonwebtoken";
 import db from "../config/db.js";
 import sendEmail from "../utils/sendEmail.js";
 
+let userOtpSecurityColumnsReady = false;
+const MAX_OTP_ATTEMPTS = 3;
+const OTP_BLOCK_DURATION_MS = 60 * 60 * 1000;
+
+const ensureUserOtpSecurityColumns = async () => {
+  if (userOtpSecurityColumnsReady) return;
+
+  await db.query(`
+    ALTER TABLE users
+    ADD COLUMN IF NOT EXISTS otp_attempts INT NOT NULL DEFAULT 0,
+    ADD COLUMN IF NOT EXISTS otp_blocked_until DATETIME NULL
+  `);
+
+  userOtpSecurityColumnsReady = true;
+};
+
+const buildOtpMeta = (record = {}) => {
+  const attempts = Number(record.otp_attempts || 0);
+  return {
+    remainingTries: Math.max(0, MAX_OTP_ATTEMPTS - attempts),
+    blockedUntil: record.otp_blocked_until || null,
+  };
+};
+
+const sendOtpBlockedResponse = (res, record, message = "Too many OTP attempts. Try again after 1 hour.") =>
+  res.status(429).json({
+    message,
+    otpBlocked: true,
+    ...buildOtpMeta(record),
+  });
+
+const sendOtpExpiredResponse = (res, record, message = "Token expired") =>
+  res.status(400).json({
+    message,
+    otpExpired: true,
+    ...buildOtpMeta(record),
+  });
+
+const handleInvalidOtpAttempt = async ({ email, currentAttempts, res }) => {
+  const nextAttempts = Number(currentAttempts || 0) + 1;
+
+  if (nextAttempts >= MAX_OTP_ATTEMPTS) {
+    const blockedUntil = new Date(Date.now() + OTP_BLOCK_DURATION_MS);
+    await db.query(
+      "UPDATE users SET otp_attempts = ?, otp_blocked_until = ? WHERE email = ?",
+      [MAX_OTP_ATTEMPTS, blockedUntil, email]
+    );
+
+    return sendOtpBlockedResponse(res, {
+      otp_attempts: MAX_OTP_ATTEMPTS,
+      otp_blocked_until: blockedUntil,
+    });
+  }
+
+  await db.query(
+    "UPDATE users SET otp_attempts = ?, otp_blocked_until = NULL WHERE email = ?",
+    [nextAttempts, email]
+  );
+
+  return res.status(400).json({
+    message: "Invalid OTP",
+    remainingTries: MAX_OTP_ATTEMPTS - nextAttempts,
+    blockedUntil: null,
+  });
+};
+
 const buildOtpEmailTemplate = ({
   title,
   subtitle,
@@ -60,6 +126,7 @@ const buildOtpEmailTemplate = ({
 
 export const signup = async (req, res) => {
   try {
+    await ensureUserOtpSecurityColumns();
     const { first_name, last_name, email, password, role_id, date_of_birth, gender } = req.body;
 
     // Check if email exists
@@ -78,8 +145,8 @@ export const signup = async (req, res) => {
     // Insert user into DB
     await db.query(
       ` INSERT INTO users 
-      (first_name, last_name, email, password, role_id, date_of_birth, gender, otp, otp_expiry) 
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      (first_name, last_name, email, password, role_id, date_of_birth, gender, otp, otp_expiry, otp_attempts, otp_blocked_until) 
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0, NULL)`,
       [first_name, last_name, email, hashedPassword, role_id, date_of_birth, gender, otp, otp_expiry]
     );
 
@@ -120,6 +187,7 @@ export const signup = async (req, res) => {
 
 export const verifyOTP = async (req, res) => {
   try {
+    await ensureUserOtpSecurityColumns();
     const { email, otp } = req.body;
 
     if (!email || !otp) {
@@ -127,7 +195,7 @@ export const verifyOTP = async (req, res) => {
     }
 
     const [rows] = await db.query(
-      "SELECT otp, otp_expiry FROM users WHERE email = ?",
+      "SELECT otp, otp_expiry, otp_attempts, otp_blocked_until FROM users WHERE email = ?",
       [email]
     );
 
@@ -137,20 +205,28 @@ export const verifyOTP = async (req, res) => {
 
     const user = rows[0];
 
+    if (user.otp_blocked_until && new Date(user.otp_blocked_until) > new Date()) {
+      return sendOtpBlockedResponse(res, user);
+    }
+
     if (Number(user.otp) !== Number(otp)) {
-      return res.status(400).json({ message: "Invalid OTP" });
+      return handleInvalidOtpAttempt({
+        email,
+        currentAttempts: user.otp_attempts,
+        res,
+      });
     }
 
     if (new Date(user.otp_expiry) < new Date()) {
-      return res.status(400).json({ message: "OTP expired" });
+      return sendOtpExpiredResponse(res, user);
     }
 
     await db.query(
-      "UPDATE users SET otp = NULL, otp_expiry = NULL, is_verified = 1 WHERE email = ?",
+      "UPDATE users SET otp = NULL, otp_expiry = NULL, is_verified = 1, otp_attempts = 0, otp_blocked_until = NULL WHERE email = ?",
       [email]
     );
 
-    res.json({ message: "OTP verified successfully" });
+    res.json({ message: "OTP verified successfully", remainingTries: MAX_OTP_ATTEMPTS });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error" });
@@ -159,6 +235,7 @@ export const verifyOTP = async (req, res) => {
 
 export const verifyResetOTP = async (req, res) => {
   try {
+    await ensureUserOtpSecurityColumns();
     const { email, otp } = req.body;
 
     if (!email || !otp) {
@@ -166,7 +243,7 @@ export const verifyResetOTP = async (req, res) => {
     }
 
     const [rows] = await db.query(
-      "SELECT otp, otp_expiry FROM users WHERE email = ?",
+      "SELECT otp, otp_expiry, otp_attempts, otp_blocked_until FROM users WHERE email = ?",
       [email]
     );
 
@@ -176,15 +253,28 @@ export const verifyResetOTP = async (req, res) => {
 
     const user = rows[0];
 
+    if (user.otp_blocked_until && new Date(user.otp_blocked_until) > new Date()) {
+      return sendOtpBlockedResponse(res, user);
+    }
+
     if (!user.otp || Number(user.otp) !== Number(otp)) {
-      return res.status(400).json({ message: "Invalid OTP" });
+      return handleInvalidOtpAttempt({
+        email,
+        currentAttempts: user.otp_attempts,
+        res,
+      });
     }
 
     if (!user.otp_expiry || new Date(user.otp_expiry) < new Date()) {
-      return res.status(400).json({ message: "OTP expired" });
+      return sendOtpExpiredResponse(res, user);
     }
 
-    res.json({ message: "Reset OTP verified successfully" });
+    await db.query(
+      "UPDATE users SET otp_attempts = 0, otp_blocked_until = NULL WHERE email = ?",
+      [email]
+    );
+
+    res.json({ message: "Reset OTP verified successfully", remainingTries: MAX_OTP_ATTEMPTS });
   } catch (error) {
     console.error("Verify reset OTP error:", error);
     res.status(500).json({ message: "Server error" });
@@ -193,6 +283,7 @@ export const verifyResetOTP = async (req, res) => {
 
 export const resendOTP = async (req, res) => {
   try {
+    await ensureUserOtpSecurityColumns();
     const { email } = req.body;
 
     if (!email) {
@@ -203,7 +294,7 @@ export const resendOTP = async (req, res) => {
     }
 
     const [user] = await db.query(
-      "SELECT id FROM users WHERE email = ?",
+      "SELECT id, otp_attempts, otp_blocked_until FROM users WHERE email = ?",
       [email]
     );
 
@@ -214,11 +305,15 @@ export const resendOTP = async (req, res) => {
       });
     }
 
+    if (user[0].otp_blocked_until && new Date(user[0].otp_blocked_until) > new Date()) {
+      return sendOtpBlockedResponse(res, user[0], "OTP is temporarily blocked. Please wait before requesting a new code.");
+    }
+
     const otp = Math.floor(100000 + Math.random() * 900000);
     const otp_expiry = new Date(Date.now() + 10 * 60 * 1000);
 
     await db.query(
-      "UPDATE users SET otp = ?, otp_expiry = ? WHERE email = ?",
+      "UPDATE users SET otp = ?, otp_expiry = ?, otp_attempts = 0, otp_blocked_until = NULL WHERE email = ?",
       [otp, otp_expiry, email]
     );
 
@@ -251,6 +346,7 @@ export const login = async (req, res) => {
   const { email, password } = req.body;
 
   try {
+    await ensureUserOtpSecurityColumns();
     const [rows] = await db.execute("SELECT * FROM users WHERE email = ?", [email]);
 
     if (rows.length === 0) {
@@ -299,10 +395,18 @@ export const forgotPassword = async (req, res) => {
   const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
 
   try {
+    await ensureUserOtpSecurityColumns();
     const [rows] = await db.execute("SELECT * FROM users WHERE email = ?", [email]);
     if (rows.length === 0) return res.status(404).json({ message: "User not found" });
 
-    await db.query("UPDATE users SET otp = ?, otp_expiry = ? WHERE email = ?", [otp, expiresAt, email]);
+    if (rows[0].otp_blocked_until && new Date(rows[0].otp_blocked_until) > new Date()) {
+      return sendOtpBlockedResponse(res, rows[0], "OTP is temporarily blocked. Please wait before requesting a new code.");
+    }
+
+    await db.query(
+      "UPDATE users SET otp = ?, otp_expiry = ?, otp_attempts = 0, otp_blocked_until = NULL WHERE email = ?",
+      [otp, expiresAt, email]
+    );
     console.log("OTP updated in DB:", otp);
 
     // Corrected email call
@@ -331,6 +435,7 @@ export const forgotPassword = async (req, res) => {
 
 export const resetPassword = async (req, res) => {
   try {
+    await ensureUserOtpSecurityColumns();
     const { email, otp, password, newPassword } = req.body;
     const nextPassword = newPassword || password;
 
@@ -339,7 +444,7 @@ export const resetPassword = async (req, res) => {
     }
 
     const [rows] = await db.query(
-      "SELECT id, otp, otp_expiry FROM users WHERE email = ?",
+      "SELECT id, otp, otp_expiry, otp_attempts, otp_blocked_until FROM users WHERE email = ?",
       [email]
     );
 
@@ -349,12 +454,20 @@ export const resetPassword = async (req, res) => {
 
     const user = rows[0];
 
+    if (user.otp_blocked_until && new Date(user.otp_blocked_until) > new Date()) {
+      return sendOtpBlockedResponse(res, user);
+    }
+
     if (!user.otp || Number(user.otp) !== Number(otp)) {
-      return res.status(400).json({ message: "Invalid OTP" });
+      return handleInvalidOtpAttempt({
+        email,
+        currentAttempts: user.otp_attempts,
+        res,
+      });
     }
 
     if (!user.otp_expiry || new Date(user.otp_expiry) < new Date()) {
-      return res.status(400).json({ message: "OTP expired" });
+      return sendOtpExpiredResponse(res, user);
     }
 
     if (String(nextPassword).length < 6) {
@@ -364,7 +477,7 @@ export const resetPassword = async (req, res) => {
     const hashedPassword = await bcrypt.hash(nextPassword, 10);
 
     const [result] = await db.query(
-      "UPDATE users SET password = ?, otp = NULL, otp_expiry = NULL WHERE id = ?",
+      "UPDATE users SET password = ?, otp = NULL, otp_expiry = NULL, otp_attempts = 0, otp_blocked_until = NULL WHERE id = ?",
       [hashedPassword, user.id]
     );
 

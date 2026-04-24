@@ -1,15 +1,38 @@
 import { Bell, ShoppingCart } from "lucide-react";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { FiMoreVertical } from "react-icons/fi";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import api from "../../api/axios";
 import { AuthContext } from "../../Context/AuthContext";
 import { DEFAULT_PROFILE_IMAGE } from "../../constants/defaultImages";
 
 const Navbar = () => {
   const navigate = useNavigate();
-  const location = useLocation(); // 👈 to detect active page
+  const location = useLocation();
   const { user, logout } = useContext(AuthContext);
   const [openMenu, setOpenMenu] = useState(false);
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
+
+  useEffect(() => {
+    if (!user) {
+      setUnreadNotifications(0);
+      return undefined;
+    }
+
+    const fetchUnreadNotifications = async () => {
+      try {
+        const res = await api.get("/reports/user/notifications");
+        const notifications = res.data?.notifications || [];
+        setUnreadNotifications(notifications.filter((notification) => !notification.is_read).length);
+      } catch (error) {
+        console.error("Failed to fetch user notifications:", error);
+      }
+    };
+
+    fetchUnreadNotifications();
+    const interval = setInterval(fetchUnreadNotifications, 30000);
+    return () => clearInterval(interval);
+  }, [user]);
 
   const handleLogout = () => {
     logout();
@@ -28,8 +51,6 @@ const Navbar = () => {
 
   return (
     <nav className="h-16 bg-white border-b border-stone-200 px-4 sm:px-6 lg:px-10 flex items-center justify-between shadow-sm">
-      
-      {/* LEFT - LOGO */}
       <div
         onClick={() => navigate("/")}
         className="flex shrink-0 items-center gap-2 cursor-pointer"
@@ -44,9 +65,7 @@ const Navbar = () => {
         </span>
       </div>
 
-      {/* CENTER - NAV LINKS */}
       <div className="hidden md:flex gap-6 lg:gap-10 text-sm lg:text-base font-bold absolute left-1/2 transform -translate-x-1/2">
-
         {navLinks.map((link) => {
           const isActive = location.pathname === link.path;
 
@@ -61,8 +80,6 @@ const Navbar = () => {
               }`}
             >
               {link.name}
-
-              {/* underline animation */}
               <span
                 className={`absolute left-0 -bottom-1 h-[2px] bg-stone-900 transition-all duration-300 ${
                   isActive ? "w-full" : "w-0 group-hover:w-full"
@@ -73,18 +90,19 @@ const Navbar = () => {
         })}
       </div>
 
-      {/* RIGHT - ICONS + USER */}
       <div className="relative flex shrink-0 items-center gap-2 sm:gap-3">
-        
-        {/* Notification */}
         <button
           onClick={() => navigate("/notifications")}
-          className="p-2 rounded-xl bg-stone-100 hover:bg-stone-200 transition shadow-sm"
+          className="relative p-2 rounded-xl bg-stone-100 hover:bg-stone-200 transition shadow-sm"
         >
           <Bell size={17} className="text-stone-700 sm:w-[18px] sm:h-[18px]" />
+          {unreadNotifications > 0 && (
+            <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full border-2 border-white bg-rose-500 px-1 text-[10px] font-bold text-white">
+              {unreadNotifications}
+            </span>
+          )}
         </button>
 
-        {/* Cart */}
         <button
           onClick={() => navigate("/cart")}
           className="p-2 rounded-xl bg-stone-600 hover:bg-stone-700 transition shadow-md"
@@ -92,7 +110,6 @@ const Navbar = () => {
           <ShoppingCart size={17} className="text-white sm:w-[18px] sm:h-[18px]" />
         </button>
 
-        {/* USER */}
         {user && (
           <>
             <img
@@ -102,7 +119,6 @@ const Navbar = () => {
               onClick={() => navigate("/profile")}
             />
 
-            {/* 3 DOT MENU */}
             <div className="relative">
               <FiMoreVertical
                 className="cursor-pointer text-lg sm:text-xl text-stone-600 hover:text-black transition"

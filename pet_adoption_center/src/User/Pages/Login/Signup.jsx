@@ -196,8 +196,7 @@ const Signup = () => {
                 onChange={(e) => setRoleId(e.target.value)}
               >
                 <option value={3}>Customer / Adopter</option>
-                <option value={2}>Staff Member</option>
-                <option value={1}>Administrator</option>
+              
               </select>
             </div>
           </div>
