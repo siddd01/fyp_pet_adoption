@@ -1,5 +1,6 @@
 import bcrypt from "bcryptjs";
 import db from "../config/db.js";
+import { getPasswordValidationError } from "../utils/passwordPolicy.js";
 export const getAdminProfile = async (req, res) => {
   try {
     const [rows] = await db.query(
@@ -63,8 +64,10 @@ export const changeAdminPassword = async (req, res) => {
       return res.status(400).json({ message: "New passwords do not match" });
     }
 
-    if (String(newPassword).length < 6) {
-      return res.status(400).json({ message: "Password must be at least 6 characters long" });
+    const passwordError = getPasswordValidationError(newPassword);
+
+    if (passwordError) {
+      return res.status(400).json({ message: passwordError });
     }
 
     // 1. Get current password from DB

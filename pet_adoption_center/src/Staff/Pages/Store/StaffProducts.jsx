@@ -8,7 +8,13 @@ const StaffProducts = () => {
   const { products, productLoading, fetchProducts } = useContext(ProductContext);
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Delete this product from the catalog?")) return;
+    const confirmed = await window.appConfirm({
+      title: "Delete this product?",
+      text: "This product will be removed from the staff catalog.",
+      confirmButtonText: "Delete Product",
+      cancelButtonText: "Keep Product",
+    });
+    if (!confirmed) return;
 
     try {
       const token = localStorage.getItem("staffToken");

@@ -29,7 +29,13 @@ const StaffHandleAdoption = () => {
   }, []);
 
   const handleStatusUpdate = async (id, status) => {
-    if (!window.confirm(`Mark this application as ${status}?`)) return;
+    const confirmed = await window.appConfirm({
+      title: `Mark application as ${status}?`,
+      text: "The adopter will receive the updated application status right away.",
+      confirmButtonText: "Update Status",
+      cancelButtonText: "Cancel",
+    });
+    if (!confirmed) return;
 
     try {
       const token = localStorage.getItem("staffToken");

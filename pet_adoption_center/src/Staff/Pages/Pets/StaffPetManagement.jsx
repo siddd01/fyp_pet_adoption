@@ -72,13 +72,21 @@ const StaffPetManagement = () => {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm("Permanently remove this pet profile?")) {
-      try {
-        await deletePet(id);
-        getAllPets();
-      } catch (err) {
-        alert(err.message);
-      }
+    const confirmed = await window.appConfirm({
+      title: "Delete this pet profile?",
+      text: "This pet profile will be removed permanently.",
+      confirmButtonText: "Delete Pet",
+      cancelButtonText: "Keep Pet",
+    });
+
+    if (!confirmed) return;
+
+    try {
+      await deletePet(id);
+      getAllPets();
+      window.appAlert("Pet deleted successfully.");
+    } catch (err) {
+      alert(err.message);
     }
   };
 
@@ -146,7 +154,7 @@ const StaffPetManagement = () => {
           <div className="bg-white rounded-[2.5rem] p-8 md:p-12 max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-stone-100">
             <div className="flex justify-between items-center mb-8">
               <h3 className="text-2xl font-medium text-stone-900" style={{ fontFamily: "Georgia, serif" }}>
-                {editingPet ? "Update Profile" : "Register "}<span className="italic text-stone-500">{editingPet ? pet.name : "New Pet"}</span>
+                {editingPet ? "Update Profile" : "Register "}<span className="italic text-stone-500">{editingPet ? editingPet.name : "New Pet"}</span>
               </h3>
               <button onClick={resetForm} className="text-stone-300 hover:text-stone-900 transition-colors text-2xl">×</button>
             </div>

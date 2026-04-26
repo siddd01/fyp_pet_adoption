@@ -1,6 +1,7 @@
 import { Loader2, Pencil, Plus, Search, Trash2, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import api from "../../../api/axios";
+import { PASSWORD_REQUIREMENTS, validatePassword } from "../../../utils/passwordPolicy";
 
 const StaffManagement = () => {
   const [staffList, setStaffList] = useState([]);
@@ -71,8 +72,17 @@ const StaffManagement = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
     const token = localStorage.getItem("adminToken");
+
+    if (!editMode) {
+      const passwordValidation = validatePassword(formData.password);
+      if (!passwordValidation.valid) {
+        window.appAlert(passwordValidation.message, { icon: "error" });
+        return;
+      }
+    }
+
+    setLoading(true);
 
     try {
      // ... inside handleSubmit
@@ -89,6 +99,7 @@ if (editMode) {
 }
       
       setIsModalOpen(false);
+      window.appAlert(editMode ? "Staff details updated successfully." : "Staff created successfully.");
       fetchStaff();
       resetForm();
     } catch (err) {
@@ -99,10 +110,25 @@ if (editMode) {
   };
 
   const handleDelete = async (id) => {
-    const isConfirmed = window.confirm("Are you sure you want to delete this staff member?");
+    const isConfirmed = await window.appConfirm({
+      title: "Delete staff member?",
+      text: "This will permanently remove the selected staff account.",
+      confirmButtonText: "Continue",
+      cancelButtonText: "Cancel",
+    });
     if (!isConfirmed) return;
 
-    const adminPassword = prompt("Enter admin password to confirm deletion:");
+    const adminPassword = await window.appPrompt({
+      title: "Admin password required",
+      text: "Enter your admin password to authorize this deletion.",
+      input: "password",
+      inputLabel: "Admin password",
+      inputPlaceholder: "Enter your password",
+      preserveWhitespace: true,
+      confirmButtonText: "Delete Staff",
+      cancelButtonText: "Keep Staff",
+      validationMessage: "Admin password is required.",
+    });
     if (!adminPassword) return;
 
     try {
@@ -253,9 +279,13 @@ if (editMode) {
                     type="password" 
                     placeholder="Temporary Password" 
                     required 
+                    autoComplete="new-password"
                     className="border p-3 rounded-xl w-full" 
                     onChange={e => setFormData({...formData, password: e.target.value})} 
                   />
+                )}
+                {!editMode && (
+                  <p className="text-xs leading-5 text-stone-400">{PASSWORD_REQUIREMENTS}</p>
                 )}
 
                 <div className="grid grid-cols-2 gap-4">

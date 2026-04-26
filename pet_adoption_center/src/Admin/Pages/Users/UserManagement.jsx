@@ -35,11 +35,18 @@ const UserManagement = () => {
   }, []);
 
   const handleDeleteUser = async (userId) => {
-    if (!window.confirm("Delete this user account permanently?")) return;
+    const confirmed = await window.appConfirm({
+      title: "Delete this user account?",
+      text: "This permanently removes the user and linked account data.",
+      confirmButtonText: "Delete User",
+      cancelButtonText: "Cancel",
+    });
+    if (!confirmed) return;
 
     try {
       await api.delete(`/admin/users/${userId}`);
       fetchUsers();
+      window.appAlert("User deleted successfully.");
     } catch (error) {
       console.error("Failed to delete user:", error);
       alert(error.response?.data?.message || "Failed to delete user");

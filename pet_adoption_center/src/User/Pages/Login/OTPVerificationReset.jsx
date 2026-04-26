@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import api from "../../../api/axios";
 import { formatDuration, getBlockTimeLeft, MAX_OTP_TRIES, normalizeOtpResponse } from "../../../utils/otpSecurity";
+import { PASSWORD_REQUIREMENTS, validatePassword } from "../../../utils/passwordPolicy";
 
 const OTPVerificationReset = () => {
   const navigate = useNavigate();
@@ -111,6 +112,12 @@ const OTPVerificationReset = () => {
     e.preventDefault();
     setError("");
     setSuccessMsg("");
+
+    const passwordValidation = validatePassword(password);
+    if (!passwordValidation.valid) {
+      setError(passwordValidation.message);
+      return;
+    }
 
     if (password !== confirmPassword) {
       setError("Passwords do not match. Please double-check.");
@@ -237,8 +244,10 @@ const OTPVerificationReset = () => {
                     className="w-full px-6 py-4 bg-stone-50 border border-stone-200 rounded-2xl text-stone-900 focus:border-stone-400 focus:bg-white outline-none transition-all"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    autoComplete="new-password"
                     required
                   />
+                  <p className="px-2 text-[11px] leading-5 text-stone-400">{PASSWORD_REQUIREMENTS}</p>
                 </div>
                 <div className="space-y-2">
                   <label className="text-[10px] uppercase tracking-widest font-bold text-stone-500 ml-2">Confirm Password</label>
@@ -248,6 +257,7 @@ const OTPVerificationReset = () => {
                     className="w-full px-6 py-4 bg-stone-50 border border-stone-200 rounded-2xl text-stone-900 focus:border-stone-400 focus:bg-white outline-none transition-all"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
+                    autoComplete="new-password"
                     required
                   />
                 </div>

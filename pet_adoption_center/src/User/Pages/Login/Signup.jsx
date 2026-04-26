@@ -11,6 +11,7 @@ import {
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../../api/axios";
+import { PASSWORD_REQUIREMENTS, validatePassword } from "../../../utils/passwordPolicy";
 
 const Signup = () => {
   const [firstName, setFirstName] = useState("");
@@ -28,8 +29,18 @@ const Signup = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
     setMessage(null);
+
+    const passwordValidation = validatePassword(password);
+    if (!passwordValidation.valid) {
+      setMessage({
+        type: "error",
+        text: passwordValidation.message,
+      });
+      return;
+    }
+
+    setLoading(true);
 
     try {
       await api.post("/auth/signup", {
@@ -146,9 +157,11 @@ const Signup = () => {
                 className="w-full pl-12 pr-6 py-4 bg-stone-50 border-none rounded-2xl text-stone-900 focus:ring-2 focus:ring-stone-200 transition-all placeholder:text-stone-200 text-sm"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                autoComplete="new-password"
                 required
               />
             </div>
+            <p className="px-2 text-[11px] leading-5 text-stone-400">{PASSWORD_REQUIREMENTS}</p>
           </div>
 
           {/* DOB & Gender Row */}

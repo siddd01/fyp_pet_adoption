@@ -70,7 +70,13 @@ const PostManagement = () => {
   };
 
   const handleDeletePost = async (postId) => {
-    if (!confirm("Are you sure you want to delete this post?")) return;
+    const confirmed = await window.appConfirm({
+      title: "Delete this post?",
+      text: "This community update and its engagement history will be removed.",
+      confirmButtonText: "Delete Post",
+      cancelButtonText: "Keep Post",
+    });
+    if (!confirmed) return;
     try {
       await api.delete(`/charity/posts/${postId}`);
       fetchPosts();

@@ -72,13 +72,20 @@ const Notifications = () => {
   };
 
   const handleDelete = async (appId) => {
-    if (!window.confirm("Are you sure you want to delete this adoption request? This action cannot be undone.")) return;
+    const confirmed = await window.appConfirm({
+      title: "Delete this adoption request?",
+      text: "This pending application will be permanently removed.",
+      confirmButtonText: "Delete Request",
+      cancelButtonText: "Keep Request",
+    });
+    if (!confirmed) return;
     
     try {
       await api.delete(`/adoptions/${appId}`);
       setSelectedApp(null);
       
       fetchNotifications(); // Refresh notifications after deletion
+      window.appAlert("Adoption request deleted successfully.");
     } catch (error) {
       console.error("Failed to delete application:", error);
     }

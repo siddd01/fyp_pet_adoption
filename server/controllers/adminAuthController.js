@@ -2,6 +2,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import db from "../config/db.js";
 import sendEmail from "../utils/sendEmail.js";
+import { getPasswordValidationError } from "../utils/passwordPolicy.js";
 
 let adminResetColumnsReady = false;
 const MAX_OTP_ATTEMPTS = 3;
@@ -126,6 +127,12 @@ export const adminRegister = async (req, res) => {
   const { full_name, email, password } = req.body;
 
   try {
+    const passwordError = getPasswordValidationError(password);
+
+    if (passwordError) {
+      return res.status(400).json({ message: passwordError });
+    }
+
     const [admins] = await db.query("SELECT admin_id FROM admins LIMIT 1");
     const isFirstAdmin = admins.length === 0;
 
@@ -322,8 +329,10 @@ export const resetAdminPassword = async (req, res) => {
       return res.status(400).json({ message: "Passwords do not match" });
     }
 
-    if (String(nextPassword).length < 6) {
-      return res.status(400).json({ message: "Password must be at least 6 characters long" });
+    const passwordError = getPasswordValidationError(nextPassword);
+
+    if (passwordError) {
+      return res.status(400).json({ message: passwordError });
     }
 
     const [rows] = await db.query(

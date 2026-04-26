@@ -2,6 +2,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import db from "../config/db.js";
 import sendEmail from "../utils/sendEmail.js";
+import { getPasswordValidationError } from "../utils/passwordPolicy.js";
 
 let userOtpSecurityColumnsReady = false;
 const MAX_OTP_ATTEMPTS = 3;
@@ -128,6 +129,11 @@ export const signup = async (req, res) => {
   try {
     await ensureUserOtpSecurityColumns();
     const { first_name, last_name, email, password, role_id, date_of_birth, gender } = req.body;
+    const passwordError = getPasswordValidationError(password);
+
+    if (passwordError) {
+      return res.status(400).json({ success: false, message: passwordError });
+    }
 
     // Check if email exists
     const [existingUser] = await db.query("SELECT id FROM users WHERE email = ?", [email]);
@@ -470,8 +476,10 @@ export const resetPassword = async (req, res) => {
       return sendOtpExpiredResponse(res, user);
     }
 
-    if (String(nextPassword).length < 6) {
-      return res.status(400).json({ message: "Password must be at least 6 characters long" });
+    const passwordError = getPasswordValidationError(nextPassword);
+
+    if (passwordError) {
+      return res.status(400).json({ message: passwordError });
     }
 
     const hashedPassword = await bcrypt.hash(nextPassword, 10);

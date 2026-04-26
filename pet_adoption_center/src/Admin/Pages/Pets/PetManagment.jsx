@@ -95,13 +95,21 @@ const PetManagement = () => {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm("Delete this pet permanentely?")) {
-      try {
-        await deletePet(id);
-        getAllPets();
-      } catch (err) {
-        alert(err);
-      }
+    const confirmed = await window.appConfirm({
+      title: "Delete this pet?",
+      text: "This pet profile will be removed permanently unless adoption activity is still linked to it.",
+      confirmButtonText: "Delete Pet",
+      cancelButtonText: "Keep Pet",
+    });
+
+    if (!confirmed) return;
+
+    try {
+      await deletePet(id);
+      getAllPets();
+      window.appAlert("Pet deleted successfully.");
+    } catch (err) {
+      alert(err);
     }
   };
 

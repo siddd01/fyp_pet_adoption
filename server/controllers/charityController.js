@@ -74,6 +74,20 @@ const createAdminNotification = async (type, postId, userId) => {
     const userName = `${userResult[0].first_name} ${userResult[0].last_name}`.trim();
     
     const postTitle = postDetails[0].title;
+
+    if (type === "like") {
+      const [existingLikeNotification] = await db.query(
+        `SELECT id
+         FROM admin_notifications
+         WHERE admin_id = ? AND type = 'like' AND post_id = ? AND user_id = ?
+         LIMIT 1`,
+        [postDetails[0].admin_id, postId, userId]
+      );
+
+      if (existingLikeNotification.length > 0) {
+        return;
+      }
+    }
     
     let message = "";
     if (type === "like") {

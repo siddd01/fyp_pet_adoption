@@ -1,5 +1,6 @@
 import { useState } from "react";
 import api from "../../../api/axios";
+import { PASSWORD_REQUIREMENTS, validatePassword } from "../../../utils/passwordPolicy";
 
 const AdminRegister = () => {
   const [formData, setFormData] = useState({
@@ -11,6 +12,7 @@ const AdminRegister = () => {
 
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState("");
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -18,8 +20,17 @@ const AdminRegister = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
     setMessage("");
+    setMessageType("");
+
+    const passwordValidation = validatePassword(formData.password);
+    if (!passwordValidation.valid) {
+      setMessage(passwordValidation.message);
+      setMessageType("error");
+      return;
+    }
+
+    setLoading(true);
 
     try {
      const token = localStorage.getItem("adminToken");
@@ -39,14 +50,14 @@ setFormData({
   password: "",
 });
 
-
-
       setMessage(res.data.message);
+      setMessageType("success");
 
     } catch (error) {
       setMessage(
         error.response?.data?.message || "Admin creation failed"
       );
+      setMessageType("error");
     } finally {
       setLoading(false);
     }
@@ -57,7 +68,7 @@ setFormData({
       <h2 className="text-2xl font-bold mb-4">Create Admin</h2>
 
       {message && (
-        <p className="mb-3 text-sm text-center text-red-600">
+        <p className={`mb-3 text-sm text-center ${messageType === "success" ? "text-emerald-600" : "text-red-600"}`}>
           {message}
         </p>
       )}
@@ -89,9 +100,11 @@ setFormData({
           placeholder="Password"
           value={formData.password}
           onChange={handleChange}
+          autoComplete="new-password"
           required
           className="w-full border p-2 rounded"
         />
+        <p className="text-xs text-stone-500">{PASSWORD_REQUIREMENTS}</p>
 
         
         <button

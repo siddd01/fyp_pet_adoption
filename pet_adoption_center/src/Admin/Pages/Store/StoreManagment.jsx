@@ -58,13 +58,20 @@ const StoreManagement = () => {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Permanently remove this item?")) return;
+    const confirmed = await window.appConfirm({
+      title: "Remove this product?",
+      text: "This item will be permanently removed from the inventory.",
+      confirmButtonText: "Delete Product",
+      cancelButtonText: "Keep Product",
+    });
+    if (!confirmed) return;
     try {
       const token = localStorage.getItem("adminToken") || localStorage.getItem("staffToken");
       await api.delete(`/products/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       fetchProducts();
+      window.appAlert("Product removed successfully.");
     } catch (err) {
       alert("Delete failed: " + (err.response?.data?.error || err.message));
     }

@@ -4,6 +4,7 @@ import PetLoader from "../../Components/PetLoader";
 import { AdminAuthContext } from "../../Context/AdminAuthContext";
 import { DEFAULT_SITE_IMAGE } from "../../constants/defaultImages";
 import { getOptionalImageSrc, getProfileImageSrc } from "../../utils/imageHelpers";
+import { PASSWORD_REQUIREMENTS, validatePassword } from "../../utils/passwordPolicy";
 
 const AdminProfile = () => {
   const {
@@ -72,6 +73,13 @@ const AdminProfile = () => {
 
     if (passwords.newPassword !== passwords.confirmPassword) {
       setPasswordMessage("New passwords do not match.");
+      setSavingPassword(false);
+      return;
+    }
+
+    const passwordValidation = validatePassword(passwords.newPassword);
+    if (!passwordValidation.valid) {
+      setPasswordMessage(passwordValidation.message);
       setSavingPassword(false);
       return;
     }
@@ -277,11 +285,15 @@ const AdminProfile = () => {
                         type={field.type}
                         value={passwords[field.name]}
                         onChange={(e) => setPasswords((prev) => ({ ...prev, [field.name]: e.target.value }))}
+                        autoComplete={field.name === "oldPassword" ? "current-password" : "new-password"}
                         className="w-full px-5 py-3 bg-stone-50 border border-stone-100 rounded-2xl focus:bg-white focus:border-stone-800 outline-none transition-all text-sm text-stone-800 font-medium"
                         required
                       />
                     </div>
                   ))}
+                </div>
+                <div className="rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm text-stone-500">
+                  {PASSWORD_REQUIREMENTS}
                 </div>
 
                 <div className="pt-8 border-t border-stone-50 flex justify-end">

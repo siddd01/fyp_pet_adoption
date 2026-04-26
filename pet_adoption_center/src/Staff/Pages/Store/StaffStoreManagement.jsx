@@ -55,13 +55,20 @@ const StaffStoreManagement = () => {
 
   // Staff usually has delete permissions for inventory maintenance
   const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to remove this item from the store?")) return;
+    const confirmed = await window.appConfirm({
+      title: "Remove this item?",
+      text: "This inventory item will be removed from the store catalog.",
+      confirmButtonText: "Remove Item",
+      cancelButtonText: "Keep Item",
+    });
+    if (!confirmed) return;
     try {
       const token = localStorage.getItem("staffToken") || localStorage.getItem("adminToken");
       await api.delete(`/products/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       fetchProducts();
+      window.appAlert("Item removed successfully.");
     } catch (err) {
       alert("Inventory update failed: " + (err.response?.data?.error || err.message));
     }

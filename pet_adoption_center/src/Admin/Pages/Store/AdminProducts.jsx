@@ -13,7 +13,13 @@ const AdminProducts = () => {
   }, [fetchProducts]);
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Permanently delete this product from the database?")) return;
+    const confirmed = await window.appConfirm({
+      title: "Delete this product?",
+      text: "This product will be permanently removed from the database.",
+      confirmButtonText: "Delete Product",
+      cancelButtonText: "Cancel",
+    });
+    if (!confirmed) return;
 
     try {
       const token = localStorage.getItem("adminToken");
@@ -23,6 +29,7 @@ const AdminProducts = () => {
         },
       });
       fetchProducts(); // refresh list
+      window.appAlert("Product removed successfully.");
     } catch (error) {
       console.error("Delete failed:", error);
       alert("Error: Could not remove product.");

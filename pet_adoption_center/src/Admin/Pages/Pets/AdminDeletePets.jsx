@@ -20,7 +20,13 @@ const AdminDeletePets = () => {
       return;
     }
 
-    if (!window.confirm("Are you sure you want to delete this pet? This action cannot be undone.")) return;
+    const confirmed = await window.appConfirm({
+      title: "Delete this pet?",
+      text: "This action cannot be undone, and affected applicants may be notified.",
+      confirmButtonText: "Delete Pet",
+      cancelButtonText: "Cancel",
+    });
+    if (!confirmed) return;
 
     setLoading(true);
     try {

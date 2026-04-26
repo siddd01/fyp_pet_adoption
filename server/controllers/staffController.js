@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import db from "../config/db.js";
+import { getPasswordValidationError } from "../utils/passwordPolicy.js";
 
 // Signup Staff
 // controllers/staffController.js
@@ -240,6 +241,12 @@ export const updateStaffProfile = async (req, res) => {
     try {
       // FIX: Change req.staff to req.admin (or just remove the log)
       console.log("Admin creating staff:", req.admin?.admin_id);
+
+      const passwordError = getPasswordValidationError(password);
+
+      if (passwordError) {
+        return res.status(400).json({ message: passwordError });
+      }
 
       const [existing] = await db.query("SELECT staff_id FROM staff WHERE email = ?", [email]);
       if (existing.length) return res.status(400).json({ message: "Email already exists" });

@@ -9,6 +9,10 @@ import { PetProvider } from "./Context/PetContext.jsx";
 import { ProductProvider } from "./Context/ProductContext.jsx";
 import { StaffProvider } from "./Context/StaffContext.jsx";
 import "./index.css";
+import "sweetalert2/dist/sweetalert2.min.css";
+import { installAppDialogs } from "./utils/dialogs";
+
+installAppDialogs();
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
