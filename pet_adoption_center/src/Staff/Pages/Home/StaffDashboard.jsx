@@ -1,6 +1,7 @@
 import {
   ClipboardList,
   LogOut,
+  PackageCheck,
   PawPrint,
   ShoppingBag,
   SquareUserRound
@@ -38,6 +39,7 @@ const StaffDashboard = () => {
       items: [
         { title: "Pet Registry", icon: <PawPrint size={20} />, link: "/staff/pets" },
         { title: "Store Inventory", icon: <ShoppingBag size={20} />, link: "/staff/store" },
+        { title: "Handle Orders", icon: <PackageCheck size={20} />, link: "/staff/orders" },
       ],
     },
     {
@@ -96,8 +98,9 @@ const StaffDashboard = () => {
 
           <div className="mt-auto border-t border-stone-100 pt-6">
             <div className="mb-4 flex items-center gap-3 px-2">
-              <div className="h-10 w-10 overflow-hidden rounded-full border border-stone-200 bg-stone-100">
+              <div  className="h-10 w-10 overflow-hidden rounded-full border border-stone-200 bg-stone-100">
                 <img
+                
                   src={getProfileImageSrc(staff?.profile_image)}
                   alt={displayName}
                   className="h-full w-full object-cover"
@@ -175,6 +178,17 @@ const StaffDashboard = () => {
                 </div>
                 <h3 className="mb-1 text-xl font-bold text-stone-800">Adoption Hub</h3>
                 <p className="text-sm text-stone-400">Review applications and pending statuses.</p>
+              </Link>
+
+              <Link
+                to="/staff/orders"
+                className="group rounded-4xl border border-stone-200 bg-white p-8 shadow-sm transition-all hover:border-sky-200 hover:shadow-md"
+              >
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-sky-50 text-sky-600 transition-transform group-hover:scale-110">
+                  <PackageCheck />
+                </div>
+                <h3 className="mb-1 text-xl font-bold text-stone-800">Order Queue</h3>
+                <p className="text-sm text-stone-400">Accept paid orders and confirm delivery timelines.</p>
               </Link>
             </div>
           </div>

@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import db from "../config/db.js";
 import sendEmail from "../utils/sendEmail.js";
 import { getPasswordValidationError } from "../utils/passwordPolicy.js";
+import { resetSecurityAttemptsIfExpired } from "../utils/accountSecurity.js";
 
 let userOtpSecurityColumnsReady = false;
 const MAX_OTP_ATTEMPTS = 3;
@@ -211,6 +212,15 @@ export const verifyOTP = async (req, res) => {
 
     const user = rows[0];
 
+    await resetSecurityAttemptsIfExpired({
+      record: user,
+      table: "users",
+      keyColumn: "email",
+      keyValue: email,
+      attemptsKey: "otp_attempts",
+      blockedUntilKey: "otp_blocked_until",
+    });
+
     if (user.otp_blocked_until && new Date(user.otp_blocked_until) > new Date()) {
       return sendOtpBlockedResponse(res, user);
     }
@@ -258,6 +268,15 @@ export const verifyResetOTP = async (req, res) => {
     }
 
     const user = rows[0];
+
+    await resetSecurityAttemptsIfExpired({
+      record: user,
+      table: "users",
+      keyColumn: "email",
+      keyValue: email,
+      attemptsKey: "otp_attempts",
+      blockedUntilKey: "otp_blocked_until",
+    });
 
     if (user.otp_blocked_until && new Date(user.otp_blocked_until) > new Date()) {
       return sendOtpBlockedResponse(res, user);
@@ -310,6 +329,15 @@ export const resendOTP = async (req, res) => {
         message: "User not found."
       });
     }
+
+    await resetSecurityAttemptsIfExpired({
+      record: user[0],
+      table: "users",
+      keyColumn: "email",
+      keyValue: email,
+      attemptsKey: "otp_attempts",
+      blockedUntilKey: "otp_blocked_until",
+    });
 
     if (user[0].otp_blocked_until && new Date(user[0].otp_blocked_until) > new Date()) {
       return sendOtpBlockedResponse(res, user[0], "OTP is temporarily blocked. Please wait before requesting a new code.");
@@ -405,6 +433,15 @@ export const forgotPassword = async (req, res) => {
     const [rows] = await db.execute("SELECT * FROM users WHERE email = ?", [email]);
     if (rows.length === 0) return res.status(404).json({ message: "User not found" });
 
+    await resetSecurityAttemptsIfExpired({
+      record: rows[0],
+      table: "users",
+      keyColumn: "email",
+      keyValue: email,
+      attemptsKey: "otp_attempts",
+      blockedUntilKey: "otp_blocked_until",
+    });
+
     if (rows[0].otp_blocked_until && new Date(rows[0].otp_blocked_until) > new Date()) {
       return sendOtpBlockedResponse(res, rows[0], "OTP is temporarily blocked. Please wait before requesting a new code.");
     }
@@ -459,6 +496,15 @@ export const resetPassword = async (req, res) => {
     }
 
     const user = rows[0];
+
+    await resetSecurityAttemptsIfExpired({
+      record: user,
+      table: "users",
+      keyColumn: "email",
+      keyValue: email,
+      attemptsKey: "otp_attempts",
+      blockedUntilKey: "otp_blocked_until",
+    });
 
     if (user.otp_blocked_until && new Date(user.otp_blocked_until) > new Date()) {
       return sendOtpBlockedResponse(res, user);

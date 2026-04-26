@@ -13,6 +13,13 @@ const statusStyles = {
   refunded: "bg-slate-100 text-slate-700 border-slate-200",
 };
 
+const fulfillmentStyles = {
+  new: "bg-amber-50 text-amber-700 border-amber-200",
+  accepted: "bg-sky-50 text-sky-700 border-sky-200",
+  delivering: "bg-indigo-50 text-indigo-700 border-indigo-200",
+  delivered: "bg-stone-100 text-stone-700 border-stone-200",
+};
+
 const OrderHistory = () => {
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -141,6 +148,9 @@ const OrderHistory = () => {
                 : "Unknown date";
               const statusClass =
                 statusStyles[item.status] || "bg-stone-100 text-stone-700 border-stone-200";
+              const fulfillmentClass =
+                fulfillmentStyles[item.fulfillment_status] || "bg-stone-100 text-stone-700 border-stone-200";
+              const staffName = [item.staff_first_name, item.staff_last_name].filter(Boolean).join(" ").trim();
 
               return (
                 <article
@@ -177,9 +187,14 @@ const OrderHistory = () => {
                         </div>
 
                         <div className="flex flex-col items-start md:items-end gap-3">
-                          <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-bold uppercase tracking-widest ${statusClass}`}>
-                            {item.status}
-                          </span>
+                          <div className="flex flex-wrap gap-2">
+                            <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-bold uppercase tracking-widest ${statusClass}`}>
+                              Payment {item.status}
+                            </span>
+                            <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-bold uppercase tracking-widest ${fulfillmentClass}`}>
+                              {item.fulfillment_status === "new" ? "Awaiting staff" : item.fulfillment_status || "new"}
+                            </span>
+                          </div>
                           <p className="text-xl font-semibold text-stone-900">
                             NPR {itemTotal.toLocaleString(undefined, { maximumFractionDigits: 2 })}
                           </p>
@@ -207,6 +222,20 @@ const OrderHistory = () => {
                           <p className="text-xs uppercase tracking-widest text-stone-400 font-bold">Delivery</p>
                           <p className="mt-1 font-medium text-stone-800 line-clamp-2">
                             {item.shipping_address || "No address saved"}
+                          </p>
+                        </div>
+                        <div className="rounded-2xl bg-stone-50 px-4 py-3 border border-stone-200">
+                          <p className="text-xs uppercase tracking-widest text-stone-400 font-bold">Handled By</p>
+                          <p className="mt-1 font-medium text-stone-800">
+                            {staffName || "Awaiting assignment"}
+                          </p>
+                        </div>
+                        <div className="rounded-2xl bg-stone-50 px-4 py-3 border border-stone-200">
+                          <p className="text-xs uppercase tracking-widest text-stone-400 font-bold">Estimated Delivery</p>
+                          <p className="mt-1 font-medium text-stone-800">
+                            {item.estimated_delivery_date
+                              ? new Date(item.estimated_delivery_date).toLocaleDateString()
+                              : "Pending staff acceptance"}
                           </p>
                         </div>
                       </div>

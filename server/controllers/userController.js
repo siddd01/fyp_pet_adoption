@@ -1,7 +1,28 @@
 import bcrypt from "bcryptjs";
 import db from "../config/db.js";
+import { getPasswordValidationError } from "../utils/passwordPolicy.js";
+import {
+  MAX_SECURITY_ATTEMPTS,
+  buildBlockedResponse,
+  ensureTableColumns,
+  isSecurityBlocked,
+  registerFailedSecurityAttempt,
+  resetSecurityAttemptsIfExpired,
+} from "../utils/accountSecurity.js";
+import { ensureOrderFulfillmentColumns } from "../utils/orderFulfillment.js";
 
 let userNotificationsReady = false;
+
+const ensureUserPasswordSecurityColumns = async () => {
+  await ensureTableColumns({
+    key: "users-password-change-columns",
+    table: "users",
+    definitions: [
+      "password_change_attempts INT NOT NULL DEFAULT 0",
+      "password_change_blocked_until DATETIME NULL",
+    ],
+  });
+};
 
 const ensureUserNotificationsTable = async () => {
   if (userNotificationsReady) return;
@@ -82,6 +103,7 @@ export const getLoggedInUser = async (req, res) => {
 
 export const getUserOrderHistory = async (req, res) => {
   try {
+    await ensureOrderFulfillmentColumns();
     const userId = req.user.id;
     const limit = Math.max(1, Math.min(50, Number(req.query.limit) || 5));
     const offset = Math.max(0, Number(req.query.offset) || 0);
@@ -95,11 +117,18 @@ export const getUserOrderHistory = async (req, res) => {
         o.currency,
         o.status,
         o.transaction_id,
+        o.fulfillment_status,
+        o.handled_at,
+        o.estimated_delivery_date,
+        o.staff_note,
         o.full_name,
         o.email,
         o.phone,
         o.shipping_address,
         o.created_at,
+        s.staff_id AS handled_by_staff_id,
+        s.first_name AS staff_first_name,
+        s.last_name AS staff_last_name,
         oi.product_id,
         oi.quantity,
         oi.price_at_purchase,
@@ -109,6 +138,7 @@ export const getUserOrderHistory = async (req, res) => {
       FROM orders o
       INNER JOIN order_items oi ON oi.order_id = o.id
       LEFT JOIN products p ON p.id = oi.product_id
+      LEFT JOIN staff s ON s.staff_id = o.handled_by_staff_id
       WHERE o.user_id = ?
       ORDER BY o.created_at DESC, oi.id DESC
       LIMIT ? OFFSET ?
@@ -138,6 +168,108 @@ export const getUserOrderHistory = async (req, res) => {
   } catch (error) {
     console.error("Error fetching user order history:", error);
     res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const changeUserPassword = async (req, res) => {
+  try {
+    await ensureUserPasswordSecurityColumns();
+
+    const userId = req.user.id;
+    const currentPassword = req.body.currentPassword || req.body.oldPassword;
+    const { newPassword, confirmPassword } = req.body;
+
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      return res.status(400).json({
+        message: "Current password, new password, and confirm password are required",
+      });
+    }
+
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({ message: "Passwords do not match" });
+    }
+
+    const passwordError = getPasswordValidationError(newPassword);
+    if (passwordError) {
+      return res.status(400).json({ message: passwordError });
+    }
+
+    const [rows] = await db.query(
+      `
+        SELECT
+          password,
+          password_change_attempts,
+          password_change_blocked_until
+        FROM users
+        WHERE id = ?
+      `,
+      [userId]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const user = rows[0];
+
+    await resetSecurityAttemptsIfExpired({
+      record: user,
+      table: "users",
+      keyColumn: "id",
+      keyValue: userId,
+      attemptsKey: "password_change_attempts",
+      blockedUntilKey: "password_change_blocked_until",
+    });
+
+    if (isSecurityBlocked(user, "password_change_blocked_until")) {
+      const blocked = buildBlockedResponse(user, {
+        attemptsKey: "password_change_attempts",
+        blockedUntilKey: "password_change_blocked_until",
+        blockedFlag: "passwordChangeBlocked",
+        message: "Too many incorrect current password attempts. Try again after 1 hour.",
+      });
+
+      return res.status(blocked.status).json(blocked.body);
+    }
+
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
+      const failedAttempt = await registerFailedSecurityAttempt({
+        table: "users",
+        keyColumn: "id",
+        keyValue: userId,
+        currentAttempts: user.password_change_attempts,
+        attemptsKey: "password_change_attempts",
+        blockedUntilKey: "password_change_blocked_until",
+        blockedFlag: "passwordChangeBlocked",
+        invalidMessage: "Incorrect current password",
+        blockedMessage: "Too many incorrect current password attempts. Try again after 1 hour.",
+      });
+
+      return res.status(failedAttempt.status).json(failedAttempt.body);
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    await db.query(
+      `
+        UPDATE users
+        SET password = ?,
+            password_change_attempts = 0,
+            password_change_blocked_until = NULL
+        WHERE id = ?
+      `,
+      [hashedPassword, userId]
+    );
+
+    return res.json({
+      message: "Password updated successfully",
+      remainingTries: MAX_SECURITY_ATTEMPTS,
+      blockedUntil: null,
+    });
+  } catch (error) {
+    console.error("Error changing user password:", error);
+    return res.status(500).json({ message: "Failed to change password" });
   }
 };
 

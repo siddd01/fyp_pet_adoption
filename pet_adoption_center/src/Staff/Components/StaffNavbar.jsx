@@ -1,4 +1,4 @@
-import { ClipboardList, Menu } from "lucide-react";
+import { ClipboardList, Menu, PackageCheck } from "lucide-react";
 import { useContext, useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { StaffContext } from "../../Context/StaffContext";
@@ -51,6 +51,7 @@ const StaffNavbar = () => {
 
       <div className="flex items-center gap-4">
         <ClipboardList onClick={() => navigate("/staff/adoptions")} className="cursor-pointer text-gray-600 hover:text-teal-600" />
+        <PackageCheck onClick={() => navigate("/staff/orders")} className="cursor-pointer text-gray-600 hover:text-teal-600" />
 
         <Link to="/staff/community" className="cursor-pointer text-gray-600 hover:text-teal-600">
           Community

@@ -41,12 +41,15 @@ import UserManagement from "./Admin/Pages/Users/UserManagement.jsx";
 
 // Staff
 import StaffHandleAdoption from "./Staff/Pages/Adoptions/StaffHandleAdoption.jsx";
+import StaffForgotPassword from "./Staff/Pages/Login/StaffForgotPassword.jsx";
 import StaffLogin from "./Staff/Pages/Login/StaffLogin.jsx";
+import StaffResetPassword from "./Staff/Pages/Login/StaffResetPassword.jsx";
 import StaffDeletePets from "./Staff/Pages/Pets/StaffDeletePets.jsx";
 import StaffViewPets from "./Staff/Pages/Pets/StaffViewPets.jsx";
 import StaffProfile from "./Staff/Pages/Profile/StaffProfile.jsx";
 import StaffAddProduct from "./Staff/Pages/Store/StaffAddProduct.jsx";
 import StaffEditProduct from "./Staff/Pages/Store/StaffEditProduct.jsx";
+import StaffHandleOrders from "./Staff/Pages/Store/StaffHandleOrders.jsx";
 import StaffProducts from "./Staff/Pages/Store/StaffProducts.jsx";
 
 // Admin Guard
@@ -103,6 +106,8 @@ const App = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/staff/login" element={<StaffLogin />} />
+        <Route path="/staff/forgot-password" element={<StaffForgotPassword />} />
+        <Route path="/staff/reset-password" element={<StaffResetPassword />} />
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/admin/signup" element={<AdminRegister />} />
         <Route path="/admin/forgot-password" element={<AdminForgotPassword />} />
@@ -164,6 +169,7 @@ const App = () => {
           <Route path="pets" element={<StaffPetManagement/>} />
           <Route path="community" element={<StaffCommunity/>} />
           <Route path="store" element={<StaffStoreManagement/>} />
+          <Route path="orders" element={<StaffHandleOrders />} />
           <Route path="adoptions" element={<StaffHandleAdoption />} />
           <Route path="store/add-product" element={<StaffAddProduct />} />
           <Route path="store/products" element={<StaffProducts />} />

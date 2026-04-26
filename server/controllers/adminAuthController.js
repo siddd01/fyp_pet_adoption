@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import db from "../config/db.js";
 import sendEmail from "../utils/sendEmail.js";
 import { getPasswordValidationError } from "../utils/passwordPolicy.js";
+import { resetSecurityAttemptsIfExpired } from "../utils/accountSecurity.js";
 
 let adminResetColumnsReady = false;
 const MAX_OTP_ATTEMPTS = 3;
@@ -239,6 +240,15 @@ export const adminForgotPassword = async (req, res) => {
       return res.status(404).json({ message: "Admin not found" });
     }
 
+    await resetSecurityAttemptsIfExpired({
+      record: rows[0],
+      table: "admins",
+      keyColumn: "email",
+      keyValue: email,
+      attemptsKey: "otp_attempts",
+      blockedUntilKey: "otp_blocked_until",
+    });
+
     if (rows[0].otp_blocked_until && new Date(rows[0].otp_blocked_until) > new Date()) {
       return sendOtpBlockedResponse(res, rows[0], "OTP is temporarily blocked. Please wait before requesting a new code.");
     }
@@ -286,6 +296,15 @@ export const verifyAdminResetOTP = async (req, res) => {
     }
 
     const admin = rows[0];
+
+    await resetSecurityAttemptsIfExpired({
+      record: admin,
+      table: "admins",
+      keyColumn: "email",
+      keyValue: email,
+      attemptsKey: "otp_attempts",
+      blockedUntilKey: "otp_blocked_until",
+    });
 
     if (admin.otp_blocked_until && new Date(admin.otp_blocked_until) > new Date()) {
       return sendOtpBlockedResponse(res, admin);
@@ -345,6 +364,15 @@ export const resetAdminPassword = async (req, res) => {
     }
 
     const admin = rows[0];
+
+    await resetSecurityAttemptsIfExpired({
+      record: admin,
+      table: "admins",
+      keyColumn: "email",
+      keyValue: email,
+      attemptsKey: "otp_attempts",
+      blockedUntilKey: "otp_blocked_until",
+    });
 
     if (admin.otp_blocked_until && new Date(admin.otp_blocked_until) > new Date()) {
       return sendOtpBlockedResponse(res, admin);

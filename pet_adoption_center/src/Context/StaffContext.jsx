@@ -136,6 +136,22 @@ export const StaffProvider = ({ children }) => {
       throw new Error(errorMessage);
     }
   }, []);
+
+  const changeStaffPassword = useCallback(async (payload) => {
+    const token = localStorage.getItem("staffToken");
+
+    if (!token) {
+      throw new Error("Not authenticated");
+    }
+
+    const res = await api.put("/staff/change-password", payload, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return res.data;
+  }, []);
   // Add this inside your StaffProvider
 const adminUpdateAnyStaff = async (staffId, updatedData) => {
   try {
@@ -162,6 +178,7 @@ const adminUpdateAnyStaff = async (staffId, updatedData) => {
         deletePet,
         fetchStaffProfile,
         updateStaffProfile,
+        changeStaffPassword,
         adminUpdateAnyStaff,
       }}
     >

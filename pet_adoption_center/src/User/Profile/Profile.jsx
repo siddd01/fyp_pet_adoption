@@ -1,11 +1,15 @@
-import { Calendar, Check, Edit2, Mail, Shield, User, X, AlertTriangle } from "lucide-react";
+import { AlertTriangle, Calendar, Check, Clock3, Edit2, Mail, Shield, ShieldAlert, User, X } from "lucide-react";
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../Context/AuthContext.jsx";
 import { useNavigate } from "react-router-dom";
 import { DEFAULT_PROFILE_IMAGE } from "../../constants/defaultImages";
+import { formatDuration, getBlockTimeLeft } from "../../utils/otpSecurity";
+import { PASSWORD_REQUIREMENTS, validatePassword } from "../../utils/passwordPolicy";
+
+const MAX_PASSWORD_TRIES = 3;
 
 const Profile = () => {
-  const { user, updateUser, deleteAccount } = useContext(AuthContext);
+  const { user, updateUser, changeUserPassword, deleteAccount } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -21,6 +25,16 @@ const Profile = () => {
   const [deletePassword, setDeletePassword] = useState("");
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [deleteMessage, setDeleteMessage] = useState({ type: "", text: "" });
+  const [passwords, setPasswords] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+  const [passwordLoading, setPasswordLoading] = useState(false);
+  const [passwordMessage, setPasswordMessage] = useState({ type: "", text: "" });
+  const [remainingTries, setRemainingTries] = useState(MAX_PASSWORD_TRIES);
+  const [blockedUntil, setBlockedUntil] = useState(null);
+  const [timeLeft, setTimeLeft] = useState(0);
 
   const formatDateForInput = (dateString) => {
     if (!dateString) return "";
@@ -66,6 +80,28 @@ const Profile = () => {
     }
   }, [user]);
 
+  useEffect(() => {
+    const nextTime = getBlockTimeLeft(blockedUntil);
+    setTimeLeft(nextTime);
+
+    if (!nextTime) return undefined;
+
+    const interval = setInterval(() => {
+      const updated = getBlockTimeLeft(blockedUntil);
+      setTimeLeft(updated);
+
+      if (!updated) {
+        setBlockedUntil(null);
+        setRemainingTries(MAX_PASSWORD_TRIES);
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [blockedUntil]);
+
+  const isPasswordBlocked = timeLeft > 0;
+  const blockedTimerText = formatDuration(timeLeft);
+
   const handleChange = (e) => {
     setFormMessage({ type: "", text: "" });
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -105,6 +141,52 @@ const Profile = () => {
       });
       setDeleteLoading(false);
       return;
+    }
+  };
+
+  const applyPasswordResponse = (data = {}, fallbackMessage = "Failed to change password.") => {
+    setRemainingTries(
+      Number.isFinite(Number(data.remainingTries))
+        ? Number(data.remainingTries)
+        : MAX_PASSWORD_TRIES
+    );
+    setBlockedUntil(data.blockedUntil || null);
+    setPasswordMessage({
+      type: data.blockedUntil || Number(data.remainingTries) === 0 ? "error" : "error",
+      text: data.message || fallbackMessage,
+    });
+  };
+
+  const handlePasswordChange = async (e) => {
+    e.preventDefault();
+    if (isPasswordBlocked) return;
+
+    setPasswordLoading(true);
+    setPasswordMessage({ type: "", text: "" });
+
+    const passwordValidation = validatePassword(passwords.newPassword);
+    if (!passwordValidation.valid) {
+      setPasswordMessage({ type: "error", text: passwordValidation.message });
+      setPasswordLoading(false);
+      return;
+    }
+
+    if (passwords.newPassword !== passwords.confirmPassword) {
+      setPasswordMessage({ type: "error", text: "Passwords do not match." });
+      setPasswordLoading(false);
+      return;
+    }
+
+    try {
+      await changeUserPassword(passwords);
+      setPasswordMessage({ type: "success", text: "Password updated successfully." });
+      setPasswords({ currentPassword: "", newPassword: "", confirmPassword: "" });
+      setRemainingTries(MAX_PASSWORD_TRIES);
+      setBlockedUntil(null);
+    } catch (err) {
+      applyPasswordResponse(err.response?.data, err.response?.data?.message || "Failed to change password.");
+    } finally {
+      setPasswordLoading(false);
     }
   };
 
@@ -284,6 +366,106 @@ const Profile = () => {
             </form>
           </div>
         )}
+
+        <div className="bg-white rounded-2xl border border-stone-100 shadow-sm px-8 py-8">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-8">
+            <div className="flex items-center gap-3">
+              <div className="flex-1 h-px bg-stone-100 hidden md:block" />
+              <p className="text-xs tracking-[0.25em] uppercase text-stone-400">Security</p>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => navigate("/forgot-password")}
+              className="rounded-xl border border-stone-300 px-4 py-2 text-[10px] font-bold uppercase tracking-[0.2em] text-stone-700 hover:border-stone-900 hover:text-stone-900 transition"
+            >
+              Forgot Password
+            </button>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2 mb-6">
+            <div className="rounded-2xl border border-stone-200 bg-stone-50 px-4 py-4">
+              <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-stone-400 flex items-center gap-2">
+                <ShieldAlert size={14} />
+                Remaining Tries
+              </p>
+              <p className={`mt-3 text-3xl font-black ${remainingTries === 0 ? "text-red-600" : "text-stone-900"}`}>{remainingTries}</p>
+            </div>
+            <div className={`rounded-2xl border px-4 py-4 ${isPasswordBlocked ? "border-red-200 bg-red-50" : "border-stone-200 bg-stone-50"}`}>
+              <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-stone-400 flex items-center gap-2">
+                <Clock3 size={14} />
+                Block Timer
+              </p>
+              <p className={`mt-3 text-2xl font-black ${isPasswordBlocked ? "text-red-600" : "text-stone-500"}`}>
+                {isPasswordBlocked ? blockedTimerText : "Ready"}
+              </p>
+            </div>
+          </div>
+
+          <form onSubmit={handlePasswordChange} className="space-y-5">
+            {passwordMessage.text && (
+              <div
+                className={`rounded-xl border px-4 py-3 text-sm ${
+                  passwordMessage.type === "success"
+                    ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                    : "border-red-200 bg-red-50 text-red-700"
+                }`}
+              >
+                {passwordMessage.text}
+              </div>
+            )}
+
+            <div className="grid md:grid-cols-2 gap-5">
+              <Input
+                label="Current Password"
+                type="password"
+                value={passwords.currentPassword}
+                onChange={(e) => setPasswords((prev) => ({ ...prev, currentPassword: e.target.value }))}
+                placeholder="Enter your current password"
+                autoComplete="current-password"
+                required
+                disabled={isPasswordBlocked}
+              />
+              <Input
+                label="New Password"
+                type="password"
+                value={passwords.newPassword}
+                onChange={(e) => setPasswords((prev) => ({ ...prev, newPassword: e.target.value }))}
+                placeholder="Create a strong new password"
+                autoComplete="new-password"
+                required
+                disabled={isPasswordBlocked}
+              />
+            </div>
+
+            <Input
+              label="Confirm Password"
+              type="password"
+              value={passwords.confirmPassword}
+              onChange={(e) => setPasswords((prev) => ({ ...prev, confirmPassword: e.target.value }))}
+              placeholder="Re-enter your new password"
+              autoComplete="new-password"
+              required
+              disabled={isPasswordBlocked}
+            />
+
+            <div className="rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm text-stone-500">
+              {PASSWORD_REQUIREMENTS}
+            </div>
+
+            <button
+              type="submit"
+              disabled={passwordLoading || isPasswordBlocked}
+              className={`w-full py-3.5 rounded-xl text-sm font-semibold tracking-wide transition shadow-sm ${
+                passwordLoading || isPasswordBlocked
+                  ? "bg-stone-200 text-stone-400 cursor-not-allowed"
+                  : "bg-stone-900 text-white hover:bg-stone-700"
+              }`}
+            >
+              {passwordLoading ? "Updating Password..." : "Update Password"}
+            </button>
+          </form>
+        </div>
 
         <div className="bg-white rounded-2xl border border-red-100 shadow-sm px-8 py-8">
           <div className="flex items-center gap-3 mb-6">

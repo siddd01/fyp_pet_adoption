@@ -59,6 +59,17 @@ export const AuthProvider = ({ children }) => {
     return res.data;
   };
 
+  const changeUserPassword = async (payload) => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    const res = await api.put("/user/change-password", payload, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    return res.data;
+  };
+
   const logout = () => {
     localStorage.removeItem("token");
     setUser(null);
@@ -76,6 +87,7 @@ export const AuthProvider = ({ children }) => {
         loading,
         fetchUser,
         updateUser,
+        changeUserPassword,
         deleteAccount,
         logout,
       }}

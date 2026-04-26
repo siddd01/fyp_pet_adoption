@@ -134,7 +134,7 @@ export const AdminAuthProvider = ({ children }) => {
       return res.data;
     } catch (error) {
       console.error("Failed to change admin password:", error);
-      throw error.response?.data?.message || "Failed to change password";
+      throw error;
     }
   };
 

@@ -1,5 +1,6 @@
 import express from "express";
 import {
+  changeUserPassword,
   deleteOwnAccount,
   getLoggedInUser,
   getUserOrderHistory,
@@ -19,6 +20,7 @@ router.put(
   upload.single("image"),
   updateUserProfile
 );
+router.put("/change-password", verifyToken, changeUserPassword);
 
 router.delete("/delete-account", verifyToken, deleteOwnAccount);
 

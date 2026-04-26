@@ -82,9 +82,17 @@ const StaffLogin = () => {
 
           {/* Password */}
           <div className="space-y-2">
-            <label className="text-[10px] uppercase tracking-widest font-bold text-stone-500 ml-2">
-              Secret Key
-            </label>
+            <div className="flex justify-between items-center ml-2">
+              <label className="text-[10px] uppercase tracking-widest font-bold text-stone-500">
+                Secret Key
+              </label>
+              <span
+                onClick={() => navigate("/staff/forgot-password")}
+                className="text-[10px] font-bold text-stone-400 hover:text-stone-900 cursor-pointer transition-colors uppercase tracking-tighter"
+              >
+                Forgot?
+              </span>
+            </div>
             <div className="relative">
               <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-300" />
               <input

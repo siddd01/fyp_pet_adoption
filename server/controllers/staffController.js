@@ -2,6 +2,25 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import db from "../config/db.js";
 import { getPasswordValidationError } from "../utils/passwordPolicy.js";
+import {
+  MAX_SECURITY_ATTEMPTS,
+  buildBlockedResponse,
+  ensureTableColumns,
+  isSecurityBlocked,
+  registerFailedSecurityAttempt,
+  resetSecurityAttemptsIfExpired,
+} from "../utils/accountSecurity.js";
+
+const ensureStaffPasswordSecurityColumns = async () => {
+  await ensureTableColumns({
+    key: "staff-password-change-columns",
+    table: "staff",
+    definitions: [
+      "password_change_attempts INT NOT NULL DEFAULT 0",
+      "password_change_blocked_until DATETIME NULL",
+    ],
+  });
+};
 
 // Signup Staff
 // controllers/staffController.js
@@ -185,6 +204,112 @@ export const updateStaffProfile = async (req, res) => {
       message: "Server error",
       error: error.message 
     });
+  }
+};
+
+export const changeStaffPassword = async (req, res) => {
+  const staffId = req.staff?.staff_id;
+  const currentPassword = req.body.currentPassword || req.body.oldPassword;
+  const { newPassword, confirmPassword } = req.body;
+
+  try {
+    await ensureStaffPasswordSecurityColumns();
+
+    if (!staffId) {
+      return res.status(401).json({ message: "Staff authentication required" });
+    }
+
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      return res.status(400).json({
+        message: "Current password, new password, and confirm password are required",
+      });
+    }
+
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({ message: "Passwords do not match" });
+    }
+
+    const passwordError = getPasswordValidationError(newPassword);
+    if (passwordError) {
+      return res.status(400).json({ message: passwordError });
+    }
+
+    const [rows] = await db.query(
+      `
+        SELECT
+          password,
+          password_change_attempts,
+          password_change_blocked_until
+        FROM staff
+        WHERE staff_id = ?
+      `,
+      [staffId]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ message: "Staff not found" });
+    }
+
+    const staff = rows[0];
+
+    await resetSecurityAttemptsIfExpired({
+      record: staff,
+      table: "staff",
+      keyColumn: "staff_id",
+      keyValue: staffId,
+      attemptsKey: "password_change_attempts",
+      blockedUntilKey: "password_change_blocked_until",
+    });
+
+    if (isSecurityBlocked(staff, "password_change_blocked_until")) {
+      const blocked = buildBlockedResponse(staff, {
+        attemptsKey: "password_change_attempts",
+        blockedUntilKey: "password_change_blocked_until",
+        blockedFlag: "passwordChangeBlocked",
+        message: "Too many incorrect current password attempts. Try again after 1 hour.",
+      });
+
+      return res.status(blocked.status).json(blocked.body);
+    }
+
+    const isMatch = await bcrypt.compare(currentPassword, staff.password);
+    if (!isMatch) {
+      const failedAttempt = await registerFailedSecurityAttempt({
+        table: "staff",
+        keyColumn: "staff_id",
+        keyValue: staffId,
+        currentAttempts: staff.password_change_attempts,
+        attemptsKey: "password_change_attempts",
+        blockedUntilKey: "password_change_blocked_until",
+        blockedFlag: "passwordChangeBlocked",
+        invalidMessage: "Incorrect current password",
+        blockedMessage: "Too many incorrect current password attempts. Try again after 1 hour.",
+      });
+
+      return res.status(failedAttempt.status).json(failedAttempt.body);
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    await db.query(
+      `
+        UPDATE staff
+        SET password = ?,
+            password_change_attempts = 0,
+            password_change_blocked_until = NULL
+        WHERE staff_id = ?
+      `,
+      [hashedPassword, staffId]
+    );
+
+    return res.json({
+      message: "Password updated successfully",
+      remainingTries: MAX_SECURITY_ATTEMPTS,
+      blockedUntil: null,
+    });
+  } catch (error) {
+    console.error("Change staff password error:", error);
+    return res.status(500).json({ message: "Failed to change password" });
   }
 };
 

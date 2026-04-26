@@ -1,4 +1,4 @@
-import { AlertTriangle, Bell, Calendar, Clock, FileText } from "lucide-react";
+import { AlertTriangle, Bell, Calendar, Clock, FileText, ShoppingBag } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../../api/axios";
@@ -33,7 +33,6 @@ const Notifications = () => {
   const [adoptionNotifications, setAdoptionNotifications] = useState([]);
   const [reportNotifications, setReportNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [filter, setFilter] = useState("all");
   const [activeTab, setActiveTab] = useState("adoptions");
   
@@ -49,8 +48,8 @@ const Notifications = () => {
       const reportNotifications = reportRes.data.notifications || [];
       setReportNotifications(reportNotifications);
       
-    } catch (err) {
-      setError("Failed to load notifications");
+    } catch {
+      // Keep the page quiet and let the existing empty states handle it.
     } finally {
       setLoading(false);
     }
@@ -163,7 +162,7 @@ const Notifications = () => {
                 }`}
               >
                 <Bell className="w-4 h-4" />
-                Reports ({reportUnreadCount})
+                Updates ({reportUnreadCount})
               </button>
             </div>
 
@@ -243,7 +242,17 @@ const Notifications = () => {
         ) : (
           /* ── REPORTS SECTION (CLEANED UP) ── */
           <div className="max-w-4xl mx-auto space-y-4">
-            {filtered.map((notification) => (
+            {filtered.map((notification) => {
+              const isOrderUpdate = notification.type === "general";
+              const NotificationIcon = isOrderUpdate ? ShoppingBag : AlertTriangle;
+              const cardTitle = isOrderUpdate ? "Order Update" : "Report Update";
+              const badgeText = !notification.is_read
+                ? "New Update"
+                : isOrderUpdate
+                  ? "Order Log"
+                  : "Archived";
+
+              return (
               <div 
                 key={notification.id} 
                 onClick={() => !notification.is_read && markNotificationRead(notification.id)}
@@ -257,15 +266,15 @@ const Notifications = () => {
                   <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-colors ${
                     !notification.is_read ? "bg-stone-900 text-white" : "bg-stone-100 text-stone-400"
                   }`}>
-                    <AlertTriangle size={20} />
+                    <NotificationIcon size={20} />
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center justify-between mb-2">
-                      <h3 className="font-bold text-stone-900 text-lg" style={{ fontFamily: "Georgia, serif" }}>Report Update</h3>
+                      <h3 className="font-bold text-stone-900 text-lg" style={{ fontFamily: "Georgia, serif" }}>{cardTitle}</h3>
                       <span className={`text-[9px] font-bold uppercase tracking-widest px-3 py-1 rounded-full ${
                         !notification.is_read ? "bg-stone-900 text-white" : "bg-stone-100 text-stone-400"
                       }`}>
-                        {notification.is_read ? "Archived" : "New Update"}
+                        {badgeText}
                       </span>
                     </div>
                     <p className="text-stone-600 text-sm leading-relaxed mb-4 max-w-2xl">{notification.message}</p>
@@ -276,7 +285,8 @@ const Notifications = () => {
                   </div>
                 </div>
               </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

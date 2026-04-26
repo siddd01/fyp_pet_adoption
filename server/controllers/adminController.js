@@ -1,6 +1,26 @@
 import bcrypt from "bcryptjs";
 import db from "../config/db.js";
 import { getPasswordValidationError } from "../utils/passwordPolicy.js";
+import {
+  MAX_SECURITY_ATTEMPTS,
+  buildBlockedResponse,
+  ensureTableColumns,
+  isSecurityBlocked,
+  registerFailedSecurityAttempt,
+  resetSecurityAttemptsIfExpired,
+} from "../utils/accountSecurity.js";
+
+const ensureAdminPasswordSecurityColumns = async () => {
+  await ensureTableColumns({
+    key: "admins-password-change-columns",
+    table: "admins",
+    definitions: [
+      "password_change_attempts INT NOT NULL DEFAULT 0",
+      "password_change_blocked_until DATETIME NULL",
+    ],
+  });
+};
+
 export const getAdminProfile = async (req, res) => {
   try {
     const [rows] = await db.query(
@@ -52,11 +72,14 @@ export const confirmAdminPassword = async (req, res) => {
 
 // Change Admin Password
 export const changeAdminPassword = async (req, res) => {
-  const { oldPassword, newPassword, confirmPassword } = req.body;
+  const currentPassword = req.body.currentPassword || req.body.oldPassword;
+  const { newPassword, confirmPassword } = req.body;
   const admin_id = req.admin.admin_id;
 
   try {
-    if (!oldPassword || !newPassword || !confirmPassword) {
+    await ensureAdminPasswordSecurityColumns();
+
+    if (!currentPassword || !newPassword || !confirmPassword) {
       return res.status(400).json({ message: "Current password, new password, and re-typed password are required" });
     }
 
@@ -71,21 +94,82 @@ export const changeAdminPassword = async (req, res) => {
     }
 
     // 1. Get current password from DB
-    const [rows] = await db.query("SELECT password FROM admins WHERE admin_id = ?", [admin_id]);
+    const [rows] = await db.query(
+      `
+        SELECT
+          password,
+          password_change_attempts,
+          password_change_blocked_until
+        FROM admins
+        WHERE admin_id = ?
+      `,
+      [admin_id]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ message: "Admin not found" });
+    }
+
+    const admin = rows[0];
+
+    await resetSecurityAttemptsIfExpired({
+      record: admin,
+      table: "admins",
+      keyColumn: "admin_id",
+      keyValue: admin_id,
+      attemptsKey: "password_change_attempts",
+      blockedUntilKey: "password_change_blocked_until",
+    });
+
+    if (isSecurityBlocked(admin, "password_change_blocked_until")) {
+      const blocked = buildBlockedResponse(admin, {
+        attemptsKey: "password_change_attempts",
+        blockedUntilKey: "password_change_blocked_until",
+        blockedFlag: "passwordChangeBlocked",
+        message: "Too many incorrect current password attempts. Try again after 1 hour.",
+      });
+
+      return res.status(blocked.status).json(blocked.body);
+    }
     
     // 2. Verify old password
-    const isMatch = await bcrypt.compare(oldPassword, rows[0].password);
+    const isMatch = await bcrypt.compare(currentPassword, admin.password);
     if (!isMatch) {
-      return res.status(400).json({ message: "Incorrect current password" });
+      const failedAttempt = await registerFailedSecurityAttempt({
+        table: "admins",
+        keyColumn: "admin_id",
+        keyValue: admin_id,
+        currentAttempts: admin.password_change_attempts,
+        attemptsKey: "password_change_attempts",
+        blockedUntilKey: "password_change_blocked_until",
+        blockedFlag: "passwordChangeBlocked",
+        invalidMessage: "Incorrect current password",
+        blockedMessage: "Too many incorrect current password attempts. Try again after 1 hour.",
+      });
+
+      return res.status(failedAttempt.status).json(failedAttempt.body);
     }
 
     // 3. Hash new password and update
     const salt = await bcrypt.genSalt(10);
     const hashedNewPassword = await bcrypt.hash(newPassword, salt);
 
-    await db.query("UPDATE admins SET password = ? WHERE admin_id = ?", [hashedNewPassword, admin_id]);
+    await db.query(
+      `
+        UPDATE admins
+        SET password = ?,
+            password_change_attempts = 0,
+            password_change_blocked_until = NULL
+        WHERE admin_id = ?
+      `,
+      [hashedNewPassword, admin_id]
+    );
 
-    res.json({ message: "Password updated successfully" });
+    res.json({
+      message: "Password updated successfully",
+      remainingTries: MAX_SECURITY_ATTEMPTS,
+      blockedUntil: null,
+    });
   } catch (error) {
     res.status(500).json({ message: "Server error during password update" });
   }

@@ -1,10 +1,14 @@
-import { Camera, KeyRound, Mail, Save, Shield, User } from "lucide-react";
+import { Camera, Clock3, KeyRound, Mail, Save, Shield, ShieldAlert, User } from "lucide-react";
 import { useContext, useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import PetLoader from "../../Components/PetLoader";
 import { AdminAuthContext } from "../../Context/AdminAuthContext";
 import { DEFAULT_SITE_IMAGE } from "../../constants/defaultImages";
 import { getOptionalImageSrc, getProfileImageSrc } from "../../utils/imageHelpers";
+import { formatDuration, getBlockTimeLeft } from "../../utils/otpSecurity";
 import { PASSWORD_REQUIREMENTS, validatePassword } from "../../utils/passwordPolicy";
+
+const MAX_PASSWORD_TRIES = 3;
 
 const AdminProfile = () => {
   const {
@@ -14,12 +18,13 @@ const AdminProfile = () => {
     updateAdminProfile,
     changeAdminPassword,
   } = useContext(AdminAuthContext);
+  const navigate = useNavigate();
 
   const [isEditing, setIsEditing] = useState(false);
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [passwords, setPasswords] = useState({
-    oldPassword: "",
+    currentPassword: "",
     newPassword: "",
     confirmPassword: "",
   });
@@ -28,6 +33,9 @@ const AdminProfile = () => {
   const [savingPassword, setSavingPassword] = useState(false);
   const [profileMessage, setProfileMessage] = useState("");
   const [passwordMessage, setPasswordMessage] = useState("");
+  const [remainingTries, setRemainingTries] = useState(MAX_PASSWORD_TRIES);
+  const [blockedUntil, setBlockedUntil] = useState(null);
+  const [timeLeft, setTimeLeft] = useState(0);
 
   useEffect(() => {
     fetchAdminProfile().catch((error) => {
@@ -41,6 +49,38 @@ const AdminProfile = () => {
       setEmail(admin.email || "");
     }
   }, [admin]);
+
+  useEffect(() => {
+    const nextTime = getBlockTimeLeft(blockedUntil);
+    setTimeLeft(nextTime);
+
+    if (!nextTime) return undefined;
+
+    const interval = setInterval(() => {
+      const updated = getBlockTimeLeft(blockedUntil);
+      setTimeLeft(updated);
+
+      if (!updated) {
+        setBlockedUntil(null);
+        setRemainingTries(MAX_PASSWORD_TRIES);
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [blockedUntil]);
+
+  const isPasswordBlocked = timeLeft > 0;
+  const blockedTimerText = formatDuration(timeLeft);
+
+  const applyPasswordResponse = (data = {}, fallbackMessage = "Failed to change password") => {
+    setRemainingTries(
+      Number.isFinite(Number(data.remainingTries))
+        ? Number(data.remainingTries)
+        : MAX_PASSWORD_TRIES
+    );
+    setBlockedUntil(data.blockedUntil || null);
+    setPasswordMessage(data.message || fallbackMessage);
+  };
 
   const handleUpdate = async (e) => {
     e.preventDefault();
@@ -68,6 +108,8 @@ const AdminProfile = () => {
 
   const handlePasswordUpdate = async (e) => {
     e.preventDefault();
+    if (isPasswordBlocked) return;
+
     setSavingPassword(true);
     setPasswordMessage("");
 
@@ -87,9 +129,11 @@ const AdminProfile = () => {
     try {
       await changeAdminPassword(passwords);
       setPasswordMessage("Password updated successfully.");
-      setPasswords({ oldPassword: "", newPassword: "", confirmPassword: "" });
+      setPasswords({ currentPassword: "", newPassword: "", confirmPassword: "" });
+      setRemainingTries(MAX_PASSWORD_TRIES);
+      setBlockedUntil(null);
     } catch (err) {
-      setPasswordMessage(err);
+      applyPasswordResponse(err.response?.data, err.response?.data?.message || err.message);
     } finally {
       setSavingPassword(false);
     }
@@ -266,14 +310,43 @@ const AdminProfile = () => {
               )}
 
               <form onSubmit={handlePasswordUpdate} className="space-y-8">
-                <div className="flex items-center gap-3">
-                  <KeyRound size={18} className="text-stone-400" />
-                  <h3 className="text-xl font-serif text-stone-900">Security</h3>
+                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                  <div className="flex items-center gap-3">
+                    <KeyRound size={18} className="text-stone-400" />
+                    <h3 className="text-xl font-serif text-stone-900">Security</h3>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => navigate("/admin/forgot-password")}
+                    className="rounded-2xl border border-stone-300 px-4 py-2 text-[10px] font-bold uppercase tracking-[0.2em] text-stone-700 hover:border-stone-900 hover:text-stone-900 transition"
+                  >
+                    Forgot Password
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="rounded-2xl border border-stone-200 bg-stone-50 px-4 py-4">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-stone-400 flex items-center gap-2">
+                      <ShieldAlert size={14} />
+                      Remaining Tries
+                    </p>
+                    <p className={`mt-3 text-3xl font-black ${remainingTries === 0 ? "text-red-600" : "text-stone-900"}`}>{remainingTries}</p>
+                  </div>
+                  <div className={`rounded-2xl border px-4 py-4 ${isPasswordBlocked ? "border-red-200 bg-red-50" : "border-stone-200 bg-stone-50"}`}>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-stone-400 flex items-center gap-2">
+                      <Clock3 size={14} />
+                      Block Timer
+                    </p>
+                    <p className={`mt-3 text-2xl font-black ${isPasswordBlocked ? "text-red-600" : "text-stone-500"}`}>
+                      {isPasswordBlocked ? blockedTimerText : "Ready"}
+                    </p>
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   {[
-                    { label: "Current Password", name: "oldPassword", type: "password" },
+                    { label: "Current Password", name: "currentPassword", type: "password" },
                     { label: "New Password", name: "newPassword", type: "password" },
                     { label: "Confirm Password", name: "confirmPassword", type: "password" },
                   ].map((field) => (
@@ -285,8 +358,9 @@ const AdminProfile = () => {
                         type={field.type}
                         value={passwords[field.name]}
                         onChange={(e) => setPasswords((prev) => ({ ...prev, [field.name]: e.target.value }))}
-                        autoComplete={field.name === "oldPassword" ? "current-password" : "new-password"}
+                        autoComplete={field.name === "currentPassword" ? "current-password" : "new-password"}
                         className="w-full px-5 py-3 bg-stone-50 border border-stone-100 rounded-2xl focus:bg-white focus:border-stone-800 outline-none transition-all text-sm text-stone-800 font-medium"
+                        disabled={isPasswordBlocked}
                         required
                       />
                     </div>
@@ -299,7 +373,7 @@ const AdminProfile = () => {
                 <div className="pt-8 border-t border-stone-50 flex justify-end">
                   <button
                     type="submit"
-                    disabled={savingPassword}
+                    disabled={savingPassword || isPasswordBlocked}
                     className="flex items-center gap-3 px-10 py-4 bg-stone-900 text-white rounded-2xl text-[11px] font-bold uppercase tracking-[0.2em] hover:bg-stone-800 transition-all disabled:opacity-50"
                   >
                     {savingPassword ? (
