@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { AlertTriangle, Clock, CheckCircle, XCircle, User, Calendar, Filter, Search } from "lucide-react";
 import api from "../../../api/axios.js";
 
+const REPORT_BATCH_SIZE = 10;
+
 const ReportManagement = () => {
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -9,6 +11,7 @@ const ReportManagement = () => {
   const [filterCategory, setFilterCategory] = useState("All");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedReport, setSelectedReport] = useState(null);
+  const [visibleReportsCount, setVisibleReportsCount] = useState(REPORT_BATCH_SIZE);
 
   const categories = [
     { value: "Technical", label: "Technical", color: "bg-blue-500" },
@@ -54,6 +57,10 @@ const ReportManagement = () => {
   useEffect(() => {
     fetchReports();
   }, []);
+
+  useEffect(() => {
+    setVisibleReportsCount(REPORT_BATCH_SIZE);
+  }, [filterStatus, filterCategory, searchTerm]);
 
   const handleStatusUpdate = async (reportId, newStatus) => {
     try {
@@ -106,6 +113,8 @@ const ReportManagement = () => {
   };
 
   const stats = getStats();
+  const visibleReports = filteredReports.slice(0, visibleReportsCount);
+  const hasMoreReports = filteredReports.length > visibleReports.length;
 
   if (loading) {
     return (
@@ -203,7 +212,7 @@ const ReportManagement = () => {
           </div>
         ) : (
           <div className="divide-y divide-stone-100">
-            {filteredReports.map((report) => {
+            {visibleReports.map((report) => {
               const categoryInfo = getCategoryInfo(report.category);
               const priorityInfo = getPriorityInfo(report.priority);
               const statusInfo = getStatusInfo(report.status);
@@ -280,6 +289,18 @@ const ReportManagement = () => {
                 </div>
               );
             })}
+          </div>
+        )}
+
+        {hasMoreReports && (
+          <div className="border-t border-stone-100 p-6 flex justify-center">
+            <button
+              type="button"
+              onClick={() => setVisibleReportsCount((prev) => prev + REPORT_BATCH_SIZE)}
+              className="rounded-xl border border-stone-300 px-5 py-2.5 text-xs font-bold uppercase tracking-[0.2em] text-stone-700 hover:bg-stone-50 transition-colors"
+            >
+              See More
+            </button>
           </div>
         )}
       </div>

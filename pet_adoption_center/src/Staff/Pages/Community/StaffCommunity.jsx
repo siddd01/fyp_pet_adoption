@@ -2,6 +2,7 @@ import { Calendar, Heart, Maximize2, User, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../../../api/axios";
+import { getProfileImageSrc } from "../../../utils/imageHelpers";
 
 const StaffCommunity = () => {
   const [posts, setPosts] = useState([]);
@@ -94,10 +95,20 @@ const StaffCommunity = () => {
                   {/* Post Header */}
                   <div className="p-4 flex items-center gap-3 border-b border-gray-50">
                     <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 border border-gray-200">
-                      <User size={20} />
+                      {post.admin_profile_image ? (
+                        <img
+                          src={getProfileImageSrc(post.admin_profile_image)}
+                          alt={post.admin_name || "Admin"}
+                          className="w-full h-full rounded-full object-cover"
+                        />
+                      ) : (
+                        <User size={20} />
+                      )}
                     </div>
                     <div>
-                      <h3 className="text-sm font-bold text-gray-900">{post.admin_name || 'Sano Ghar Office'}</h3>
+                      <h3 className="text-sm font-bold text-gray-900">
+                        {post.admin_name || "Sano Ghar Admin"}
+                      </h3>
                       <div className="flex items-center gap-2 text-xs text-gray-400">
                         <Calendar size={10} />
                         {new Date(post.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}

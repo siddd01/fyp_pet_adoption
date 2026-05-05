@@ -13,8 +13,8 @@ const Footer = () => {
   const navigate = useNavigate();
 
   return (
-    <footer className="bg-white border-t border-stone-100 px-4 sm:px-6 lg:px-10 py-12 md:py-14 text-stone-700">
-      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-10">
+    <footer className="bg-white border-t border-stone-100 px-4 sm:px-6 lg:px-10 py-10 md:py-12 text-stone-700">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-4 xl:gap-10">
         <div className="space-y-4">
           <h3 className="font-bold text-xl text-stone-900 tracking-tight">
             Sano Ghar
@@ -38,13 +38,22 @@ const Footer = () => {
             See an animal in distress or facing a technical problem? Let us know
             immediately.
           </p>
-          <button
-            onClick={() => navigate("/report-issue")}
-            className="w-full sm:w-auto px-7 py-3 bg-red-50 border border-red-200 hover:bg-red-100 text-red-700 text-sm font-semibold rounded-xl transition flex items-center justify-center gap-2 shadow-sm"
-          >
-            <AlertTriangle className="w-4 h-4" />
-            Report Issue
-          </button>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <button
+              onClick={() => navigate("/report-issue")}
+              className="w-full sm:w-auto px-7 py-3 bg-red-50 border border-red-200 hover:bg-red-100 text-red-700 text-sm font-semibold rounded-xl transition flex items-center justify-center gap-2 shadow-sm"
+            >
+              <AlertTriangle className="w-4 h-4" />
+              Report Issue
+            </button>
+            <button
+              onClick={() => navigate("/donate")}
+              className="w-full sm:w-auto px-7 py-3 bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 text-emerald-700 text-sm font-semibold rounded-xl transition flex items-center justify-center gap-2 shadow-sm"
+            >
+              <Heart className="w-4 h-4" />
+              Make a donation to Sano Ghar
+            </button>
+          </div>
         </div>
 
         <div>
@@ -82,21 +91,21 @@ const Footer = () => {
           </a>
         </div>
 
-        <div className="flex flex-col">
+        <div className="space-y-6">
           <h3 className="font-semibold text-lg mb-4 text-stone-900">
             Connect With Us
           </h3>
-          <div className="flex gap-4 text-xl mb-8">
+          <div className="flex gap-4 text-xl">
             <FaInstagram className="cursor-pointer hover:text-stone-900 transition-colors" />
             <FaFacebook className="cursor-pointer hover:text-stone-900 transition-colors" />
             <FaTwitter className="cursor-pointer hover:text-stone-900 transition-colors" />
           </div>
 
-          <div className="mt-auto">
+          <div className="rounded-2xl border border-stone-100 bg-stone-50/80 p-4">
             <p className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-3">
               Official Partners
             </p>
-            <div className="flex gap-4 items-center opacity-60 grayscale">
+            <div className="flex flex-wrap items-center gap-4 opacity-70 grayscale">
               <img
                 src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRwgmuCZ4GkFsYzzOQKrN7GPCEsqdKJXXaHNA&s"
                 alt="WWF"
@@ -117,7 +126,7 @@ const Footer = () => {
         </div>
       </div>
 
-      <div className="border-t border-stone-100 max-w-7xl mx-auto mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left text-[13px] text-stone-400">
+      <div className="border-t border-stone-100 max-w-7xl mx-auto mt-10 pt-6 flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left text-[13px] text-stone-400">
         <p>
           &copy; {new Date().getFullYear()} Sano Ghar Pet Adoption Center. All
           rights reserved.

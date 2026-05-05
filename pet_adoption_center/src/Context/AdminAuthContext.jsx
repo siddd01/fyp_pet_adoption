@@ -1,4 +1,4 @@
-import { createContext, useEffect, useState } from "react";
+import { createContext, useCallback, useEffect, useState } from "react";
 import api from "../api/axios";
 
 export const AdminAuthContext = createContext();
@@ -8,22 +8,6 @@ export const AdminAuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
   const [AdminProfileLoading, setAdminProfileLoading] = useState(true);
-
-  useEffect(() => {
-    const token = localStorage.getItem("adminToken");
-    const storedAdmin = localStorage.getItem("admin");
-
-    if (token && token !== "null" && storedAdmin) {
-      setAdmin(JSON.parse(storedAdmin));
-      setIsAuthenticated(true);
-      fetchAdminProfile().catch((error) => {
-        console.error("Failed to refresh admin session:", error);
-      });
-    } else {
-      setAdminProfileLoading(false);
-    }
-    setLoading(false);
-  }, []);
 
   const adminLogin = async (email, password) => {
     try {
@@ -35,6 +19,8 @@ export const AdminAuthProvider = ({ children }) => {
 
       setAdmin(adminData);
       setIsAuthenticated(true);
+      setAdminProfileLoading(false);
+      setLoading(false);
 
       return response.data;
     } catch (error) {
@@ -43,14 +29,15 @@ export const AdminAuthProvider = ({ children }) => {
     }
   };
 
-  const adminLogout = () => {
+  const adminLogout = useCallback(() => {
     localStorage.removeItem("adminToken");
     localStorage.removeItem("admin");
     setAdmin(null);
     setIsAuthenticated(false);
-  };
+    setAdminProfileLoading(false);
+  }, []);
 
-  const fetchAdminProfile = async () => {
+  const fetchAdminProfile = useCallback(async () => {
     setAdminProfileLoading(true);
 
     try {
@@ -60,15 +47,48 @@ export const AdminAuthProvider = ({ children }) => {
       });
 
       setAdmin(res.data);
+      setIsAuthenticated(true);
       localStorage.setItem("admin", JSON.stringify(res.data));
       return res.data;
     } catch (error) {
       console.error("Failed to fetch admin profile:", error);
+      adminLogout();
       throw error.response?.data?.message || "Failed to fetch profile";
     } finally {
       setAdminProfileLoading(false);
     }
-  };
+  }, [adminLogout]);
+
+  useEffect(() => {
+    let active = true;
+
+    const bootstrapAdmin = async () => {
+      const token = localStorage.getItem("adminToken");
+      const storedAdmin = localStorage.getItem("admin");
+
+      if (token && token !== "null" && storedAdmin) {
+        try {
+          setAdmin(JSON.parse(storedAdmin));
+          setIsAuthenticated(true);
+          await fetchAdminProfile();
+        } catch (error) {
+          console.error("Failed to refresh admin session:", error);
+        }
+      } else {
+        adminLogout();
+      }
+
+      if (active) {
+        setLoading(false);
+      }
+    };
+
+    bootstrapAdmin();
+
+    return () => {
+      active = false;
+    };
+  }, [adminLogout, fetchAdminProfile]);
 
   const addPet = async (formData) => {
     try {

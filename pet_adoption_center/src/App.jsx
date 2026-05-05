@@ -84,7 +84,7 @@ const PrivateRoute = ({ children }) => {
 
   if (loading) return <PetLoader />;
 
-  return user ? children : <Navigate to="/login" />;
+  return user ? children : <Navigate to="/login" replace />;
 };
 
 // -------- Staff Protected Route --------
@@ -93,7 +93,7 @@ const StaffPrivateRoute = ({ children }) => {
 
   if (staffLoginLoading) return <PetLoader />;
 
-  return isAuthenticated ? children : <Navigate to="/staff/login" />;
+  return isAuthenticated ? children : <Navigate to="/staff/login" replace />;
 };
 
 // -------- App --------

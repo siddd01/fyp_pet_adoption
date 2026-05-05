@@ -148,12 +148,12 @@ const OTPVerificationReset = () => {
             <div className="inline-flex rounded-full border border-white/15 bg-white/10 p-4 mb-4">
               {isOtpVerified ? <Lock className="w-6 h-6" /> : <ShieldCheck className="w-6 h-6" />}
             </div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.32em] text-orange-100/80">Sano Ghar Security</p>
+            <p className="text-[10px] font-bold uppercase tracking-[0.32em] text-orange-50">Sano Ghar Security</p>
             <h2 className="mt-3 text-4xl leading-tight" style={{ fontFamily: "Georgia, serif" }}>
               {isOtpVerified ? "Set new password" : "Verify reset code"}
             </h2>
-            <p className="mt-3 text-sm leading-6 text-stone-200">
-              {isOtpVerified ? "Your OTP is confirmed. Choose a strong new password." : `We sent a 6-digit code to ${email}.`}
+            <p className="mt-3 text-sm leading-6 text-white/85">
+              {isOtpVerified ? "Your OTP is confirmed. Choose a strong new password." : <>We sent a 6-digit code to <span className="font-semibold text-white">{email}</span>.</>}
             </p>
           </div>
 

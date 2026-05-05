@@ -8,14 +8,11 @@ export const StaffProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [staffLoginLoading, setStaffLoginLoading] = useState(true);
 
-  // Restore staff session from localStorage
-  useEffect(() => {
-    const token = localStorage.getItem("staffToken");
-    const storedStaff = localStorage.getItem("staff");
-    if (token && storedStaff) {
-      setStaff(JSON.parse(storedStaff));
-      setIsAuthenticated(true);
-    }
+  const staffLogout = useCallback(() => {
+    localStorage.removeItem("staffToken");
+    localStorage.removeItem("staff");
+    setStaff(null);
+    setIsAuthenticated(false);
     setStaffLoginLoading(false);
   }, []);
 
@@ -31,20 +28,13 @@ export const StaffProvider = ({ children }) => {
 
       setStaff(staff);
       setIsAuthenticated(true);
+      setStaffLoginLoading(false);
 
       return res.data;
     } catch (error) {
       console.error("Staff login failed:", error.response?.data);
       throw error.response?.data?.message || "Login failed";
     }
-  };
-
-  // Staff logout
-  const staffLogout = () => {
-    localStorage.removeItem("staffToken");
-    localStorage.removeItem("staff");
-    setStaff(null);
-    setIsAuthenticated(false);
   };
 
   // Add pet (Staff)
@@ -100,15 +90,49 @@ export const StaffProvider = ({ children }) => {
       });
 
       setStaff(res.data);
+      setIsAuthenticated(true);
       localStorage.setItem("staff", JSON.stringify(res.data));
 
       return res.data;
     } catch (error) {
       console.error("Failed to fetch staff profile", error);
+      staffLogout();
       const errorMessage = error.response?.data?.message || error.message || "Failed to load profile";
       throw new Error(errorMessage);
     }
-  }, []);
+  }, [staffLogout]);
+
+  // Restore staff session from localStorage
+  useEffect(() => {
+    let active = true;
+
+    const bootstrapStaff = async () => {
+      const token = localStorage.getItem("staffToken");
+      const storedStaff = localStorage.getItem("staff");
+
+      if (token && storedStaff) {
+        try {
+          setStaff(JSON.parse(storedStaff));
+          setIsAuthenticated(true);
+          await fetchStaffProfile();
+        } catch (error) {
+          console.error("Failed to refresh staff session", error);
+        }
+      } else {
+        staffLogout();
+      }
+
+      if (active) {
+        setStaffLoginLoading(false);
+      }
+    };
+
+    bootstrapStaff();
+
+    return () => {
+      active = false;
+    };
+  }, [fetchStaffProfile, staffLogout]);
 
   // Update Staff Profile
   const updateStaffProfile = useCallback(async (formData) => {

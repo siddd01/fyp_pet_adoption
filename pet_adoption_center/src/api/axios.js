@@ -7,6 +7,34 @@ const api = axios.create({
   baseURL,
 });
 
+const clearSessionAndRedirect = (role) => {
+  if (typeof window === "undefined") return;
+
+  if (role === "admin") {
+    localStorage.removeItem("adminToken");
+    localStorage.removeItem("admin");
+
+    if (!window.location.pathname.startsWith("/admin/login")) {
+      window.location.replace("/admin/login");
+    }
+    return;
+  }
+
+  if (role === "staff") {
+    localStorage.removeItem("staffToken");
+    localStorage.removeItem("staff");
+
+    if (!window.location.pathname.startsWith("/staff/login")) {
+      window.location.replace("/staff/login");
+    }
+    return;
+  }
+
+  if (role === "user") {
+    localStorage.removeItem("token");
+  }
+};
+
 api.interceptors.request.use(
   (config) => {
     // Don't override if caller already set Authorization
@@ -33,6 +61,32 @@ api.interceptors.request.use(
     return config;
   },
   (error) => Promise.reject(error)
+);
+
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    const status = error.response?.status;
+    const authHeader =
+      error.config?.headers?.Authorization || error.config?.headers?.authorization;
+
+    if (status === 401 && typeof authHeader === "string" && authHeader.startsWith("Bearer ")) {
+      const requestToken = authHeader.slice(7);
+      const adminToken = localStorage.getItem("adminToken");
+      const staffToken = localStorage.getItem("staffToken");
+      const userToken = localStorage.getItem("token");
+
+      if (adminToken && requestToken === adminToken) {
+        clearSessionAndRedirect("admin");
+      } else if (staffToken && requestToken === staffToken) {
+        clearSessionAndRedirect("staff");
+      } else if (userToken && requestToken === userToken) {
+        clearSessionAndRedirect("user");
+      }
+    }
+
+    return Promise.reject(error);
+  }
 );
 
 export default api;

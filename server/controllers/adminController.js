@@ -21,6 +21,25 @@ const ensureAdminPasswordSecurityColumns = async () => {
   });
 };
 
+let storeCharityTransfersReady = false;
+
+const ensureStoreCharityTransfersTable = async () => {
+  if (storeCharityTransfersReady) return;
+
+  await db.query(`
+    CREATE TABLE IF NOT EXISTS store_charity_transfers (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      admin_id INT NULL,
+      amount DECIMAL(10, 2) NOT NULL DEFAULT 0,
+      orders_count INT NOT NULL DEFAULT 0,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (admin_id) REFERENCES admins(admin_id) ON DELETE SET NULL
+    )
+  `);
+
+  storeCharityTransfersReady = true;
+};
+
 export const getAdminProfile = async (req, res) => {
   try {
     const [rows] = await db.query(
@@ -299,25 +318,28 @@ export const getRecentDonations = async (req, res) => {
 
 export const getStoreAnalysis = async (req, res) => {
   try {
+    await ensureStoreCharityTransfersTable();
+
     // Get total sales from completed orders
     const [salesRes] = await db.execute(
       "SELECT SUM(total_amount) as total_sales, COUNT(*) as total_orders FROM orders WHERE status = 'completed'"
     );
     
-    // Get total charity amount from completed orders
+    // Get pending 2% charity amount from completed orders
     const [charityRes] = await db.execute(
-      "SELECT SUM(charity_amount) as total_charity FROM orders WHERE status = 'completed' AND is_donated = 0"
+      "SELECT SUM(charity_amount) as total_charity FROM orders WHERE status = 'completed' AND COALESCE(is_donated, 0) = 0"
     );
     
     // Get already donated amount
     const [donatedRes] = await db.execute(
-      "SELECT SUM(charity_amount) as total_donated FROM orders WHERE status = 'completed' AND is_donated = 1"
+      "SELECT SUM(charity_amount) as total_donated FROM orders WHERE status = 'completed' AND COALESCE(is_donated, 0) = 1"
     );
     
     const totalSales = Number(salesRes[0].total_sales || 0);
     const totalOrders = Number(salesRes[0].total_orders || 0);
-    const totalCharity = Number(charityRes[0].total_charity || 0);
+    const pendingDonation = Number(charityRes[0].total_charity || 0);
     const totalDonated = Number(donatedRes[0].total_donated || 0);
+    const totalStoreContribution = pendingDonation + totalDonated;
     
     // Get direct donations total
     const [directDonationsRes] = await db.execute(
@@ -326,7 +348,7 @@ export const getStoreAnalysis = async (req, res) => {
     const directDonations = Number(directDonationsRes[0].total || 0);
     
     // Calculate total donations (store charity + direct donations)
-    const totalDonations = totalCharity + directDonations;
+    const totalDonations = totalStoreContribution + directDonations;
     
     // Get monthly sales data for the last 6 months
     const [monthlySalesRes] = await db.execute(`
@@ -366,18 +388,55 @@ export const getStoreAnalysis = async (req, res) => {
       GROUP BY DATE(created_at)
       ORDER BY date ASC
     `);
+
+    const [recentOrdersRes] = await db.execute(`
+      SELECT
+        o.id,
+        COALESCE(NULLIF(o.full_name, ''), NULLIF(CONCAT_WS(' ', u.first_name, u.last_name), ''), 'Customer') AS customer_name,
+        o.total_amount,
+        o.charity_amount,
+        o.status,
+        o.fulfillment_status,
+        (
+          SELECT COALESCE(SUM(oi.quantity), 0)
+          FROM order_items oi
+          WHERE oi.order_id = o.id
+        ) AS item_count,
+        o.created_at
+      FROM orders o
+      LEFT JOIN users u ON u.id = o.user_id
+      WHERE o.status = 'completed'
+      ORDER BY o.created_at DESC
+      LIMIT 10
+    `);
+
+    const [charityTransferHistory] = await db.execute(`
+      SELECT
+        sct.id,
+        sct.amount,
+        sct.orders_count,
+        sct.created_at,
+        a.full_name AS admin_name
+      FROM store_charity_transfers sct
+      LEFT JOIN admins a ON a.admin_id = sct.admin_id
+      ORDER BY sct.created_at DESC
+      LIMIT 10
+    `);
     
     res.json({
       total_sales: totalSales,
       total_orders: totalOrders,
-      charity_amount: totalCharity,
+      charity_amount: pendingDonation,
+      total_store_charity: totalStoreContribution,
       donated_amount: totalDonated,
-      pending_donation: totalCharity - totalDonated,
+      pending_donation: pendingDonation,
       direct_donations: directDonations,
       total_donations: totalDonations,
       monthly_sales: monthlySalesRes,
       monthly_donations: monthlyDonationsRes,
-      daily_sales: dailySalesRes
+      daily_sales: dailySalesRes,
+      recent_orders: recentOrdersRes,
+      charity_transfer_history: charityTransferHistory,
     });
   } catch (err) {
     console.error("Store analysis error:", err);
@@ -386,20 +445,58 @@ export const getStoreAnalysis = async (req, res) => {
 };
 
 export const donateStoreCharity = async (req, res) => {
+  const connection = await db.getConnection();
+
   try {
-    // Mark all undonated charity amounts as donated
-    const [result] = await db.execute(
-      "UPDATE orders SET is_donated = 1 WHERE status = 'completed' AND is_donated = 0"
+    await ensureStoreCharityTransfersTable();
+    await connection.beginTransaction();
+
+    const [pendingRows] = await connection.execute(
+      `SELECT
+         COALESCE(SUM(charity_amount), 0) AS pending_amount,
+         COUNT(*) AS pending_orders
+       FROM orders
+       WHERE status = 'completed' AND COALESCE(is_donated, 0) = 0`
     );
-    
-    res.json({ 
-      success: true, 
-      message: `Marked ${result.affectedRows} orders as donated`,
-      affected_orders: result.affectedRows
+
+    const pendingAmount = Number(pendingRows[0]?.pending_amount || 0);
+    const pendingOrders = Number(pendingRows[0]?.pending_orders || 0);
+
+    if (pendingAmount <= 0 || pendingOrders === 0) {
+      await connection.rollback();
+
+      return res.json({
+        success: true,
+        message: "No pending donation amount is available to shift from the store right now.",
+        affected_orders: 0,
+        transferred_amount: 0,
+      });
+    }
+
+    const [result] = await connection.execute(
+      "UPDATE orders SET is_donated = 1 WHERE status = 'completed' AND COALESCE(is_donated, 0) = 0"
+    );
+
+    await connection.execute(
+      "INSERT INTO store_charity_transfers (admin_id, amount, orders_count) VALUES (?, ?, ?)",
+      [req.admin?.admin_id || null, pendingAmount, pendingOrders]
+    );
+
+    await connection.commit();
+
+    res.json({
+      success: true,
+      message: `NPR ${pendingAmount.toLocaleString(undefined, { maximumFractionDigits: 2 })} pending donation amount has been shifted to charity from ${pendingOrders} completed store ${pendingOrders === 1 ? "order" : "orders"}.`,
+      affected_orders: result.affectedRows,
+      transferred_amount: pendingAmount,
+      orders_count: pendingOrders,
     });
   } catch (err) {
+    await connection.rollback();
     console.error("Donate charity error:", err);
     res.status(500).json({ message: "Error processing donation" });
+  } finally {
+    connection.release();
   }
 };
 

@@ -2,6 +2,7 @@ import { Calendar, Heart, Info, Maximize2, MessageCircle, Pencil, Send, Trash2, 
 import { useContext, useEffect, useState } from "react";
 import api from "../../../api/axios";
 import { AuthContext } from "../../../Context/AuthContext";
+import { getProfileImageSrc } from "../../../utils/imageHelpers";
 
 const CommunityPosts = () => {
   const { user } = useContext(AuthContext);
@@ -187,10 +188,20 @@ const CommunityPosts = () => {
                 {/* User Header */}
                 <div className="p-4 flex items-center gap-3 border-b border-stone-50 bg-white">
                   <div className="w-10 h-10 rounded-full bg-stone-100 flex items-center justify-center text-stone-400 border border-stone-200">
-                    <User size={20} />
+                    {post.admin_profile_image ? (
+                      <img
+                        src={getProfileImageSrc(post.admin_profile_image)}
+                        alt={post.admin_name || "Admin"}
+                        className="w-full h-full rounded-full object-cover"
+                      />
+                    ) : (
+                      <User size={20} />
+                    )}
                   </div>
                   <div>
-                    <h3 className="text-sm font-bold text-stone-900 italic">Sano Ghar Office</h3>
+                    <h3 className="text-sm font-bold text-stone-900 italic">
+                      {post.admin_name || "Sano Ghar Admin"}
+                    </h3>
                     <div className="flex items-center gap-2 text-[10px] text-stone-400 font-bold uppercase tracking-wider">
                       <Calendar size={10} />
                       {new Date(post.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}

@@ -1,8 +1,8 @@
 import { useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../../api/axios";
-import { ProductContext } from "../../../Context/ProductContext";
 import { DEFAULT_SITE_IMAGE } from "../../../constants/defaultImages";
+import { ProductContext } from "../../../Context/ProductContext";
 
 const AdminProducts = () => {
   const navigate = useNavigate();
@@ -55,7 +55,7 @@ const AdminProducts = () => {
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-8">
             <div className="space-y-4">
               <div className="flex items-center gap-3">
-                <span className="h-[1px] w-10 bg-stone-400"></span>
+                <span className="h-px w-10 bg-stone-400"></span>
                 <p className="text-stone-500 text-[10px] font-bold tracking-[0.4em] uppercase">
                   Master Control
                 </p>
@@ -74,7 +74,7 @@ const AdminProducts = () => {
                 <p className="text-[9px] font-bold text-stone-400 uppercase tracking-widest mb-1">Live Database</p>
                 <p className="text-2xl font-medium tracking-tight">{products.length} Products</p>
               </div>
-              <div className="h-8 w-[1px] bg-stone-700"></div>
+              <div className="h-8 w-px bg-stone-700"></div>
               <button 
                 onClick={() => navigate("/admin/store/add-product")} 
                 className="text-[10px] font-bold uppercase tracking-widest hover:text-stone-300 transition-colors"
@@ -97,10 +97,14 @@ const AdminProducts = () => {
             {products.map((product) => (
               <div 
                 key={product.id} 
-                className="group bg-white rounded-[2rem] border border-stone-100 overflow-hidden hover:shadow-[0_40px_80px_-15px_rgba(0,0,0,0.1)] transition-all duration-500 flex flex-col"
+                className="group bg-white rounded-4xl border border-stone-100 overflow-hidden hover:shadow-[0_40px_80px_-15px_rgba(0,0,0,0.1)] transition-all duration-500 flex flex-col"
               >
                 {/* Visual Asset Container */}
-                <div className="relative aspect-square overflow-hidden bg-stone-100">
+                <button
+                  type="button"
+                  onClick={() => navigate(`/admin/products/edit/${product.id}`)}
+                  className="relative aspect-square overflow-hidden bg-stone-100 cursor-pointer text-left"
+                >
                   <img
                     src={product.image_url || DEFAULT_SITE_IMAGE}
                     alt={product.name}
@@ -119,7 +123,7 @@ const AdminProducts = () => {
                       {product.name}
                     </h3>
                   </div>
-                </div>
+                </button>
 
                 {/* Management Controls */}
                 <div className="p-6 space-y-5">

@@ -119,11 +119,11 @@ const OTPVerification = () => {
             <div className="mb-4 inline-flex rounded-full border border-white/15 bg-white/10 p-4">
               <ShieldCheck className="h-6 w-6" />
             </div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.32em] text-rose-100/80">Secure OTP Check</p>
+            <p className="text-[10px] font-bold uppercase tracking-[0.32em] text-rose-50">Secure OTP Check</p>
             <h2 className="mt-3 text-4xl leading-tight" style={{ fontFamily: "Georgia, serif" }}>
               Verify your code
             </h2>
-            <p className="mt-3 text-sm leading-6 text-stone-200">
+            <p className="mt-3 text-sm leading-6 text-white/85">
               We sent a 6-digit OTP to <span className="font-semibold text-white">{email}</span>.
             </p>
           </div>

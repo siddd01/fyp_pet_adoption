@@ -263,6 +263,7 @@ export const getCharityPosts = async (req, res) => {
           cp.amount_spent,
           cp.created_at,
           a.full_name AS admin_name,
+          a.profile_image AS admin_profile_image,
           (SELECT COUNT(*) FROM post_likes WHERE post_id = cp.id) AS like_count,
           (SELECT COUNT(*) FROM post_comments WHERE post_id = cp.id) AS comment_count,
           IFNULL((SELECT 1 FROM post_likes WHERE post_id = cp.id AND user_id = ? LIMIT 1), 0) AS liked_by_me
@@ -295,6 +296,7 @@ export const getAdminCharityPosts = async (req, res) => {
           cp.updated_at,
           cp.admin_id,
           a.full_name AS admin_name,
+          a.profile_image AS admin_profile_image,
           (SELECT COUNT(*) FROM post_likes WHERE post_id = cp.id) AS like_count,
           (SELECT COUNT(*) FROM post_comments WHERE post_id = cp.id) AS comment_count
        FROM charity_posts cp

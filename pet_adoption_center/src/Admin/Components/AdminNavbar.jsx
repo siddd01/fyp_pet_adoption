@@ -5,12 +5,17 @@ import api from "../../api/axios.js";
 import { AdminAuthContext } from "../../Context/AdminAuthContext";
 import { DEFAULT_PROFILE_IMAGE } from "../../constants/defaultImages";
 
+const NOTIFICATION_BATCH_SIZE = 10;
+
 const AdminNavbar = () => {
   const { admin } = useContext(AdminAuthContext);
   const [open, setOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [notificationOpen, setNotificationOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
+  const [visibleNotificationCount, setVisibleNotificationCount] = useState(
+    NOTIFICATION_BATCH_SIZE
+  );
   const dropdownRef = useRef(null);
   const notificationRef = useRef(null);
 
@@ -71,6 +76,8 @@ const AdminNavbar = () => {
   };
 
   const unreadCount = notifications.filter((n) => !n.is_read).length;
+  const visibleNotifications = notifications.slice(0, visibleNotificationCount);
+  const hasMoreNotifications = notifications.length > visibleNotifications.length;
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -81,6 +88,12 @@ const AdminNavbar = () => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  useEffect(() => {
+    if (!notificationOpen) {
+      setVisibleNotificationCount(NOTIFICATION_BATCH_SIZE);
+    }
+  }, [notificationOpen]);
 
   return (
     <nav className="bg-white border-b border-stone-200 px-6 py-3 flex items-center justify-between sticky top-0 z-100">
@@ -130,7 +143,7 @@ const AdminNavbar = () => {
                     <p className="text-sm font-medium">No updates yet</p>
                   </div>
                 ) : (
-                  notifications.map((n) => (
+                  visibleNotifications.map((n) => (
                     <div
                       key={n.id}
                       onClick={() => handleMarkNotificationRead(n.id)}
@@ -166,6 +179,22 @@ const AdminNavbar = () => {
                   ))
                 )}
               </div>
+
+              {hasMoreNotifications && (
+                <div className="border-t border-stone-100 p-4">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setVisibleNotificationCount(
+                        (prev) => prev + NOTIFICATION_BATCH_SIZE
+                      )
+                    }
+                    className="w-full rounded-xl border border-stone-300 px-4 py-2.5 text-xs font-bold uppercase tracking-[0.18em] text-stone-700 transition hover:bg-stone-50"
+                  >
+                    See More
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>

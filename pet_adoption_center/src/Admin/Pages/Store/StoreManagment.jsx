@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import api from "../../../api/axios";
-import { ProductContext } from "../../../Context/ProductContext";
 import { DEFAULT_SITE_IMAGE } from "../../../constants/defaultImages";
+import { ProductContext } from "../../../Context/ProductContext";
 
 const StoreManagement = () => {
   const { products, productLoading, fetchProducts } = useContext(ProductContext);
@@ -136,14 +136,18 @@ const StoreManagement = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {products.map((product) => (
               <div key={product.id} className="group bg-white rounded-3xl overflow-hidden border border-stone-100 shadow-sm hover:shadow-xl transition-all duration-500 flex flex-col">
-                <div className="relative aspect-4/3 overflow-hidden bg-stone-100">
-                  <img src={product.image_url || DEFAULT_SITE_IMAGE} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                <button
+                  type="button"
+                  onClick={() => handleEditClick(product)}
+                  className="relative aspect-4/3 overflow-hidden bg-stone-100 cursor-pointer text-left"
+                >
+                  <img  src={product.image_url || DEFAULT_SITE_IMAGE} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                   <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent" />
                   <span className="absolute top-3 right-3 bg-white/90 backdrop-blur-md text-stone-800 text-[8px] font-bold uppercase tracking-widest px-2 py-1 rounded-full">{product.category}</span>
                   <div className="absolute bottom-3 left-4">
                     <h3 className="text-white font-semibold text-lg tracking-tight leading-tight">{product.name}</h3>
                   </div>
-                </div>
+                </button>
                 <div className="p-5 space-y-4">
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] uppercase tracking-wider bg-stone-100 text-stone-600 px-2 py-1 rounded-md font-bold">${product.price}</span>
